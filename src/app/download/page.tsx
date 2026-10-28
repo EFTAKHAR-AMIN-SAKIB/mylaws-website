@@ -33,7 +33,7 @@ export default function DownloadPage() {
             <span>{t('অ্যান্ড্রয়েড রিলিজ ও বিবরণী', 'Android Release Manifest')}</span>
           </div>
 
-          <h1 className="font-display text-3xl font-bold text-primary-light dark:text-primary-dark">
+          <h1 className="font-cinzel text-3xl sm:text-4xl font-bold tracking-wide text-primary-light dark:text-gold-gradient">
             {t('মাই লজ অ্যান্ড্রয়েড অ্যাপ্লিকেশন', 'MyLaws Android Application')}
           </h1>
 
@@ -47,10 +47,10 @@ export default function DownloadPage() {
 
         {/* Release Status Card */}
         <div className="p-6 rounded-2xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark space-y-6 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border-light/60 dark:border-border-dark/60 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-light/60 dark:border-border-dark/60 pb-5">
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-primary-light dark:text-primary-dark">
+                <h2 className="text-lg font-cinzel font-bold text-primary-light dark:text-accent-dark">
                   MyLaws v{manifest.version}
                 </h2>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-accent-light/15 text-accent-light dark:bg-accent-dark/20 dark:text-accent-dark">
@@ -67,10 +67,10 @@ export default function DownloadPage() {
               {manifest.status === 'available' ? (
                 <a
                   href={manifest.apkUrl || '#'}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-light text-surface-light dark:bg-accent-dark dark:text-bg-dark text-xs font-semibold shadow hover:opacity-90"
+                  className="bracket-btn inline-flex items-center gap-2 px-6 py-2.5 text-xs font-cinzel font-bold tracking-wider"
                 >
                   <Download className="h-4 w-4" />
-                  <span>{t('APK ডাউনলোড করুন (~১৮.৫ মেগাবাইট)', 'Download APK (~18.5 MB)')}</span>
+                  <span>{t('APK ডাউনলোড করুন (~১০.৩ মেগাবাইট)', 'Download APK (~10.3 MB)')}</span>
                 </a>
               ) : (
                 <div className="flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-xl bg-accent-light/10 dark:bg-accent-dark/15 text-accent-light dark:text-accent-dark border border-accent-light/20 dark:border-accent-dark/30">

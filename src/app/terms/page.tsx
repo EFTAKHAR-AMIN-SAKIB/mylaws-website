@@ -20,7 +20,7 @@ export default function TermsPage() {
             <span>{t('ব্যবহারের নিয়ম ও দায়িত্বের সীমা', 'Terms of Use & Disclaimer')}</span>
           </div>
 
-          <h1 className="font-display text-3xl font-bold text-primary-light dark:text-primary-dark">
+          <h1 className="font-cinzel text-3xl font-bold tracking-wide text-primary-light dark:text-gold-gradient">
             {t('ব্যবহারের শর্তাবলী (Terms of Use)', 'Terms of Use')}
           </h1>
 

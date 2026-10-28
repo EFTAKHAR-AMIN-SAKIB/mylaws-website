@@ -18,7 +18,7 @@ export function Footer() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark border border-accent-light/20 dark:border-accent-dark/30">
                 <Scale className="h-4 w-4" />
               </div>
-              <span className="font-display text-lg font-bold text-primary-light dark:text-primary-dark">
+              <span className="font-cinzel text-lg font-bold tracking-wider text-primary-light dark:text-gold-gradient">
                 MyLaws
               </span>
             </div>

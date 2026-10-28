@@ -20,7 +20,7 @@ export default function PrivacyPage() {
             <span>{t('গোপনীয়তা ও তথ্য সংরক্ষণ নীতি', 'Privacy & Data Protection')}</span>
           </div>
 
-          <h1 className="font-display text-3xl font-bold text-primary-light dark:text-primary-dark">
+          <h1 className="font-cinzel text-3xl font-bold tracking-wide text-primary-light dark:text-gold-gradient">
             {t('গোপনীয়তা নীতি (Privacy Policy)', 'Privacy Policy')}
           </h1>
 

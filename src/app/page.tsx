@@ -10,15 +10,12 @@ import {
   ArrowRight,
   ShieldCheck,
   FileText,
-  ListChecks,
   Smartphone,
   Globe2,
   CheckCircle2,
   AlertCircle,
-  BookOpen,
-  Scale,
-  Sparkles,
-  Download,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -68,68 +65,79 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg-light text-primary-light dark:bg-bg-dark dark:text-primary-dark transition-colors">
+    <div className="min-h-screen flex flex-col bg-bg-light text-primary-light dark:bg-bg-dark dark:text-primary-dark transition-colors bg-parchment-grid">
       <Header />
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative overflow-hidden pt-12 pb-16 md:pt-20 md:pb-24 border-b border-border-light/60 dark:border-border-dark/60 bg-folder-texture">
+        <section className="relative overflow-hidden pt-12 pb-16 md:pt-20 md:pb-28 border-b border-border-light/80 dark:border-border-dark/80">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              {/* Left Column: Headline and Call-to-actions */}
+              
+              {/* Left Column: Classical Headline & Description */}
               <div className="lg:col-span-7 space-y-6">
-                <div className="inline-flex items-center gap-2 rounded-full border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-3.5 py-1 text-xs font-medium text-secondary-light dark:text-secondary-dark shadow-sm">
-                  <span className="flex h-2 w-2 rounded-full bg-accent-light dark:bg-accent-dark animate-pulse" />
+                
+                {/* Reference Pill Label */}
+                <div className="inline-flex items-center gap-2 rounded-full border border-border-light dark:border-accent-dark/40 bg-surface-light dark:bg-surface-dark px-3.5 py-1 text-xs font-cinzel tracking-wider text-secondary-light dark:text-accent-dark shadow-sm">
+                  <span className="flex h-2 w-2 rounded-full bg-accent-light dark:bg-accent-dark" />
                   <span>
                     {t(
-                      'বাংলাদেশ আইন ও প্রশাসনিক ব্যবস্থার বাস্তব সহায়ক',
-                      'Bangladesh Legal & Administrative Preparation Assistant'
+                      'বাংলাদেশ আইন ও প্রশাসনিক প্রস্তুতি সহকারী',
+                      'BANGLADESH LEGAL INFORMATION & PREPARATION ASSISTANT'
                     )}
                   </span>
                 </div>
 
-                <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-primary-light dark:text-primary-dark leading-[1.18]">
+                {/* Hero Title: Gold Gradient on Dark Mode, Deep Ink on Light Mode */}
+                <h1 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.14] text-primary-light dark:text-gold-gradient">
                   {t(
                     'আপনার অধিকার বুঝুন। পরের পদক্ষেপ জানুন।',
                     'Understand your rights. Know your next step.'
                   )}
                 </h1>
 
-                <p className="text-sm sm:text-base text-secondary-light dark:text-secondary-dark leading-relaxed max-w-2xl">
+                {/* Subtitle / Body Copy */}
+                <p className="text-sm sm:text-base text-secondary-light dark:text-secondary-dark leading-relaxed max-w-2xl font-sans">
                   {t(
                     'সহজ বাংলা, বাংলিশ বা ইংরেজিতে আপনার সমস্যাটি বলুন। মাই লজ (MyLaws) জটিল আইনকে স্পষ্ট চেকলিস্টে রূপান্তরিত করে, সরকারি গেজেটের মূল বিধান দেখায় এবং প্রয়োজনীয় অভিযোগ বা জিডির খসড়া প্রস্তুত করে।',
                     'Describe everyday legal situations naturally in Bangla, Banglish, or English. MyLaws translates complex statutes into clear Action Checklists, inspects official gazette sources, and prepares editable drafts.'
                   )}
                 </p>
 
-                <div className="flex flex-wrap items-center gap-3 pt-2">
+                {/* Action Buttons: Signature Bracket Button & Mobile Touch Target */}
+                <div className="flex flex-wrap items-center gap-4 pt-2">
                   <Link
                     href="/ask"
-                    className="inline-flex items-center gap-2 rounded-xl bg-accent-light px-6 py-3.5 text-sm font-semibold text-surface-light shadow-md hover:bg-accent-light/90 dark:bg-accent-dark dark:text-bg-dark dark:hover:bg-accent-dark/90 transition-all hover:scale-[1.02]"
+                    className="bracket-btn text-primary-light hover:text-accent-light dark:text-accent-dark dark:hover:text-white py-3.5 px-7 text-xs font-bold shadow-md"
                   >
-                    <span>{t('এখনই প্রশ্ন করুন (Use Online)', 'Use Online Now')}</span>
-                    <ArrowRight className="h-4 w-4" />
+                    <span>— {t('এখনই প্রশ্ন করুন', 'USE ONLINE NOW')} —</span>
                   </Link>
 
                   <Link
                     href="/download"
-                    className="inline-flex items-center gap-2 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-5 py-3.5 text-sm font-medium text-primary-light dark:text-primary-dark hover:bg-border-light/30 dark:hover:bg-border-dark/30 transition-colors"
+                    className="inline-flex items-center gap-2 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-5 py-3 text-xs font-cinzel tracking-wider text-primary-light dark:text-secondary-dark hover:border-accent-light dark:hover:border-accent-dark hover:text-primary-light dark:hover:text-accent-dark transition-colors"
                   >
                     <Smartphone className="h-4 w-4 text-accent-light dark:text-accent-dark" />
-                    <span>{t('অ্যান্ড্রয়েড প্রিভিউ দেখুন', 'Android Preview')}</span>
+                    <span>{t('অ্যান্ড্রয়েড প্রিভিউ', 'ANDROID PREVIEW')}</span>
                   </Link>
                 </div>
 
-                {/* Subtext guarantees & honest scope */}
-                <div className="flex flex-wrap items-center gap-4 pt-2 text-xs text-secondary-light dark:text-secondary-dark">
+                {/* Subtext guarantees */}
+                <div className="flex flex-wrap items-center gap-5 pt-3 text-xs text-secondary-light dark:text-secondary-dark">
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="h-4 w-4 text-accent-light dark:text-accent-dark" />
-                    <span>{t('লগইন বা একাউন্ট খোলা ছাড়া তাৎক্ষণিক ব্যবহার', 'No account or login required')}</span>
+                    <span>{t('লগইন বা একাউন্ট ছাড়াই ব্যবহারযোগ্য', 'Zero login required')}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="h-4 w-4 text-accent-light dark:text-accent-dark" />
-                    <span>{t('গেজেটের আসল উদ্ধৃতি ও লিঙ্ক', 'Exact gazette citations & bdlaws links')}</span>
+                    <span>{t('অফিশিয়াল গেজেটের আসল পাঠ ও লিঙ্ক', 'Exact gazette citations')}</span>
                   </div>
+                </div>
+
+                {/* Reference Chevron Accent Motif */}
+                <div className="pt-2 text-accent-light dark:text-accent-dark/60 flex items-center gap-2">
+                  <ChevronUp className="h-5 w-5" />
+                  <span className="h-[1px] w-24 bg-border-light dark:bg-border-dark" />
                 </div>
               </div>
 
@@ -142,13 +150,13 @@ export default function HomePage() {
         </section>
 
         {/* 3-Step Journey Section */}
-        <section className="py-16 md:py-24 border-b border-border-light/60 dark:border-border-dark/60 bg-surface-light/40 dark:bg-surface-dark/40">
+        <section className="py-16 md:py-24 border-b border-border-light/80 dark:border-border-dark/80 bg-surface-light/50 dark:bg-surface-dark/50">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto space-y-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-accent-light dark:text-accent-dark">
-                {t('সহজ ও নির্ভরযোগ্য প্রক্রিয়া', 'Simple & Reliable Journey')}
+              <span className="font-cinzel text-xs font-semibold uppercase tracking-[0.2em] text-accent-light dark:text-accent-dark">
+                {t('পদ্ধতি ও কার্যপ্রণালী', 'THREE-STEP METHODOLOGY')}
               </span>
-              <h2 className="font-display text-2xl sm:text-3xl font-bold text-primary-light dark:text-primary-dark">
+              <h2 className="font-display text-2xl sm:text-4xl font-bold text-primary-light dark:text-gold-gradient">
                 {t('সমস্যা বর্ণনা থেকে খসড়া প্রস্তুত—৩টি ধাপে', 'From Problem Statement to Finished Draft in 3 Steps')}
               </h2>
               <p className="text-xs sm:text-sm text-secondary-light dark:text-secondary-dark">
@@ -159,13 +167,13 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-14">
               {/* Step 1 */}
-              <div className="p-6 rounded-2xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark space-y-4 shadow-sm">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark font-bold text-base">
-                  ১
+              <div className="p-7 rounded-2xl border border-border-light dark:border-border-dark bg-surface-cardLight dark:bg-surface-cardDark space-y-4 shadow-sm hover:border-accent-light/50 dark:hover:border-accent-dark/50 transition-colors">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark font-cinzel font-bold text-base border border-accent-light/20 dark:border-accent-dark/30">
+                  I
                 </div>
-                <h3 className="text-base font-bold text-primary-light dark:text-primary-dark">
+                <h3 className="font-display text-lg font-bold text-primary-light dark:text-accent-dark">
                   {t('১. সহজ ভাষায় সমস্যা বলুন', '1. Describe in Your Own Words')}
                 </h3>
                 <p className="text-xs text-secondary-light dark:text-secondary-dark leading-relaxed">
@@ -177,12 +185,12 @@ export default function HomePage() {
               </div>
 
               {/* Step 2 */}
-              <div className="p-6 rounded-2xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark space-y-4 shadow-sm">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark font-bold text-base">
-                  ২
+              <div className="p-7 rounded-2xl border border-border-light dark:border-border-dark bg-surface-cardLight dark:bg-surface-cardDark space-y-4 shadow-sm hover:border-accent-light/50 dark:hover:border-accent-dark/50 transition-colors">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark font-cinzel font-bold text-base border border-accent-light/20 dark:border-accent-dark/30">
+                  II
                 </div>
-                <h3 className="text-base font-bold text-primary-light dark:text-primary-dark">
-                  {t('২. অ্যাকশন চেকলিস্ট ও মূল উৎস দেখুন', '2. Inspect Checklist & Sources')}
+                <h3 className="font-display text-lg font-bold text-primary-light dark:text-accent-dark">
+                  {t('২. চেকলিস্ট ও মূল উৎস দেখুন', '2. Inspect Checklist & Sources')}
                 </h3>
                 <p className="text-xs text-secondary-light dark:text-secondary-dark leading-relaxed">
                   {t(
@@ -193,12 +201,12 @@ export default function HomePage() {
               </div>
 
               {/* Step 3 */}
-              <div className="p-6 rounded-2xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark space-y-4 shadow-sm">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark font-bold text-base">
-                  ৩
+              <div className="p-7 rounded-2xl border border-border-light dark:border-border-dark bg-surface-cardLight dark:bg-surface-cardDark space-y-4 shadow-sm hover:border-accent-light/50 dark:hover:border-accent-dark/50 transition-colors">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark font-cinzel font-bold text-base border border-accent-light/20 dark:border-accent-dark/30">
+                  III
                 </div>
-                <h3 className="text-base font-bold text-primary-light dark:text-primary-dark">
-                  {t('৩. অভিযোগ বা জিডির খসড়া প্রস্তুত করুন', '3. Prepare an Editable Draft')}
+                <h3 className="font-display text-lg font-bold text-primary-light dark:text-accent-dark">
+                  {t('৩. অভিযোগ বা জিডির খসড়া প্রস্তুত', '3. Prepare an Editable Draft')}
                 </h3>
                 <p className="text-xs text-secondary-light dark:text-secondary-dark leading-relaxed">
                   {t(
@@ -212,15 +220,15 @@ export default function HomePage() {
         </section>
 
         {/* Supported Use-Cases Section */}
-        <section className="py-16 md:py-24 border-b border-border-light/60 dark:border-border-dark/60">
+        <section className="py-16 md:py-24 border-b border-border-light/80 dark:border-border-dark/80">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
               <div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-accent-light dark:text-accent-dark">
-                  {t('বর্তমান সমর্থিত ক্ষেত্রসমূহ', 'Currently Supported Topics')}
+                <span className="font-cinzel text-xs font-semibold uppercase tracking-[0.2em] text-accent-light dark:text-accent-dark">
+                  {t('বর্তমান সমর্থিত ক্ষেত্রসমূহ', 'VERIFIED TOPIC COVERAGE')}
                 </span>
-                <h2 className="font-display text-2xl sm:text-3xl font-bold text-primary-light dark:text-primary-dark mt-1">
-                  {t('যাচাইকৃত আইনি বিষয়ের পরিধি', 'Verified Topic Coverage')}
+                <h2 className="font-display text-2xl sm:text-3xl font-bold text-primary-light dark:text-gold-gradient mt-1">
+                  {t('যাচাইকৃত আইনি বিষয়ের পরিধি', 'Verified Statutory Corpus')}
                 </h2>
               </div>
               <p className="text-xs text-secondary-light dark:text-secondary-dark max-w-md">
@@ -235,31 +243,31 @@ export default function HomePage() {
               {supportedTopics.map((topic) => (
                 <div
                   key={topic.id}
-                  className="p-6 rounded-2xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark space-y-3.5 hover:border-accent-light/50 dark:hover:border-accent-dark/50 transition-colors"
+                  className="p-6 sm:p-7 rounded-2xl border border-border-light dark:border-border-dark bg-surface-cardLight dark:bg-surface-cardDark space-y-3.5 hover:border-accent-light/50 dark:hover:border-accent-dark/50 transition-colors shadow-sm"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-semibold text-accent-light dark:text-accent-dark uppercase tracking-wider">
+                    <span className="font-cinzel text-xs font-semibold text-accent-light dark:text-accent-dark tracking-wider">
                       {topic.law}
                     </span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-bg-light dark:bg-bg-dark border border-border-light dark:border-border-dark text-secondary-light dark:text-secondary-dark">
-                      {t('যাচাইকৃত', 'Verified')}
+                    <span className="px-2 py-0.5 rounded text-[10px] font-cinzel font-medium bg-bg-light dark:bg-bg-dark border border-border-light dark:border-border-dark text-secondary-light dark:text-secondary-dark">
+                      {t('VERIFIED', 'VERIFIED')}
                     </span>
                   </div>
 
-                  <h3 className="text-base font-bold text-primary-light dark:text-primary-dark">
+                  <h3 className="font-display text-lg font-bold text-primary-light dark:text-primary-dark">
                     {topic.title}
                   </h3>
 
-                  <p className="text-xs text-secondary-light dark:text-secondary-dark leading-relaxed">
+                  <p className="text-xs text-secondary-light dark:text-secondary-dark leading-relaxed font-sans">
                     {topic.desc}
                   </p>
 
-                  <div className="pt-2 border-t border-border-light/50 dark:border-border-dark/50 flex items-center justify-between">
+                  <div className="pt-3 border-t border-border-light/60 dark:border-border-dark/60 flex items-center justify-between">
                     <Link
                       href={`/ask?prompt=${encodeURIComponent(topic.sampleQuery)}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-light dark:text-accent-dark hover:underline"
+                      className="inline-flex items-center gap-1.5 font-cinzel text-xs font-semibold text-accent-light dark:text-accent-dark hover:underline tracking-wider"
                     >
-                      <span>{t('এই প্রশ্ন দিয়ে শুরু করুন', 'Try this question')}</span>
+                      <span>{t('এই প্রশ্ন দিয়ে শুরু করুন', 'TRY THIS IN ASSISTANT')}</span>
                       <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                   </div>
@@ -270,155 +278,97 @@ export default function HomePage() {
         </section>
 
         {/* Honest Comparison: Web vs Android */}
-        <section className="py-16 md:py-24 border-b border-border-light/60 dark:border-border-dark/60 bg-surface-light/40 dark:bg-surface-dark/40">
+        <section className="py-16 md:py-24 border-b border-border-light/80 dark:border-border-dark/80 bg-surface-light/50 dark:bg-surface-dark/50">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
-              <span className="text-xs font-semibold uppercase tracking-wider text-accent-light dark:text-accent-dark">
-                {t('সততা ও স্বচ্ছতা', 'Honest Architecture')}
+              <span className="font-cinzel text-xs font-semibold uppercase tracking-[0.2em] text-accent-light dark:text-accent-dark">
+                {t('সততা ও স্থাপত্য', 'ARCHITECTURE COMPARISON')}
               </span>
-              <h2 className="font-display text-2xl sm:text-3xl font-bold text-primary-light dark:text-primary-dark">
+              <h2 className="font-display text-2xl sm:text-3xl font-bold text-primary-light dark:text-gold-gradient">
                 {t('ওয়েবসাইট ও অ্যান্ড্রয়েড অ্যাপের পার্থক্য', 'Web Assistant vs. Android Application')}
               </h2>
-              <p className="text-xs sm:text-sm text-secondary-light dark:text-secondary-dark">
-                {t(
-                  'কোনো বিভ্রান্তি ছাড়া জেনে নিন কোন মাধ্যমে কী পাওয়া যাবে।',
-                  'Clear and honest comparison between our web capabilities and native mobile development.'
-                )}
-              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               {/* Web Platform */}
-              <div className="p-6 rounded-2xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark space-y-4">
+              <div className="p-7 rounded-2xl border border-border-light dark:border-border-dark bg-surface-cardLight dark:bg-surface-cardDark space-y-4 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark">
+                  <div className="p-2.5 rounded-xl bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark border border-accent-light/20 dark:border-accent-dark/30">
                     <Globe2 className="h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-primary-light dark:text-primary-dark">
+                    <h3 className="font-display text-base font-bold text-primary-light dark:text-accent-dark">
                       {t('মাই লজ ওয়েবসাইট (এখন সক্রিয়)', 'MyLaws Website (Active Now)')}
                     </h3>
-                    <p className="text-xs text-secondary-light dark:text-secondary-dark">
-                      {t('ব্রাউজার-ভিত্তিক লাইভ সহকারী', 'Browser-based Live Assistant')}
+                    <p className="font-cinzel text-[11px] text-secondary-light dark:text-secondary-dark tracking-wider">
+                      {t('BROWSER-BASED ASSISTANT', 'BROWSER-BASED ASSISTANT')}
                     </p>
                   </div>
                 </div>
 
-                <ul className="space-y-2.5 text-xs text-secondary-light dark:text-secondary-dark">
-                  <li className="flex items-start gap-2">
+                <ul className="space-y-3 text-xs text-secondary-light dark:text-secondary-dark">
+                  <li className="flex items-start gap-2.5">
                     <CheckCircle2 className="h-4 w-4 text-accent-light dark:text-accent-dark shrink-0 mt-0.5" />
                     <span>{t('ইনস্টল বা অ্যাকাউন্ট তৈরি ছাড়া তাৎক্ষণিক ব্যবহার', 'Zero installation, instant access on mobile & desktop')}</span>
                   </li>
-                  <li className="flex items-start gap-2">
+                  <li className="flex items-start gap-2.5">
                     <CheckCircle2 className="h-4 w-4 text-accent-light dark:text-accent-dark shrink-0 mt-0.5" />
                     <span>{t('অনলাইন সার্ভার ব্যাকএন্ড এবং মেটা এআই (Muse Spark) যাচাইকরণ', 'Online backend integration with optional Meta Muse Spark')}</span>
                   </li>
-                  <li className="flex items-start gap-2">
+                  <li className="flex items-start gap-2.5">
                     <CheckCircle2 className="h-4 w-4 text-accent-light dark:text-accent-dark shrink-0 mt-0.5" />
                     <span>{t('ব্রাউজারে সরাসরি বাংলা ড্রাফট সম্পাদন ও A4 PDF রপ্তানি', 'In-browser Bangla draft editor & genuine A4 PDF export')}</span>
                   </li>
-                  <li className="flex items-start gap-2 text-secondary-light/70 dark:text-secondary-dark/70">
+                  <li className="flex items-start gap-2.5 text-secondary-light/75 dark:text-secondary-dark/75">
                     <AlertCircle className="h-4 w-4 text-secondary-light shrink-0 mt-0.5" />
-                    <span>{t('লাইভ প্রশ্নোত্তরের জন্য সক্রিয় ইন্টারনেট সংযোগ প্রয়োজন', 'Requires active internet connectivity for live answers')}</span>
+                    <span>{t('লাইভ উত্তরের জন্য সক্রিয় ইন্টারনেট সংযোগ প্রয়োজন', 'Requires active internet connectivity for live answers')}</span>
                   </li>
                 </ul>
               </div>
 
               {/* Android Platform */}
-              <div className="p-6 rounded-2xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark space-y-4">
+              <div className="p-7 rounded-2xl border border-border-light dark:border-border-dark bg-surface-cardLight dark:bg-surface-cardDark space-y-4 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark">
+                  <div className="p-2.5 rounded-xl bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark border border-accent-light/20 dark:border-accent-dark/30">
                     <Smartphone className="h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-primary-light dark:text-primary-dark">
+                    <h3 className="font-display text-base font-bold text-primary-light dark:text-accent-dark">
                       {t('অ্যান্ড্রয়েড নেটিভ অ্যাপ (প্রিভিউ)', 'Android Native App (Preview)')}
                     </h3>
-                    <p className="text-xs text-secondary-light dark:text-secondary-dark">
-                      {t('অনলাইন ও ঐচ্ছিক অফলাইন প্যাক', 'Online & Optional Offline Packs')}
+                    <p className="font-cinzel text-[11px] text-secondary-light dark:text-secondary-dark tracking-wider">
+                      {t('OFFLINE REFERENCE & PACKS', 'OFFLINE REFERENCE & PACKS')}
                     </p>
                   </div>
                 </div>
 
-                <ul className="space-y-2.5 text-xs text-secondary-light dark:text-secondary-dark">
-                  <li className="flex items-start gap-2">
+                <ul className="space-y-3 text-xs text-secondary-light dark:text-secondary-dark">
+                  <li className="flex items-start gap-2.5">
                     <CheckCircle2 className="h-4 w-4 text-accent-light dark:text-accent-dark shrink-0 mt-0.5" />
                     <span>{t('জেটপ্যাক কম্পোজ (Jetpack Compose) ভিত্তিক নেটিভ মোবাইল ইন্টারফেস', 'Jetpack Compose native UI with custom Bangla fonts')}</span>
                   </li>
-                  <li className="flex items-start gap-2">
+                  <li className="flex items-start gap-2.5">
                     <CheckCircle2 className="h-4 w-4 text-accent-light dark:text-accent-dark shrink-0 mt-0.5" />
                     <span>{t('ওয়েবসাইট ব্যাকএন্ডের সাথে শতভাগ অভিন্ন API ও সার্ভিস চুক্তি', '100% shared API schema and service contracts')}</span>
                   </li>
-                  <li className="flex items-start gap-2">
+                  <li className="flex items-start gap-2.5">
                     <CheckCircle2 className="h-4 w-4 text-accent-light dark:text-accent-dark shrink-0 mt-0.5" />
                     <span>{t('স্থানীয় ডাটাবেজে অ্যাকশন চেকলিস্ট ও খসড়া সংরক্ষণ', 'Local Room database persistence for checklists & drafts')}</span>
                   </li>
-                  <li className="flex items-start gap-2 text-secondary-light/70 dark:text-secondary-dark/70">
+                  <li className="flex items-start gap-2.5 text-secondary-light/75 dark:text-secondary-dark/75">
                     <AlertCircle className="h-4 w-4 text-secondary-light shrink-0 mt-0.5" />
-                    <span>{t('স্থানীয় এআই মডেলের পূর্ণ প্যাকেজিং প্রক্রিয়াধীন (Phase 1 APK প্রস্তুত)', 'Local offline LLM weights packaging in progress (Phase 1 APK ready)')}</span>
+                    <span>{t('স্থানীয় এআই মডেলের পূর্ণ প্যাকেজিং প্রক্রিয়া সম্পন্ন হলে অফলাইনে উত্তর দেবে', 'Phase 1 APK ready for testing; local model weights packaging in progress')}</span>
                   </li>
                 </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Focused FAQ Section */}
-        <section className="py-16 md:py-24 border-b border-border-light/60 dark:border-border-dark/60">
-          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-8">
-            <div className="text-center space-y-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-accent-light dark:text-accent-dark">
-                {t('সাধারণ জিজ্ঞাসা', 'Frequently Asked Questions')}
-              </span>
-              <h2 className="font-display text-2xl sm:text-3xl font-bold text-primary-light dark:text-primary-dark">
-                {t('আপনার মনে হতে পারে এমন কিছু প্রশ্ন', 'Common Questions About MyLaws')}
-              </h2>
-            </div>
-
-            <div className="space-y-4">
-              <div className="p-5 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark space-y-2">
-                <h3 className="text-sm font-bold text-primary-light dark:text-primary-dark">
-                  {t('মাই লজ কি কোনো আইনজীবী বা আইনি পরামর্শদাতা?', 'Is MyLaws a lawyer or legal counsel?')}
-                </h3>
-                <p className="text-xs text-secondary-light dark:text-secondary-dark leading-relaxed">
-                  {t(
-                    'না। মাই লজ কোনো আইনজীবী, ল ফার্ম বা আদালত নয়। এটি একটি তথ্যপ্রযুক্তিগত প্রস্তুতি সহকারী, যা বাংলাদেশের গেজেটভুক্ত আইন ও সরকারি প্রক্রিয়ার সাধারণ তথ্য উপস্থাপন করে। জটিল বিরোধে পেশাদার আইনজীবীর পরামর্শ নেওয়া আবশ্যক।',
-                    'No. MyLaws is not a law firm, attorney, or court. It is an informational preparation assistant designed to help citizens understand published statutes and procedural steps. Consult a licensed advocate for representation.'
-                  )}
-                </p>
-              </div>
-
-              <div className="p-5 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark space-y-2">
-                <h3 className="text-sm font-bold text-primary-light dark:text-primary-dark">
-                  {t('আমার ব্যক্তিগত তথ্য কি সার্ভারে জমা থাকে?', 'Is my personal information stored on servers?')}
-                </h3>
-                <p className="text-xs text-secondary-light dark:text-secondary-dark leading-relaxed">
-                  {t(
-                    'না। খসড়া তৈরিতে ব্যবহৃত নাম, ঠিকানা বা মোবাইল নম্বর একান্তই আপনার ব্রাউজারের মেমোরিতে থাকে। ড্রাফটের ব্যক্তিগত তথ্য ক্লাউডে ডাটাবেজে সংরক্ষণ করা হয় না।',
-                    'No. Personal details filled into draft applications remain in your local browser session. We do not persist personal identities, addresses, or phone numbers in a remote database.'
-                  )}
-                </p>
-              </div>
-
-              <div className="p-5 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark space-y-2">
-                <h3 className="text-sm font-bold text-primary-light dark:text-primary-dark">
-                  {t('প্রস্তুতকৃত খসড়া কি সরাসরি আদালতে বা থানায় দাখিল করা যায়?', 'Can the generated draft be submitted directly?')}
-                </h3>
-                <p className="text-xs text-secondary-light dark:text-secondary-dark leading-relaxed">
-                  {t(
-                    'মাই লজের তৈরি ড্রাফটটি একটি আনুষ্ঠানিক কাঠামোযুক্ত খসড়া। এটি প্রিন্ট করে বা স্বাক্ষর করে আপনি সংশ্লিষ্ট থানা (জিডির ক্ষেত্রে) বা ডিআইএফই পরিদর্শক বরাবর দাখিল করতে পারেন। দাখিলের পূর্বে সকল তথ্য সত্য ও সঠিক কি না তা যাচাই করা আপনার দায়িত্ব।',
-                    'The prepared draft provides an organized complaint format. You can print and sign it to submit to the relevant police station (for GD) or DIFE regional office. Verifying factual accuracy is your responsibility.'
-                  )}
-                </p>
               </div>
             </div>
           </div>
         </section>
 
         {/* Call to Action Banner */}
-        <section className="py-16 md:py-20 bg-accent-light/10 dark:bg-accent-dark/10 border-b border-border-light/60 dark:border-border-dark/60">
+        <section className="py-16 md:py-24 border-b border-border-light/80 dark:border-border-dark/80 bg-bg-light dark:bg-bg-dark">
           <div className="mx-auto max-w-4xl px-4 text-center space-y-6">
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-primary-light dark:text-primary-dark">
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-primary-light dark:text-gold-gradient">
               {t('আপনার আইনি সমস্যাটি এখনই পরিষ্কার করে নিন', 'Clarify your legal situation right now')}
             </h2>
             <p className="text-xs sm:text-sm text-secondary-light dark:text-secondary-dark max-w-xl mx-auto leading-relaxed">
@@ -427,13 +377,12 @@ export default function HomePage() {
                 'No sign-up or registration required. Ask your question directly and discover your actionable next steps.'
               )}
             </p>
-            <div className="flex justify-center">
+            <div className="flex justify-center pt-2">
               <Link
                 href="/ask"
-                className="inline-flex items-center gap-2 rounded-xl bg-accent-light px-8 py-3.5 text-sm font-semibold text-surface-light shadow-md hover:bg-accent-light/90 dark:bg-accent-dark dark:text-bg-dark dark:hover:bg-accent-dark/90 transition-all hover:scale-[1.02]"
+                className="bracket-btn text-primary-light hover:text-accent-light dark:text-accent-dark dark:hover:text-white py-4 px-9 text-xs font-bold"
               >
-                <span>{t('অনলাইন সহকারীতে যান', 'Go to Online Assistant')}</span>
-                <ArrowRight className="h-4 w-4" />
+                <span>— {t('অনলাইন সহকারীতে যান', 'OPEN ONLINE ASSISTANT')} —</span>
               </Link>
             </div>
           </div>

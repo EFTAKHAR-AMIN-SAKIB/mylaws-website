@@ -12,9 +12,6 @@ import {
   Moon,
   Globe,
   ArrowRight,
-  FileText,
-  BookOpen,
-  Smartphone,
 } from 'lucide-react';
 
 export function Header() {
@@ -23,124 +20,131 @@ export function Header() {
   const pathname = usePathname();
 
   const navLinks = [
-    { href: '/', label: t('হোম', 'Home') },
-    { href: '/ask', label: t('প্রশ্ন করুন', 'Ask') },
-    { href: '/drafts', label: t('খসড়া প্রস্তুতকারক', 'Drafts') },
-    { href: '/sources', label: t('আইনি উৎস', 'Sources') },
-    { href: '/download', label: t('অ্যান্ড্রয়েড অ্যাপ', 'Android App') },
+    { href: '/', label: t('হোম', 'HOME') },
+    { href: '/ask', label: t('সহকারী', 'ASSISTANT') },
+    { href: '/drafts', label: t('খসড়া', 'DRAFTS') },
+    { href: '/sources', label: t('আইনি উৎস', 'SOURCES') },
+    { href: '/download', label: t('অ্যান্ড্রয়েড', 'ANDROID') },
   ];
 
   return (
-    <header className="no-print sticky top-0 z-50 border-b border-border-light/70 bg-surface-light/90 backdrop-blur-md dark:border-border-dark/70 dark:bg-surface-dark/90 transition-colors">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-        {/* Wordmark & Brand Identity */}
-        <Link
-          href="/"
-          className="flex items-center gap-2.5 text-primary-light dark:text-primary-dark group"
-          aria-label="MyLaws Homepage"
-        >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark border border-accent-light/20 dark:border-accent-dark/30 group-hover:scale-105 transition-transform">
-            <Scale className="h-5 w-5" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-display text-lg font-bold tracking-tight text-primary-light dark:text-primary-dark">
+    <header className="no-print sticky top-0 z-50 border-b border-border-light/80 dark:border-border-dark/80 bg-bg-light/95 dark:bg-bg-dark/95 backdrop-blur-md transition-colors">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        
+        {/* Left Section: Pill Mode Toggle + Scales Brand */}
+        <div className="flex items-center gap-3.5">
+          {/* Reference Capsule Pill Toggle for Theme */}
+          <button
+            onClick={toggleTheme}
+            className="group relative flex h-7 w-13 items-center rounded-full border border-border-light dark:border-accent-dark/50 bg-surface-light dark:bg-surface-dark px-1 shadow-inner transition-colors focus-visible:ring-2 focus-visible:ring-accent-light dark:focus-visible:ring-accent-dark"
+            title={t('থিম পরিবর্তন (হালকা / গাঢ়)', 'Toggle theme')}
+            aria-label="Toggle theme"
+          >
+            <div
+              className={`flex h-5 w-5 items-center justify-center rounded-full shadow transition-all duration-300 ${
+                theme === 'dark'
+                  ? 'translate-x-6 bg-accent-dark text-bg-dark'
+                  : 'translate-x-0 bg-accent-light text-surface-light'
+              }`}
+            >
+              {theme === 'dark' ? (
+                <Moon className="h-3 w-3 fill-current" />
+              ) : (
+                <Sun className="h-3 w-3 fill-current" />
+              )}
+            </div>
+          </button>
+
+          {/* Wordmark & Scales Icon */}
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 text-primary-light dark:text-accent-dark group"
+            aria-label="MyLaws Home"
+          >
+            <Scale className="h-5 w-5 text-accent-light dark:text-accent-dark group-hover:scale-105 transition-transform" />
+            <span className="font-display text-xl font-bold tracking-wide text-primary-light dark:text-accent-dark">
               MyLaws
             </span>
-            <span className="text-[10px] uppercase tracking-wider text-secondary-light dark:text-secondary-dark font-medium -mt-1">
-              {t('বাংলাদেশ আইনি সহকারী', 'Bangladesh Legal Aid')}
-            </span>
-          </div>
-        </Link>
+          </Link>
+        </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1.5" aria-label="Main Navigation">
+        {/* Center / Right Nav Items: Classical Letter-Spaced Uppercase */}
+        <nav className="hidden md:flex items-center gap-7" aria-label="Main Navigation">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                className={`font-cinzel text-xs tracking-[0.16em] uppercase transition-colors relative py-1 ${
                   isActive
-                    ? 'text-accent-light dark:text-accent-dark bg-accent-light/10 dark:bg-accent-dark/10 font-semibold'
-                    : 'text-secondary-light hover:text-primary-light dark:text-secondary-dark dark:hover:text-primary-dark hover:bg-border-light/40 dark:hover:bg-border-dark/40'
+                    ? 'text-accent-light dark:text-accent-dark font-bold'
+                    : 'text-secondary-light/85 hover:text-primary-light dark:text-secondary-dark/85 dark:hover:text-accent-dark'
                 }`}
               >
                 {link.label}
+                {isActive && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-accent-light dark:bg-accent-dark" />
+                )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Controls: Language, Theme, and Primary CTA */}
-        <div className="hidden sm:flex items-center gap-2">
+        {/* Right Section: Language Switcher & Signature Bracketed CTA */}
+        <div className="hidden sm:flex items-center gap-3">
           {/* Language Switch */}
           <button
             onClick={() => setLang(lang === 'bn' ? 'en' : 'bn')}
-            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md border border-border-light dark:border-border-dark text-secondary-light dark:text-secondary-dark hover:bg-surface-light dark:hover:bg-surface-dark transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium font-cinzel tracking-wider rounded border border-border-light dark:border-border-dark text-secondary-light dark:text-secondary-dark hover:border-accent-light dark:hover:border-accent-dark hover:text-primary-light dark:hover:text-accent-dark transition-colors"
             title={t('Switch to English', 'বাংলায় পরিবর্তন করুন')}
-            aria-label="Toggle language"
           >
-            <Globe className="h-3.5 w-3.5 text-accent-light dark:text-accent-dark" />
-            <span>{lang === 'bn' ? 'English' : 'বাংলা'}</span>
+            <Globe className="h-3 w-3 text-accent-light dark:text-accent-dark" />
+            <span>{lang === 'bn' ? 'ENGLISH' : 'বাংলা'}</span>
           </button>
 
-          {/* Theme Switch */}
-          <button
-            onClick={toggleTheme}
-            className="p-1.5 rounded-md border border-border-light dark:border-border-dark text-secondary-light dark:text-secondary-dark hover:bg-surface-light dark:hover:bg-surface-dark transition-colors"
-            title={t('থিম পরিবর্তন', 'Toggle Theme')}
-            aria-label="Toggle dark mode"
-          >
-            {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4 text-accent-dark" />}
-          </button>
-
-          {/* Primary Action Button */}
+          {/* Signature Architectural Bracketed Button */}
           <Link
             href="/ask"
-            className="ml-1 inline-flex items-center gap-1.5 rounded-lg bg-accent-light px-3.5 py-1.5 text-xs font-semibold text-surface-light shadow-sm hover:bg-accent-light/90 dark:bg-accent-dark dark:text-bg-dark dark:hover:bg-accent-dark/90 transition-all hover:scale-[1.02]"
+            className="bracket-btn text-primary-light hover:text-accent-light dark:text-accent-dark dark:hover:text-white"
           >
-            <span>{t('এখনই প্রশ্ন করুন', 'Ask MyLaws')}</span>
-            <ArrowRight className="h-3.5 w-3.5" />
+            <span className="flex items-center gap-1.5">
+              <span>—</span>
+              <span>{t('এখনই প্রশ্ন করুন', 'ASK MYLAWS')}</span>
+            </span>
           </Link>
         </div>
 
         {/* Mobile menu trigger */}
-        <div className="flex md:hidden items-center gap-1.5">
+        <div className="flex md:hidden items-center gap-2">
           <button
             onClick={() => setLang(lang === 'bn' ? 'en' : 'bn')}
-            className="px-2 py-1 text-xs font-medium rounded border border-border-light dark:border-border-dark text-secondary-light dark:text-secondary-dark"
+            className="px-2 py-1 text-xs font-cinzel rounded border border-border-light dark:border-border-dark text-secondary-light dark:text-secondary-dark"
           >
             {lang === 'bn' ? 'EN' : 'বাং'}
           </button>
           <button
-            onClick={toggleTheme}
-            className="p-1.5 rounded border border-border-light dark:border-border-dark text-secondary-light dark:text-secondary-dark"
-          >
-            {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-          </button>
-          <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="p-1.5 rounded-md text-primary-light dark:text-primary-dark hover:bg-border-light/40 dark:hover:bg-border-dark/40"
+            className="p-2 rounded text-primary-light dark:text-accent-dark hover:bg-border-light/40 dark:hover:bg-border-dark/40"
             aria-label="Toggle mobile menu"
           >
-            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Navigation Drawer */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-4 pt-3 pb-6 space-y-3">
-          <div className="flex flex-col space-y-2">
+        <div className="md:hidden border-t border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark px-5 pt-4 pb-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="flex flex-col space-y-3">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className={`px-3 py-2 text-sm font-medium rounded-md ${
+                className={`font-cinzel text-xs tracking-[0.16em] uppercase py-2 transition-colors ${
                   pathname === link.href
-                    ? 'bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark font-semibold'
+                    ? 'text-accent-light dark:text-accent-dark font-bold'
                     : 'text-secondary-light dark:text-secondary-dark'
                 }`}
               >
@@ -149,14 +153,13 @@ export function Header() {
             ))}
           </div>
 
-          <div className="pt-2">
+          <div className="pt-3 border-t border-border-light/60 dark:border-border-dark/60">
             <Link
               href="/ask"
               onClick={() => setMobileOpen(false)}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent-light py-2.5 text-sm font-semibold text-surface-light dark:bg-accent-dark dark:text-bg-dark"
+              className="bracket-btn w-full text-center text-primary-light dark:text-accent-dark py-3"
             >
-              <span>{t('এখনই প্রশ্ন করুন', 'Ask MyLaws')}</span>
-              <ArrowRight className="h-4 w-4" />
+              <span>— {t('এখনই প্রশ্ন করুন', 'ASK MYLAWS')} —</span>
             </Link>
           </div>
         </div>

@@ -147,12 +147,16 @@ function AskContent() {
 
       <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full">
         {/* Workspace Title & Online Notice */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-border-light/70 dark:border-border-dark/70 gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-border-light dark:border-border-dark gap-3">
           <div>
-            <h1 className="font-display text-2xl font-bold text-primary-light dark:text-primary-dark">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark mb-2">
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>{t('আইনি অনুসন্ধান ও সমাধান', 'Legal Inquiry & Resolution')}</span>
+            </div>
+            <h1 className="font-cinzel text-2xl sm:text-3xl font-bold tracking-wide text-primary-light dark:text-gold-gradient">
               {t('অনলাইন আইনি সহকারী', 'Online Legal Assistant')}
             </h1>
-            <p className="text-xs text-secondary-light dark:text-secondary-dark mt-0.5">
+            <p className="text-xs sm:text-sm text-secondary-light dark:text-secondary-dark mt-1">
               {t(
                 'বাংলাদেশ কোডের গেজেটভিত্তিক তথ্য, অ্যাকশন চেকলিস্ট ও খসড়া তৈরির সহায়তা',
                 'Official gazette provisions, actionable checklists, and draft preparation'
@@ -160,17 +164,22 @@ function AskContent() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-secondary-light dark:text-secondary-dark bg-surface-light dark:bg-surface-dark px-3 py-1.5 rounded-lg border border-border-light dark:border-border-dark">
+          <div className="flex items-center gap-2 text-xs text-secondary-light dark:text-secondary-dark bg-surface-light dark:bg-surface-dark px-3 py-1.5 rounded-lg border border-border-light dark:border-border-dark self-start sm:self-auto">
             <Info className="h-3.5 w-3.5 text-accent-light dark:text-accent-dark" />
             <span>{t('কোনো একাউন্ট বা লগইন প্রয়োজন নেই', 'No login required')}</span>
           </div>
         </div>
 
         {/* Input Composer Section */}
-        <div className="mt-6 p-4 sm:p-5 rounded-2xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-sm space-y-3">
-          <label htmlFor="legal-input" className="block text-xs font-semibold text-primary-light dark:text-primary-dark">
-            {t('আপনার পরিস্থিতি বা আইনি প্রশ্নটি লিখুন:', 'Describe your situation or legal question:')}
-          </label>
+        <div className="mt-6 p-4 sm:p-6 rounded-2xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <label htmlFor="legal-input" className="block text-xs font-cinzel font-bold tracking-wider uppercase text-primary-light dark:text-accent-dark">
+              {t('আপনার পরিস্থিতি বা আইনি প্রশ্নটি লিখুন:', 'Describe your situation or legal question:')}
+            </label>
+            <span className="text-[11px] text-secondary-light dark:text-secondary-dark hidden sm:inline">
+              {t('গোপনীয় ও নিরাপদ · ব্রাউজারের বাইরে তথ্য সংরক্ষিত হয় না', 'Private & Secure · No browser tracking')}
+            </span>
+          </div>
 
           <div className="relative">
             <textarea
@@ -189,7 +198,7 @@ function AskContent() {
                 'যেমন: আমার মালিক ২ মাসের বেতন দেয়নি, কী করব? অথবা: অপরিচিত নাম্বার থেকে হুমকি পেলে জিডি কীভাবে করব?',
                 'e.g. My employer hasn\'t paid my salary for 2 months, what should I do?'
               )}
-              className="w-full rounded-xl border border-border-light dark:border-border-dark bg-bg-light/60 dark:bg-bg-dark/60 p-3.5 text-sm text-primary-light dark:text-primary-dark placeholder-secondary-light/60 dark:placeholder-secondary-dark/60 focus:bg-surface-light dark:focus:bg-surface-dark transition-colors resize-none"
+              className="w-full rounded-xl border border-border-light dark:border-border-dark bg-bg-light/60 dark:bg-bg-dark/60 p-3.5 text-sm text-primary-light dark:text-primary-dark placeholder-secondary-light/60 dark:placeholder-secondary-dark/60 focus:bg-surface-light dark:focus:bg-surface-dark transition-colors resize-none focus:outline-none focus:ring-1 focus:ring-accent-light dark:focus:ring-accent-dark"
             />
           </div>
 
@@ -206,7 +215,7 @@ function AskContent() {
                   setInput(chip.query);
                   if (inputRef.current) inputRef.current.focus();
                 }}
-                className="text-[11px] px-2.5 py-1 rounded-full border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-secondary-light dark:text-secondary-dark hover:border-accent-light dark:hover:border-accent-dark hover:text-accent-light dark:hover:text-accent-dark transition-colors"
+                className="text-[11px] px-3 py-1.5 rounded-full border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-secondary-light dark:text-secondary-dark hover:border-accent-light dark:hover:border-accent-dark hover:text-accent-light dark:hover:text-accent-dark hover:bg-surface-light dark:hover:bg-surface-dark transition-all"
               >
                 {chip.label}
               </button>
@@ -214,12 +223,12 @@ function AskContent() {
           </div>
 
           {/* Composer Controls */}
-          <div className="flex flex-wrap items-center justify-between pt-2 border-t border-border-light/40 dark:border-border-dark/40 gap-2">
+          <div className="flex flex-wrap items-center justify-between pt-3 border-t border-border-light/60 dark:border-border-dark/60 gap-3">
             <span className="text-[11px] text-secondary-light/80 dark:text-secondary-dark/80">
               {t('Enter চাপলে উত্তর আসবে, Shift+Enter নতুন লাইনের জন্য', 'Press Enter to submit, Shift+Enter for new line')}
             </span>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
               {result && (
                 <button
                   type="button"
@@ -228,7 +237,7 @@ function AskContent() {
                     setResult(null);
                     setStatus('ready');
                   }}
-                  className="px-3 py-1.5 rounded-lg border border-border-light dark:border-border-dark text-xs font-medium text-secondary-light dark:text-secondary-dark hover:bg-bg-light dark:hover:bg-bg-dark"
+                  className="px-3.5 py-2 rounded-lg border border-border-light dark:border-border-dark text-xs font-medium text-secondary-light dark:text-secondary-dark hover:bg-bg-light dark:hover:bg-bg-dark transition-colors"
                 >
                   {t('নতুন প্রশ্ন', 'New Query')}
                 </button>
@@ -238,7 +247,7 @@ function AskContent() {
                 type="button"
                 disabled={status === 'submitted' || status === 'finding_sources' || !input.trim()}
                 onClick={() => handleAsk()}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-accent-light px-5 py-2.5 text-xs font-semibold text-surface-light shadow-sm hover:bg-accent-light/90 dark:bg-accent-dark dark:text-bg-dark dark:hover:bg-accent-dark/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="bracket-btn inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-cinzel font-bold tracking-wider disabled:opacity-50 disabled:cursor-not-allowed transition-all w-full sm:w-auto"
               >
                 {status === 'submitted' || status === 'finding_sources' ? (
                   <>
@@ -247,8 +256,8 @@ function AskContent() {
                   </>
                 ) : (
                   <>
-                    <span>{t('উপদেশ ও চেকলিস্ট পান', 'Get Guidance')}</span>
-                    <Send className="h-3.5 w-3.5" />
+                    <span>{t('আইনি অনুসন্ধান চালান', 'Submit Legal Inquiry')}</span>
+                    <Send className="h-3.5 w-3.5 ml-1" />
                   </>
                 )}
               </button>
@@ -373,11 +382,11 @@ function AskContent() {
 
             {/* Draft Preparation Action Banner */}
             {result.allowedDraftOptions && result.allowedDraftOptions.length > 0 && (
-              <div className="p-6 rounded-2xl border-2 border-accent-light/30 dark:border-accent-dark/30 bg-accent-light/5 dark:bg-accent-dark/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="p-6 rounded-2xl border border-accent-light/40 dark:border-accent-dark/40 bg-accent-light/5 dark:bg-accent-dark/10 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="space-y-1 text-center sm:text-left">
                   <div className="flex items-center justify-center sm:justify-start gap-2">
                     <FileText className="h-5 w-5 text-accent-light dark:text-accent-dark" />
-                    <h3 className="text-sm font-bold text-primary-light dark:text-primary-dark">
+                    <h3 className="text-sm font-cinzel font-bold text-primary-light dark:text-gold-gradient">
                       {t('এই ঘটনার ভিত্তিতে খসড়া আবেদন তৈরি করুন', 'Prepare a formal draft from this incident')}
                     </h3>
                   </div>
@@ -394,12 +403,12 @@ function AskContent() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex flex-wrap items-center gap-2 shrink-0 justify-center">
                   {result.allowedDraftOptions.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => handleGoToDraft(opt)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-light text-surface-light dark:bg-accent-dark dark:text-bg-dark text-xs font-semibold shadow hover:opacity-90 transition-all hover:scale-[1.02]"
+                      className="bracket-btn inline-flex items-center gap-2 px-5 py-2.5 text-xs font-cinzel font-bold tracking-wider"
                     >
                       <span>
                         {opt === 'dife'

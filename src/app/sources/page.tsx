@@ -58,7 +58,7 @@ export default function SourcesPage() {
             <span>{t('উৎস সত্যতা ও নিরীক্ষা নীতি', 'Source Integrity & Verification Methodology')}</span>
           </div>
 
-          <h1 className="font-display text-3xl font-bold text-primary-light dark:text-primary-dark">
+          <h1 className="font-cinzel text-3xl sm:text-4xl font-bold tracking-wide text-primary-light dark:text-gold-gradient">
             {t('যাচাইকৃত আইনি উৎস ও কার্যপদ্ধতি', 'Verified Statutory Corpus & Methodology')}
           </h1>
 

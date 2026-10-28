@@ -1,29 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg-color: #F7F3EC;
-  --surface-color: #FFFCF7;
-  --primary-text: #24231F;
-  --secondary-text: #625D53;
-  --accent-color: #80551E;
-  --accent-hover: #684415;
-  --border-color: #D8D0C3;
-  --card-shadow: 0 4px 20px -2px rgba(36, 35, 31, 0.05), 0 2px 6px -1px rgba(36, 35, 31, 0.03);
+  /* Warm Antique Parchment / Vellum (Exact match to reference light mode) */
+  --bg-color: #F4EFE6;
+  --bg-texture-tint: rgba(220, 210, 195, 0.45);
+  --surface-color: #FAF7F0;
+  --surface-card: #FDFBFA;
+  --primary-text: #111625;
+  --secondary-text: #485061;
+  --accent-color: #9A6F32;
+  --accent-gold: #B68B4C;
+  --accent-hover: #7E5723;
+  --border-color: #DDD3C1;
+  --grid-line: rgba(180, 165, 145, 0.18);
+  --card-shadow: 0 4px 20px -2px rgba(25, 20, 15, 0.06), 0 1px 4px -1px rgba(25, 20, 15, 0.04);
 }
 
 .dark {
-  --bg-color: #10162B;
-  --surface-color: #19213B;
-  --primary-text: #F7F0E4;
-  --secondary-text: #C4C7D4;
-  --accent-color: #F2B866;
-  --accent-hover: #dfa14d;
-  --border-color: #3E4865;
-  --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35), 0 2px 6px -1px rgba(0, 0, 0, 0.2);
+  /* Deep Imperial Midnight Navy & Antique Champagne Gold (Exact match to reference dark mode) */
+  --bg-color: #0A1122;
+  --bg-texture-tint: rgba(14, 25, 48, 0.6);
+  --surface-color: #101B33;
+  --surface-card: #142240;
+  --primary-text: #F7F2E8;
+  --secondary-text: #8E9DB0;
+  --accent-color: #D8B17A;
+  --accent-gold: #DFBB84;
+  --accent-hover: #E9C998;
+  --border-color: #213050;
+  --grid-line: rgba(60, 85, 130, 0.22);
+  --card-shadow: 0 4px 25px -2px rgba(0, 0, 0, 0.5), 0 2px 8px -1px rgba(0, 0, 0, 0.35);
 }
 
 body {
@@ -32,24 +42,95 @@ body {
   font-family: 'Noto Sans Bengali', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.6;
+  line-height: 1.65;
+  position: relative;
+  overflow-x: hidden;
 }
 
-/* Serif headings for refined editorial styling */
+/* Subtle architectural paper grid pattern overlay across the whole site */
+.bg-parchment-grid {
+  background-image: 
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+/* Display serif headings with classical editorial majesty */
 .font-display {
-  font-family: 'Merriweather', Georgia, serif;
+  font-family: 'Playfair Display', 'Merriweather', Georgia, serif;
 }
 
-/* Custom subtle case-folder grid texture */
-.bg-folder-texture {
-  background-image: radial-gradient(var(--border-color) 0.75px, transparent 0.75px);
-  background-size: 24px 24px;
+.font-cinzel {
+  font-family: 'Cinzel', serif;
+}
+
+/* Signature corner bracketed button motif from reference: [ — LOGIN ] */
+.bracket-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 1.4rem;
+  font-family: 'Cinzel', 'Noto Sans Bengali', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.bracket-btn::before,
+.bracket-btn::after {
+  content: '';
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-color: currentColor;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+/* Top-left and bottom-left brackets */
+.bracket-btn::before {
+  top: 0;
+  left: 0;
+  border-top: 1.5px solid;
+  border-left: 1.5px solid;
+}
+
+/* Top-right and bottom-right brackets */
+.bracket-btn::after {
+  bottom: 0;
+  right: 0;
+  border-bottom: 1.5px solid;
+  border-right: 1.5px solid;
+}
+
+.bracket-btn:hover::before {
+  width: 12px;
+  height: 12px;
+}
+
+.bracket-btn:hover::after {
+  width: 12px;
+  height: 12px;
+}
+
+/* Gold Heading Highlight for Dark Mode */
+.dark .text-gold-gradient {
+  color: #D8B17A;
+  background: linear-gradient(135deg, #F0D5AA 0%, #D8B17A 50%, #C49856 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gold-gradient {
+  color: #111625;
 }
 
 /* Accessible focus outline */
 *:focus-visible {
   outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
 /* Print styling for clean A4 printing */

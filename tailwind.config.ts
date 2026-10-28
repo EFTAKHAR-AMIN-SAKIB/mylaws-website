@@ -11,32 +11,40 @@ const config: Config = {
     extend: {
       colors: {
         bg: {
-          light: "#F7F3EC",
-          dark: "#10162B",
+          light: "#F4EFE6",
+          dark: "#0A1122",
         },
         surface: {
-          light: "#FFFCF7",
-          dark: "#19213B",
+          light: "#FAF7F0",
+          cardLight: "#FDFBFA",
+          dark: "#101B33",
+          cardDark: "#142240",
         },
         primary: {
-          light: "#24231F",
-          dark: "#F7F0E4",
+          light: "#111625",
+          dark: "#F7F2E8",
         },
         secondary: {
-          light: "#625D53",
-          dark: "#C4C7D4",
+          light: "#485061",
+          dark: "#8E9DB0",
         },
         accent: {
-          light: "#80551E",
-          dark: "#F2B866",
+          light: "#9A6F32",
+          dark: "#D8B17A",
+          gold: "#DFBB84",
+          bronze: "#C49856",
         },
         border: {
-          light: "#D8D0C3",
-          dark: "#3E4865",
+          light: "#DDD3C1",
+          dark: "#213050",
+          accentLight: "#CBBFA8",
+          accentDark: "#33466D",
         },
       },
       fontFamily: {
-        serif: ["Merriweather", "Georgia", "serif"],
+        display: ["'Playfair Display'", "Merriweather", "Georgia", "serif"],
+        cinzel: ["'Cinzel'", "serif"],
+        serif: ["'Playfair Display'", "Merriweather", "Georgia", "serif"],
         sans: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
         bangla: ["'Noto Sans Bengali'", "'Hind Siliguri'", "'SolaimanLipi'", "'Kalpurush'", "sans-serif"],
       },
