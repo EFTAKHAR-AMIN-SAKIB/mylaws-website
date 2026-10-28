@@ -92,10 +92,10 @@ export default function HomePage() {
                   </span>
                 </div>
 
-                {/* Hero Title: Bold Geometric Display Bangla matching user reference screenshot */}
+                {/* Hero Title: Bold Geometric Display Bangla with canonical brand name MyLaws */}
                 {lang === 'bn' ? (
                   <h1 className="font-anek text-3xl sm:text-5xl md:text-[3.35rem] font-extrabold text-primary-light leading-[1.3] tracking-tight">
-                    মাই লজ: বাংলাদেশের প্রত্যেক নাগরিকের জন্য<br className="hidden md:inline" /> নির্ভরযোগ্য আইনি সহায়তা
+                    MyLaws: বাংলাদেশের প্রত্যেক নাগরিকের জন্য<br className="hidden md:inline" /> নির্ভরযোগ্য আইনি সহায়তা
                   </h1>
                 ) : (
                   <h1 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.14] text-primary-light">
@@ -117,12 +117,12 @@ export default function HomePage() {
                 {/* Body Copy */}
                 <p className="font-hind text-sm sm:text-base text-secondary-light leading-relaxed max-w-2xl font-normal">
                   {t(
-                    'সহজ বাংলা, বাংলিশ বা ইংরেজিতে আপনার সমস্যাটি বলুন। মাই লজ (MyLaws) জটিল আইনকে স্পষ্ট চেকলিস্টে রূপান্তরিত করে, সরকারি গেজেটের মূল বিধান দেখায় এবং প্রয়োজনীয় লিখিত অভিযোগ বা সাধারণ ডায়েরির (GD) খসড়া প্রস্তুত করে।',
+                    'সহজ বাংলা, বাংলিশ বা ইংরেজিতে আপনার সমস্যাটি বলুন। MyLaws জটিল আইনকে স্পষ্ট চেকলিস্টে রূপান্তরিত করে, সরকারি গেজেটের মূল বিধান দেখায় এবং প্রয়োজনীয় লিখিত অভিযোগ বা সাধারণ ডায়েরির (GD) খসড়া প্রস্তুত করে।',
                     'Describe everyday legal situations naturally in Bangla, Banglish, or English. MyLaws translates complex statutes into clear Action Checklists, inspects official gazette sources, and prepares editable drafts.'
                   )}
                 </p>
 
-                {/* Action Buttons: Signature Bracket Button & Mobile Touch Target */}
+                {/* Action Buttons: Signature Bracket Button & Application Target */}
                 <div className="flex flex-wrap items-center gap-4 pt-2">
                   <Link
                     href="/ask"
@@ -139,7 +139,7 @@ export default function HomePage() {
                   >
                     <Smartphone className="h-4 w-4 text-accent-light" />
                     <span className={lang === 'bn' ? 'font-hind font-semibold text-xs' : 'font-cinzel text-xs'}>
-                      {t('অ্যান্ড্রয়েড প্রিভিউ', 'ANDROID PREVIEW')}
+                      {t('অ্যাপ্লিকেশন', 'APPLICATION')}
                     </span>
                   </Link>
                 </div>
@@ -160,10 +160,25 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Reference Chevron Accent Motif */}
-                <div className="pt-2 text-accent-light flex items-center gap-2">
-                  <ChevronUp className="h-5 w-5" />
-                  <span className="h-[1px] w-24 bg-border-light" />
+                {/* Interactive Animated Scroll Cue */}
+                <div className="pt-3 flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const el = document.getElementById('case-preview-section');
+                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="group inline-flex items-center gap-2.5 text-xs text-secondary-light hover:text-accent-light transition-all py-1 cursor-pointer"
+                    aria-label={t('নিচে স্ক্রল করে দেখুন', 'Scroll down to explore')}
+                  >
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-border-light bg-surface-light group-hover:border-accent-light group-hover:bg-accent-light/10 shadow-2xs transition-all">
+                      <ChevronDown className="h-4 w-4 text-accent-light animate-scroll-bounce" />
+                    </div>
+                    <span className={lang === 'bn' ? 'font-hind font-semibold text-xs' : 'font-cinzel text-xs tracking-wider'}>
+                      {t('নিচে আরও দেখুন', 'SCROLL TO EXPLORE')}
+                    </span>
+                    <span className="h-[1.5px] w-16 bg-border-light group-hover:w-24 group-hover:bg-accent-light transition-all" />
+                  </button>
                 </div>
               </div>
 
@@ -178,7 +193,7 @@ export default function HomePage() {
         {/* ========================================================
             INTERACTIVE CASE PREVIEW SECTION
             ======================================================== */}
-        <section className="py-14 sm:py-20 border-b border-border-light/80 bg-surface-light/40">
+        <section id="case-preview-section" className="py-14 sm:py-20 border-b border-border-light/80 bg-surface-light/40 scroll-mt-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
               
@@ -197,7 +212,7 @@ export default function HomePage() {
 
                 <p className="text-xs sm:text-sm text-secondary-light leading-relaxed">
                   {t(
-                    'ডানপাশের ফোল্ডারে ক্লিক করে দেখুন কীভাবে মাই লজ একটি বকেয়া বেতনের প্রশ্ন বিশ্লেষণ করে স্পষ্ট করণীয় পদক্ষেপ, সরকারি ধারার প্রামাণিক পাঠ এবং প্রস্তুতকৃত খসড়া আবেদন প্রদান করে।',
+                    'ডানপাশের ফোল্ডারে ক্লিক করে দেখুন কীভাবে MyLaws একটি বকেয়া বেতনের প্রশ্ন বিশ্লেষণ করে স্পষ্ট করণীয় পদক্ষেপ, সরকারি ধারার প্রামাণিক পাঠ এবং প্রস্তুতকৃত খসড়া আবেদন প্রদান করে।',
                     'Explore the digital case folder to see how an unpaid wages inquiry is structured into actionable steps, official gazette citations, and ready-to-export drafts.'
                   )}
                 </p>

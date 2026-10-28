@@ -20,7 +20,11 @@
   --card-shadow: 0 4px 20px -2px rgba(25, 20, 15, 0.06), 0 1px 4px -1px rgba(25, 20, 15, 0.04);
 }
 
-/* Enforce light parchment theme exclusively with refined Bengali typography */
+/* Enforce light parchment theme exclusively with refined Bengali typography & smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
 html, body {
   background-color: #F4EFE6 !important;
   color: #111625 !important;
@@ -30,6 +34,23 @@ html, body {
   line-height: 1.65;
   position: relative;
   overflow-x: hidden;
+}
+
+/* Scroll indicator bounce animation */
+@keyframes scroll-bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(5px);
+  }
+  60% {
+    transform: translateY(2.5px);
+  }
+}
+
+.animate-scroll-bounce {
+  animation: scroll-bounce 2.2s infinite ease-in-out;
 }
 
 /* Subtle architectural paper grid pattern overlay across the whole site */

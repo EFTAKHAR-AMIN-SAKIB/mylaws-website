@@ -120,7 +120,7 @@ export function createLegalWorkflow(
       explanation: [
         {
           text: isBn
-            ? 'মাই লজ (MyLaws) শুধুমাত্র বাংলাদেশের প্রচলিত আইনের তথ্য প্রদান করে। বাংলাদেশের ভৌগোলিক এলাকার বাইরের ঘটনার ক্ষেত্রে সংশ্লিষ্ট দেশের আইন প্রযোজ্য।'
+            ? 'MyLaws শুধুমাত্র বাংলাদেশের প্রচলিত আইনের তথ্য প্রদান করে। বাংলাদেশের ভৌগোলিক এলাকার বাইরের ঘটনার ক্ষেত্রে সংশ্লিষ্ট দেশের আইন প্রযোজ্য।'
             : 'MyLaws only covers Bangladesh legal information. For incidents outside Bangladesh, foreign jurisdictions apply.',
           sourceIds: [],
         },

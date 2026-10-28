@@ -37,7 +37,7 @@ export default function TermsPage() {
             </h2>
             <p>
               {t(
-                'মাই লজ (MyLaws) কোনো আইনজীবী, আইন পরামর্শক সংস্থা বা সরকারি আদালত নয়। এই প্ল্যাটফর্মের তথ্য কোনো পেশাদার আইনি পর্যালোচনার সমতুল্য নয়। কোনো বিরোধের চূড়ান্ত সমাধান, মামলা দাখিল বা আদালতে শুনানির জন্য বাংলাদেশ বার কাউন্সিলের তালিকাভুক্ত আইনজীবীর সরাসরি পরামর্শ গ্রহণ আবশ্যক।',
+                'MyLaws কোনো আইনজীবী, আইন পরামর্শক সংস্থা বা সরকারি আদালত নয়। এই প্ল্যাটফর্মের তথ্য কোনো পেশাদার আইনি পর্যালোচনার সমতুল্য নয়। কোনো বিরোধের চূড়ান্ত সমাধান, মামলা দাখিল বা আদালতে শুনানির জন্য বাংলাদেশ বার কাউন্সিলের তালিকাভুক্ত আইনজীবীর সরাসরি পরামর্শ গ্রহণ আবশ্যক।',
                 'MyLaws does not establish an attorney-client relationship. It is an informational preparation tool and does not provide formal legal representation, official case filings, or judicial guarantees.'
               )}
             </p>
@@ -63,7 +63,7 @@ export default function TermsPage() {
             </h2>
             <p>
               {t(
-                'মাই লজ বর্তমানে বাংলাদেশ কোডের ৬টি নির্বাচিত আইনের ২৩টি ধারা উপস্থাপন করে। আইনসভায় পরবর্তী যেকোনো সংশোধনী, আদালতের নতুন নজির বা বিশেষ ব্যতিক্রমের কারণে বাস্তব প্রয়োগে পার্থক্য ঘটতে পারে।',
+                'MyLaws বর্তমানে বাংলাদেশ কোডের ৬টি নির্বাচিত আইনের ২৩টি ধারা উপস্থাপন করে। আইনসভায় পরবর্তী যেকোনো সংশোধনী, আদালতের নতুন নজির বা বিশেষ ব্যতিক্রমের কারণে বাস্তব প্রয়োগে পার্থক্য ঘটতে পারে।',
                 'MyLaws currently covers 23 selected provisions from 6 statutes. Subsequent statutory amendments or judicial precedents may impact real-world applications.'
               )}
             </p>

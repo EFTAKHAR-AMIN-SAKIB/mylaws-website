@@ -30,11 +30,11 @@ export default function DownloadPage() {
         <div className="space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
             <Smartphone className="h-4 w-4" />
-            <span>{t('অ্যান্ড্রয়েড রিলিজ ও বিবরণী', 'Android Release Manifest')}</span>
+            <span>{t('অ্যাপ্লিকেশন রিলিজ ও বিবরণী', 'Application Release Manifest')}</span>
           </div>
 
           <h1 className="font-anek text-3xl sm:text-4xl font-extrabold tracking-tight text-primary-light">
-            {t('মাই লজ অ্যান্ড্রয়েড অ্যাপ্লিকেশন', 'MyLaws Android Application')}
+            {t('MyLaws অ্যাপ্লিকেশন বিবরণী', 'MyLaws Application Manifest')}
           </h1>
 
           <p className="font-hind text-xs sm:text-sm text-secondary-light leading-relaxed">

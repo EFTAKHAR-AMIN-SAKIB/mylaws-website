@@ -37,7 +37,7 @@ export default function PrivacyPage() {
             </h2>
             <p>
               {t(
-                'মাই লজ (MyLaws) ব্যবহারের জন্য কোনো সাইন-আপ, ইমেইল প্রদান, সামাজিক যোগাযোগ মাধ্যমের লগইন বা ফোন নম্বর দেওয়া আবশ্যক নয়। যে কেউ পরিচয় প্রকাশ না করেই সরাসরি আইনি তথ্য অনুসন্ধান ও খসড়া তৈরি করতে পারেন।',
+                'MyLaws ব্যবহারের জন্য কোনো সাইন-আপ, ইমেইল প্রদান, সামাজিক যোগাযোগ মাধ্যমের লগইন বা ফোন নম্বর দেওয়া আবশ্যক নয়। যে কেউ পরিচয় প্রকাশ না করেই সরাসরি আইনি তথ্য অনুসন্ধান ও খসড়া তৈরি করতে পারেন।',
                 'MyLaws does not require user accounts, emails, social logins, or telephone numbers for core usage. Anyone can research legal provisions and prepare drafts without revealing their identity.'
               )}
             </p>

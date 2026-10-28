@@ -119,7 +119,7 @@ export function assembleDraftPlainText(
   const body = customBody || doc.paragraphs.join('\n\n');
   const footerLegalDisclaimer =
     '\n\n----------------------------------------\n' +
-    'সতর্কতা: এটি মাই লজ (MyLaws) দ্বারা প্রস্তুতকৃত একটি খসড়া নথি। এটি কোনো আদালত কর্তৃক গৃহীত মামলা, ' +
+    'সতর্কতা: এটি MyLaws দ্বারা প্রস্তুতকৃত একটি খসড়া নথি। এটি কোনো আদালত কর্তৃক গৃহীত মামলা, ' +
     'থানার অফিশিয়াল জিডি কপি বা শ্রম পরিদর্শকের বিধিবদ্ধ নোটিশ নয়। দাখিলের পূর্বে সকল তথ্য ও এখতিয়ার নিজে যাচাই করে নিন।';
 
   return headerNotice + statusLabel + body + footerLegalDisclaimer;

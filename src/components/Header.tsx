@@ -17,7 +17,7 @@ export function Header() {
     { href: '/ask', label: t('সহকারী', 'ASSISTANT') },
     { href: '/drafts', label: t('খসড়া', 'DRAFTS') },
     { href: '/sources', label: t('আইনি উৎস', 'SOURCES') },
-    { href: '/download', label: t('অ্যান্ড্রয়েড', 'ANDROID') },
+    { href: '/download', label: t('অ্যাপ্লিকেশন', 'APPLICATION') },
   ];
 
   return (

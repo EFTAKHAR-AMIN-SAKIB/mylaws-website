@@ -64,7 +64,7 @@ export default function SourcesPage() {
 
           <p className="font-hind text-xs sm:text-sm text-secondary-light leading-relaxed">
             {t(
-              'মাই লজ (MyLaws) কোনো অনুমাননির্ভর তথ্য বা কাল্পনিক আইনের উদ্ধৃতি প্রদান করে না। বর্তমান পাইলট ডাটাবেজে বাংলাদেশ সরকারের আইন মন্ত্রণালয়ের লেজিসলেটিভ ও সংসদ বিষয়ক বিভাগের অফিশিয়াল পোর্টাল (bdlaws.minlaw.gov.bd) থেকে সংগৃহীত ৬টি মূল আইনের ২৩টি বিধান সংরক্ষিত রয়েছে।',
+              'MyLaws কোনো অনুমাননির্ভর তথ্য বা কাল্পনিক আইনের উদ্ধৃতি প্রদান করে না। বর্তমান পাইলট ডাটাবেজে বাংলাদেশ সরকারের আইন মন্ত্রণালয়ের লেজিসলেটিভ ও সংসদ বিষয়ক বিভাগের অফিশিয়াল পোর্টাল (bdlaws.minlaw.gov.bd) থেকে সংগৃহীত ৬টি মূল আইনের ২৩টি বিধান সংরক্ষিত রয়েছে।',
               'MyLaws does not hallucinate statutes. The current verified corpus contains 23 specific provisions across 6 core instruments from the official Bangladesh Code portal (bdlaws.minlaw.gov.bd).'
             )}
           </p>
