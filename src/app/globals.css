@@ -5,18 +5,18 @@
 @tailwind utilities;
 
 :root {
-  /* Warm Antique Parchment / Vellum (Exact match to reference light mode) */
-  --bg-color: #F4EFE6;
+  /* Warm Aged Parchment (Exact match to NyayaAI landing page) */
+  --bg-color: #F1EDE1;
   --bg-texture-tint: rgba(220, 210, 195, 0.45);
   --surface-color: #FAF7F0;
   --surface-card: #FDFBFA;
-  --primary-text: #111625;
-  --secondary-text: #485061;
+  --primary-text: #231F1C;
+  --secondary-text: #5A534A;
   --accent-color: #9A6F32;
   --accent-gold: #B68B4C;
   --accent-hover: #7E5723;
   --border-color: #DDD3C1;
-  --grid-line: rgba(180, 165, 145, 0.22);
+  --grid-line: rgba(165, 152, 132, 0.14);
   --card-shadow: 0 4px 20px -2px rgba(25, 20, 15, 0.06), 0 1px 4px -1px rgba(25, 20, 15, 0.04);
 }
 
@@ -26,8 +26,8 @@ html {
 }
 
 html, body {
-  background-color: #F4EFE6 !important;
-  color: #111625 !important;
+  background-color: #F1EDE1 !important;
+  color: #231F1C !important;
   font-family: 'Hind Siliguri', 'Noto Sans Bengali', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -53,12 +53,21 @@ html, body {
   animation: scroll-bounce 2.2s infinite ease-in-out;
 }
 
+/* 96px x 96px CSS linear-gradient drafting grid (1px lines in rgba(165, 152, 132, 0.14)) */
+.drafting-grid-96 {
+  background-color: #F1EDE1;
+  background-image: 
+    linear-gradient(to right, rgba(165, 152, 132, 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(165, 152, 132, 0.14) 1px, transparent 1px);
+  background-size: 96px 96px;
+}
+
 /* Subtle architectural paper grid pattern overlay across the whole site */
 .bg-parchment-grid {
   background-image: 
-    linear-gradient(to right, rgba(180, 165, 145, 0.22) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(180, 165, 145, 0.22) 1px, transparent 1px);
-  background-size: 80px 80px;
+    linear-gradient(to right, rgba(165, 152, 132, 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(165, 152, 132, 0.14) 1px, transparent 1px);
+  background-size: 96px 96px;
 }
 
 /* Display headings: bold, geometric, modern Bengali typeface matching reference */

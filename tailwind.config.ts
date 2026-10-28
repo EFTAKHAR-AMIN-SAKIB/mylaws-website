@@ -11,8 +11,8 @@ const config: Config = {
     extend: {
       colors: {
         bg: {
-          light: "#F4EFE6",
-          dark: "#F4EFE6",
+          light: "#F1EDE1",
+          dark: "#F1EDE1",
         },
         surface: {
           light: "#FAF7F0",
@@ -21,12 +21,12 @@ const config: Config = {
           cardDark: "#FDFBFA",
         },
         primary: {
-          light: "#111625",
-          dark: "#111625",
+          light: "#231F1C",
+          dark: "#231F1C",
         },
         secondary: {
-          light: "#485061",
-          dark: "#485061",
+          light: "#5A534A",
+          dark: "#5A534A",
         },
         accent: {
           light: "#9A6F32",
