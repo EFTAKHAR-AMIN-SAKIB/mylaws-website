@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useApp } from './AppContext';
-import { RotateCw, Compass } from 'lucide-react';
+import { RotateCw } from 'lucide-react';
 
 interface TurntableScalesProps {
   containerRef: React.RefObject<HTMLElement | null>;
@@ -11,24 +10,21 @@ interface TurntableScalesProps {
 const TOTAL_FRAMES = 180;
 
 export function TurntableScales({ containerRef }: TurntableScalesProps) {
-  const { lang, t } = useApp();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Animation & Frame tracking refs
   const imagesRef = useRef<HTMLImageElement[]>([]);
-  const targetProgress = useRef<number>(0);
-  const currentProgress = useRef<number>(0);
+  const scrollProgressRef = useRef<number>(0);
+  const autoRotateOffsetRef = useRef<number>(0);
+  const currentProgressRef = useRef<number>(0);
   const lastDrawnFrameIndex = useRef<number>(-1);
   const animFrameId = useRef<number | null>(null);
   const isFirstFrameDrawn = useRef<boolean>(false);
 
-  // Display state for live rotation angle indicator
-  const [rotationAngle, setRotationAngle] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const images: HTMLImageElement[] = [];
-    let loadedCount = 0;
 
     // Check prefers-reduced-motion
     const prefersReducedMotion =
@@ -60,11 +56,11 @@ export function TurntableScales({ containerRef }: TurntableScalesProps) {
       ctx.save();
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      // Clear previous canvas
+      // Clear previous canvas frame with full alpha transparency
       ctx.clearRect(0, 0, displayWidth, displayHeight);
 
-      // Aspect ratio containment for 1280x720 (16:9)
-      const imgW = img.naturalWidth || 1280;
+      // Aspect ratio containment for 720x720 (1:1)
+      const imgW = img.naturalWidth || 720;
       const imgH = img.naturalHeight || 720;
       const imgRatio = imgW / imgH;
       const canvasRatio = displayWidth / displayHeight;
@@ -104,14 +100,13 @@ export function TurntableScales({ containerRef }: TurntableScalesProps) {
       }
     };
 
-    // Preload all 180 WebP frames on mount
+    // Preload all 180 transparent WebP frames on mount
     for (let i = 1; i <= TOTAL_FRAMES; i++) {
       const img = new window.Image();
       const numStr = String(i).padStart(3, '0');
       img.src = `/frames/frame_${numStr}.webp`;
 
       img.onload = () => {
-        loadedCount++;
         // Draw frame_001.webp immediately as soon as it loads!
         if (i === 1) {
           drawFrameByIndex(0);
@@ -132,13 +127,13 @@ export function TurntableScales({ containerRef }: TurntableScalesProps) {
       const scrollableH = rect.height - windowH;
 
       if (scrollableH <= 0) {
-        targetProgress.current = 0;
+        scrollProgressRef.current = 0;
         return;
       }
 
       // 0.0 when container top is at viewport top, 1.0 when bottom hits viewport bottom
       const progress = -rect.top / scrollableH;
-      targetProgress.current = Math.max(0, Math.min(1, progress));
+      scrollProgressRef.current = Math.max(0, Math.min(1, progress));
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -153,34 +148,36 @@ export function TurntableScales({ containerRef }: TurntableScalesProps) {
     };
     window.addEventListener('resize', handleResize);
 
-    // Continuous requestAnimationFrame loop with linear interpolation (LERP)
-    let lastReportedAngle = -1;
-
+    // Continuous requestAnimationFrame loop with auto-round (continuous auto-rotation)
+    // and smooth scroll scrubbing with linear interpolation (LERP)
     const loop = () => {
+      // Auto-round: gentle, stately auto-rotation pace (~22 seconds per 360° turn at 60fps)
+      if (!prefersReducedMotion) {
+        autoRotateOffsetRef.current = (autoRotateOffsetRef.current + 0.00075) % 1.0;
+      }
+
+      // Target progress combines user scroll scrub with auto-rotation
+      const targetProgress = (scrollProgressRef.current * 1.5 + autoRotateOffsetRef.current) % 1.0;
+
       if (prefersReducedMotion) {
-        currentProgress.current = targetProgress.current;
+        currentProgressRef.current = targetProgress;
       } else {
-        // Linear interpolation (currentProgress += (targetProgress - currentProgress) * 0.09)
-        const diff = targetProgress.current - currentProgress.current;
-        currentProgress.current += diff * 0.09;
+        // Circular linear interpolation (shortest path around 0..1 circle to prevent backwards flips)
+        let diff = targetProgress - currentProgressRef.current;
+        if (diff > 0.5) diff -= 1.0;
+        if (diff < -0.5) diff += 1.0;
+        currentProgressRef.current = (currentProgressRef.current + diff * 0.09 + 1.0) % 1.0;
       }
 
       // Map progress to frame index [0..179]
       const frameIndex = Math.min(
         179,
-        Math.max(0, Math.round(currentProgress.current * 179))
+        Math.max(0, Math.floor(currentProgressRef.current * TOTAL_FRAMES))
       );
 
       // Only draw when rounded frame index changes
       if (frameIndex !== lastDrawnFrameIndex.current) {
         drawFrameByIndex(frameIndex);
-      }
-
-      // Update rotation angle display smoothly
-      const angle = Math.round(currentProgress.current * 360) % 360;
-      if (angle !== lastReportedAngle) {
-        lastReportedAngle = angle;
-        setRotationAngle(angle);
       }
 
       animFrameId.current = requestAnimationFrame(loop);
@@ -199,37 +196,22 @@ export function TurntableScales({ containerRef }: TurntableScalesProps) {
   }, [containerRef]);
 
   return (
-    <div className="relative w-full max-w-[620px] lg:max-w-none flex flex-col items-center justify-center select-none">
-      {/* Soft Vignette Overlay to blend WebP edges seamlessly into drafting grid */}
-      <div className="relative w-full aspect-[16/9] max-h-[70vh] flex items-center justify-center [mask-image:radial-gradient(ellipse_at_center,black_75%,transparent_100%)]">
+    <div className="relative w-full flex items-center justify-center select-none">
+      {/* Sized prominently to match website scale & vibe with 100% transparent backdrop */}
+      <div className="relative w-full aspect-square max-w-[560px] sm:max-w-[620px] lg:max-w-[700px] xl:max-w-[760px] max-h-[82vh] flex items-center justify-center">
         <canvas
           ref={canvasRef}
-          className="w-full h-full object-contain pointer-events-none drop-shadow-sm"
-          style={{ mixBlendMode: 'multiply' }}
+          className="w-full h-full object-contain pointer-events-none drop-shadow-[0_16px_32px_rgba(35,31,28,0.12)]"
         />
 
         {/* Loading placeholder skeleton while frame 001 is fetching */}
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center text-xs font-cinzel text-secondary-light/60">
-            <RotateCw className="h-5 w-5 animate-spin mr-2 text-accent-light" />
-            <span>Loading 3D Turntable...</span>
+            <RotateCw className="h-6 w-6 animate-spin mr-2 text-accent-light" />
+            <span>Loading 3D Scales of Justice...</span>
           </div>
         )}
       </div>
-
-      {/* Antique Architectural Angle & Scrubbing Status Pill */}
-      <div className="mt-3 flex items-center gap-3">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-border-light bg-surface-light/85 backdrop-blur-xs text-[11px] text-secondary-light shadow-2xs font-cinzel font-semibold tracking-wider">
-          <Compass className="h-3.5 w-3.5 text-accent-light animate-pulse" />
-          <span>{t('আইনের পাল্লা · ৩৬০° ইন্টারঅ্যাক্টিভ ভিউ', 'SCALES OF JUSTICE · 360° TURNTABLE')}</span>
-          <span className="font-mono text-accent-light font-bold bg-accent-light/10 px-1.5 py-0.5 rounded text-[10px]">
-            {rotationAngle}°
-          </span>
-        </div>
-      </div>
-      <p className="text-[10px] text-secondary-light/80 mt-1 font-hind font-medium">
-        {t('স্ক্রল করার সাথে সাথে পাল্লাটি ৩৬০ ডিগ্রিতে ঘুরবে', 'Scroll naturally to scrub the 3D turntable in real-time')}
-      </p>
     </div>
   );
 }

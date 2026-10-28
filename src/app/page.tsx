@@ -322,7 +322,7 @@ export default function HomePage() {
               </div>
 
               {/* RIGHT 6 COLUMNS: Sticky top-0 h-screen keeping the 3D Scales pinned */}
-              <div className="lg:col-span-6 sticky top-0 h-screen flex items-center justify-center overflow-hidden py-6">
+              <div className="lg:col-span-6 sticky top-0 h-screen flex items-center justify-center overflow-hidden py-2 px-1">
                 <TurntableScales containerRef={turntableContainerRef} />
               </div>
 
