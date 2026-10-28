@@ -242,6 +242,196 @@ export function createLegalWorkflow(
       ],
       sourcePackVersion: SOURCE_VERSION,
       allowedDraftOptions: ['dife'],
+      // Canonical 4-Step User Journey
+      problemSummary: {
+        identifiedIssue: isBn
+          ? 'বকেয়া মজুরি ও শ্রম অধিকারের লঙ্ঘন'
+          : 'Unpaid Wages & Statutory Labour Rights Violation',
+        understanding: isBn
+          ? 'আমরা আপনার পরিস্থিতিটি যত্নসহকারে বিশ্লেষণ করেছি: আপনি কর্মস্থলে শ্রম দেওয়ার পর নির্ধারিত সময়ে আপনার বকেয়া মজুরি পাননি। এটি বাংলাদেশ শ্রম আইন অনুযায়ী একটি মৌলিক অধিকারের লঙ্ঘন এবং আপনি আপনার সম্পূর্ণ পাওনা আদায়ে আইনি পদক্ষেপ নেওয়ার পূর্ণ অধিকারী।'
+          : 'We have carefully analyzed your situation: you have rendered work but your employer has failed to pay your wages on time. Under the Bangladesh Labour Act, this is an actionable statutory violation, and you hold the full legal right to recover your earned wages.',
+        additionalInfoNeeded: questions,
+      },
+      plainLanguageExplanation: {
+        meaning: isBn
+          ? 'সহজ ভাষায় বলতে গেলে, মালিক চাইলেই আপনার বেতন অনির্দিষ্টকাল আটকে রাখতে পারেন না। আইন অনুযায়ী মজুরির মেয়াদ শেষ হওয়ার পরবর্তী ৭ কার্যদিবসের মধ্যে (এবং চাকরি শেষ হলে বা ছাঁটাই হলে ৩০ কার্যদিবসের মধ্যে) পুরো পাওনা পরিশোধ করা নিয়োগদাতার আইনি বাধ্যবাধকতা। বকেয়া রাখা আইনত সম্পূর্ণ বেআইনি।'
+          : 'In plain language, an employer cannot withhold your salary indefinitely. Under Section 123 of the Bangladesh Labour Act, full wages must be paid within 7 working days following the end of the wage period (or 30 working days upon termination). Withholding pay is unlawful.',
+        userRightsAndOptions: isBn
+          ? [
+              'আপনার বকেয়া বেতন ও সকল পাওনা শতভাগ বুঝে পাওয়ার পূর্ণ আইনগত অধিকার রয়েছে।',
+              'কলকারখানা ও প্রতিষ্ঠান পরিদর্শন অধিদপ্তরের (DIFE) শ্রম পরিদর্শক বরাবর লিখিত অভিযোগ দাখিল বা মধ্যস্থতার আবেদন করতে পারেন।',
+              'সমঝোতা না হলে শ্রম আদালতের মাধ্যমে বকেয়ার সাথে ক্ষতিপূরণসহ অর্থ আদায়ের মামলা দায়ের করার সুযোগ রয়েছে।'
+            ]
+          : [
+              'You hold a strict statutory entitlement to recover 100% of your unpaid wage arrears.',
+              'You can submit a written complaint or conciliation application before the regional Labour Inspector (DIFE).',
+              'If conciliation fails, you may initiate proceedings in the Labour Court for recovery plus compensation.'
+            ],
+        whatToDoNext: isBn
+          ? 'প্রথমেই আপনার কাজের প্রমাণাদি (যেমন নিয়োগপত্র, আইডি কার্ড, মেসেজ, বেতন স্লিপ বা ক্যাশ ভাউচার) গুছিয়ে রাখুন এবং নিচের চেকলিস্টের ধাপগুলো ধারাবাহিকভাবে অনুসরণ করুন।'
+          : 'First safeguard your records of employment (appointment letter, ID card, payslips, communication logs) and proceed through the action checklist below.'
+      },
+      draftOffer: {
+        prompt: isBn
+          ? 'আপনি কি এই ঘটনার ভিত্তিতে একটি আনুষ্ঠানিক খসড়া আবেদন প্রস্তুত করতে চান?'
+          : 'Would you like to prepare a formal draft based on this incident?',
+        documentType: 'dife',
+        documentTitle: isBn
+          ? 'কলকারখানা ও প্রতিষ্ঠান পরিদর্শন অধিদপ্তর (DIFE) বরাবর লিখিত অভিযোগ'
+          : 'Formal Written Complaint to the Inspector General of Labour (DIFE)',
+        description: isBn
+          ? 'MyLaws আপনার নিশ্চিত তথ্যের ভিত্তিতে শ্রম পরিদর্শক বরাবর দাখিলযোগ্য একটি প্রমিত অভিযোগপত্র তৈরি করবে। আপনি বাংলায় সরাসরি সম্পাদনা করে অফিসিয়াল মার্জিন ও পৃষ্ঠা নম্বরসহ প্রিন্ট-রেডি A4 PDF ডাউনলোড করতে পারবেন।'
+          : 'MyLaws will generate a structured written complaint addressed to the Labour Inspector. You can customize it in Bangla and export an official print-ready A4 PDF.',
+        missingDetails: isBn
+          ? ['কর্মস্থলের সুনির্দিষ্ট জেলা ও উপজেলা', 'মালিক বা প্রতিষ্ঠানের নাম ও ঠিকানা', 'বকেয়া মাসের সুনির্দিষ্ট তালিকা']
+          : ['Workplace district and upazila', 'Employer/company name & address', 'Specific list of unpaid months']
+      }
+    };
+  }
+
+  if (isConsumer) {
+    const questions: string[] = [];
+    const hasOrderDate = request.facts.some((f) => f.fieldId === 'order_date' && f.value.trim().length > 0);
+    const hasVendor = request.facts.some((f) => f.fieldId === 'vendor' && f.value.trim().length > 0);
+
+    if (!hasOrderDate) {
+      questions.push(
+        isBn
+          ? 'লেনদেন বা পণ্য অর্ডারের তারিখটি কবে ছিল? (ভোক্তা অধিকার আইনে ৩০ দিনের সময়সীমা রয়েছে)'
+          : 'When did the transaction take place? (A 30-day statutory limitation period applies under Section 60)'
+      );
+    }
+    if (!hasVendor) {
+      questions.push(
+        isBn
+          ? 'বিক্রেতা বা অনলাইন শপটির নাম ও যোগাযোগের কোনো মাধ্যম জানা আছে কি?'
+          : 'Is the name and contact details of the vendor or online shop available?'
+      );
+    }
+
+    const checklist: ChecklistStep[] = [
+      {
+        id: 'step-consumer-1',
+        text: isBn
+          ? 'ক্রয় সংক্রান্ত সকল রসিদ, অনলাইন অর্ডারের স্ক্রিনশট, পেমেন্ট ট্রানজ্যাকশন আইডি ও চ্যাট লগ নিরাপদ হেফাজতে সংরক্ষণ করুন।'
+          : 'Gather and preserve all invoices, online order confirmation screenshots, transaction IDs, and communication logs.',
+        sourceIds: ['consumer-45'],
+        condition: isBn ? 'দালিলিক প্রমাণ সংরক্ষণ আবশ্যক' : 'Documentary evidence required',
+        requiredDocuments: isBn ? ['পেমেন্ট বা অর্ডারের রসিদ', 'বিজ্ঞাপন বা চ্যাট হিস্ট্রি'] : ['Payment receipt or order copy', 'Advertisement or chat history'],
+        helpfulEvidence: isBn ? ['বিকাশ/নগদ/ব্যাংক স্টেটমেন্ট', 'ডেলিভারি ট্র্যাকিং স্ট্যাটাস'] : ['bKash/Nagad/Bank statement', 'Delivery tracking status'],
+      },
+      {
+        id: 'step-consumer-2',
+        text: isBn
+          ? 'ঘটনা ঘটার ৩০ কার্যদিবসের মধ্যে প্রতিকার চাওয়ার আইনি সময়সীমা নিশ্চিত করুন।'
+          : 'Confirm that the 30-day statutory limitation period under Section 60 has not lapsed.',
+        sourceIds: ['consumer-60'],
+        condition: isBn ? 'ধারা ৬০ অনুযায়ী ৩০ দিনের সময়সীমা' : 'Section 60 statutory limit of 30 days',
+      },
+      {
+        id: 'step-consumer-3',
+        text: isBn
+          ? 'জাতীয় ভোক্তা অধিকার সংরক্ষণ অধিদপ্তর (DNCRP ১৬১২১) বরাবর লিখিত অভিযোগ দাখিল করুন।'
+          : 'Lodge a formal written complaint before the Directorate of National Consumer Rights Protection (DNCRP 16121).',
+        sourceIds: ['consumer-40', 'consumer-44', 'consumer-45'],
+      },
+      {
+        id: 'step-consumer-4',
+        text: isBn
+          ? 'প্রতারণা প্রমাণিত হলে আরোপিত জরিমানার ২৫ শতাংশ অর্থ নগদ ক্ষতিপূরণ হিসেবে পাওয়ার দাবি রাখুন।'
+          : 'Claim your statutory right to receive 25% of the total administrative penalty imposed on the vendor.',
+        sourceIds: ['consumer-40'],
+      },
+    ];
+
+    const explanation: Claim[] = [
+      {
+        text: isBn
+          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৪৫ অনুযায়ী প্রতিশ্রুত পণ্য বা সেবা প্রদান না করা অথবা অর্থ গ্রহণ করে পণ্য ডেলিভারি না দেওয়া শাস্তিযোগ্য অপরাধ।'
+          : 'Under Section 45 of the Consumers’ Right Protection Act 2009, failing to deliver agreed goods or services after receiving payment is a statutory offense.',
+        sourceIds: ['consumer-45'],
+      },
+      {
+        text: isBn
+          ? 'ধারা ৬০ অনুযায়ী কারণ উদ্ভব হওয়ার ৩০ দিনের মধ্যে জাতীয় ভোক্তা অধিকার সংরক্ষণ অধিদপ্তরে লিখিত অভিযোগ দাখিল করতে হয়।'
+          : 'Under Section 60, written complaints must be submitted to the Directorate within 30 days of the cause of action arising.',
+        sourceIds: ['consumer-60'],
+      },
+      {
+        text: isBn
+          ? 'ধারা ৪০ অনুযায়ী ধার্যকৃত সর্বোচ্চ মূল্যের চেয়ে বেশি দাবি করা অথবা ধারা ৪৪ অনুযায়ী মিথ্যা বিজ্ঞাপনে প্রতারিত করা দণ্ডনীয়।'
+          : 'Under Section 40, overcharging beyond marked price, or Section 44 for misleading advertisements, penal sanctions apply.',
+        sourceIds: ['consumer-40', 'consumer-44'],
+      },
+    ];
+
+    return {
+      schemaVersion: 1,
+      answerId: request.requestId,
+      mode,
+      status: questions.length > 0 ? 'clarifying' : 'completed',
+      questions,
+      userFacts: [
+        {
+          fieldId: 'issue_type',
+          value: 'consumer_fraud',
+          status: 'user_reported',
+          provenance: 'intent_classification',
+        },
+      ],
+      checklist,
+      explanation,
+      limitations: [
+        isBn
+          ? 'ধারা ৬০ অনুযায়ী ঘটনার ৩০ দিন অতিক্রান্ত হলে ভোক্তা অধিদপ্তরে অভিযোগ দায়ের করা যায় না।'
+          : 'Under Section 60, complaints filed after the 30-day limitation period are time-barred.',
+      ],
+      sourcePackVersion: SOURCE_VERSION,
+      allowedDraftOptions: ['dife'],
+      // Canonical 4-Step User Journey
+      problemSummary: {
+        identifiedIssue: isBn
+          ? 'ভোক্তা অধিকার লঙ্ঘন ও অনলাইন ডেলিভারি প্রতারণা'
+          : 'Consumer Rights Violation & Commercial Deception',
+        understanding: isBn
+          ? 'আমরা আপনার বিষয়টি যত্নসহকারে পর্যালোচনা করেছি: আপনি অর্থ পরিশোধের পরও প্রতিশ্রুত পণ্য পাননি অথবা বিজ্ঞাপনের সাথে পণ্যের অসঙ্গতি ও প্রতারণার শিকার হয়েছেন। ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯ অনুযায়ী ক্রেতা হিসেবে আপনি সম্পূর্ণ সুরক্ষিত এবং ক্ষতিপূরণ পাওয়ার অধিকারী।'
+          : 'We have carefully reviewed your situation: you have paid for goods or services that were not delivered as agreed, or you were subjected to false commercial claims. Under the Consumers’ Right Protection Act 2009, you are legally entitled to remedies and compensation.',
+        additionalInfoNeeded: questions,
+      },
+      plainLanguageExplanation: {
+        meaning: isBn
+          ? 'সহজ কথায়, অগ্রিম টাকা নিয়ে পণ্য না দেওয়া বা ক্রেতাকে মিথ্যা তথ্য দিয়ে প্রলুব্ধ করা বাংলাদেশে আইনত দণ্ডনীয় অপরাধ। ঘটনার ৩০ দিনের মধ্যে ভোক্তা অধিকার অধিদপ্তরে অভিযোগ দাখিল করলে সরকার তদন্ত করে বিক্রেতাকে জরিমানা করবে এবং সেই জরিমানার ২৫% অর্থ সরাসরি আপনাকে নগদ ক্ষতিপূরণ দেওয়া হবে।'
+          : 'In plain language, taking advance payment without delivering goods or making misleading claims is an unlawful offense. When filed within 30 days, the authorities investigate, penalize the seller, and pay 25% of the total fine directly to you as compensation.',
+        userRightsAndOptions: isBn
+          ? [
+              'প্রদত্ত অর্থ শতভাগ ফেরত ও প্রতারণার ক্ষতিপূরণ পাওয়ার আইনি অধিকার।',
+              'জাতীয় ভোক্তা অধিকার সংরক্ষণ অধিদপ্তরে (হটলাইন ১৬১২১) লিখিত অভিযোগ বা ইমেইল দাখিল।',
+              'প্রতারক ব্যবসায়ীর ওপর আরোপিত প্রশাসনিক জরিমানার ২৫ শতাংশ অর্থ নগদ ক্ষতিপূরণ হিসেবে পাওয়া।'
+            ]
+          : [
+              'Right to demand a 100% refund and appropriate statutory compensation.',
+              'Submit a written complaint to the Directorate of National Consumer Rights Protection (hotline 16121).',
+              'Statutory entitlement to 25% of the financial penalty imposed on the offending vendor.'
+            ],
+        whatToDoNext: isBn
+          ? 'অনলাইন অর্ডারের স্ক্রিনশট, ইনভয়েস ও মেসেজগুলো নিরাপদে রাখুন এবং ৩০ দিনের সময়সীমার মধ্যে ভোক্তা অধিকার সংরক্ষণ অধিদপ্তর বরাবর অভিযোগ প্রস্তুত করুন।'
+          : 'Safeguard your transaction receipts, invoices, and message logs, and prepare your complaint within the 30-day statutory window.'
+      },
+      draftOffer: {
+        prompt: isBn
+          ? 'আপনি কি এই ঘটনার ভিত্তিতে একটি আনুষ্ঠানিক খসড়া আবেদন প্রস্তুত করতে চান?'
+          : 'Would you like to prepare a formal draft based on this incident?',
+        documentType: 'dife',
+        documentTitle: isBn
+          ? 'জাতীয় ভোক্তা অধিকার সংরক্ষণ অধিদপ্তর (DNCRP) বরাবর লিখিত অভিযোগ'
+          : 'Written Complaint to National Consumer Rights Protection (DNCRP)',
+        description: isBn
+          ? 'MyLaws আপনার নিশ্চিত তথ্যের ভিত্তিতে ভোক্তা অধিকার সংরক্ষণ অধিদপ্তর বরাবর দাখিলযোগ্য একটি প্রমিত অভিযোগপত্র তৈরি করবে। আপনি বাংলায় সরাসরি সম্পাদনা করে প্রিন্ট-রেডি A4 PDF ডাউনলোড করতে পারবেন।'
+          : 'MyLaws will generate a structured complaint addressed to the Consumer Rights Directorate, which you can customize in Bangla and export as an A4 PDF.',
+        missingDetails: isBn
+          ? ['বিক্রেতা বা প্রতিষ্ঠানের নাম ও যোগাযোগের মাধ্যম', 'লেনদেন বা অর্ডারের তারিখ ও রসিদ নম্বর']
+          : ['Vendor/shop name and contact details', 'Transaction date and receipt/order ID']
+      }
     };
   }
 
@@ -343,6 +533,50 @@ export function createLegalWorkflow(
       ],
       sourcePackVersion: SOURCE_VERSION,
       allowedDraftOptions: ['gd'],
+      // Canonical 4-Step User Journey
+      problemSummary: {
+        identifiedIssue: isBn
+          ? 'অপরিচিত ব্যক্তি কর্তৃক হুমকি ও নিরাপত্তা ঝুঁকি (Criminal Intimidation)'
+          : 'Criminal Intimidation & Personal Security Threat',
+        understanding: isBn
+          ? 'আমরা আপনার বিষয়টি স্পষ্টভাবে বুঝতে পারছি: আপনি ফোন বা সামাজিক যোগাযোগমাধ্যমে (ফেসবুক বা মেসেঞ্জার) অজ্ঞাত বা অপরিচিত ব্যক্তির কাছ থেকে অনাকাঙ্ক্ষিত হুমকি বা ব্ল্যাকমেইলের শিকার হচ্ছেন। এটি আপনার মানসিক শান্তি ও ব্যক্তিগত নিরাপত্তার ওপর সরাসরি আঘাত।'
+          : 'We clearly understand what you are facing: you are being subjected to unsolicited threats, intimidation, or harassment via phone or social media from an unknown individual. This is a direct infringement on your security and peace of mind.',
+        additionalInfoNeeded: questions,
+      },
+      plainLanguageExplanation: {
+        meaning: isBn
+          ? 'সহজ কথায়, কাউকে ভয় দেখানো বা কোনো ক্ষতি করার হুমকি দেওয়া বাংলাদেশে দণ্ডবিধির আওতায় একটি সুনির্দিষ্ট ফৌজদারি অপরাধ (Criminal Intimidation)। যদি হুমকিদাতা নাম-পরিচয় গোপন রেখে বা ভুয়া একাউন্ট থেকে বার্তা পাঠায়, তবে আইনের চোখে অপরাধটি আরও বেশি গুরুতর। আপনার তাৎক্ষণিক আইনি সুরক্ষা হলো থানায় সাধারণ ডায়েরি (GD) নথিভুক্ত করা।'
+          : 'In plain language, threatening anyone with injury or harm is a defined criminal offense in Bangladesh (Section 503, Penal Code). Threatening anonymously or from concealed/fake profiles attracts even higher statutory penalties (Section 507). Your primary legal remedy is lodging a General Diary (GD).',
+        userRightsAndOptions: isBn
+          ? [
+              'নিকটস্থ থানায় একটি সাধারণ ডায়েরি (GD) দায়ের করে ঘটনার আনুষ্ঠানিক সরকারি রেকর্ড সৃষ্টি করা।',
+              'হুমকির মেসেজ, স্ক্রিনশট, অডিও ক্লিপ ও ফোন নম্বর ডিজিটাল প্রমাণ হিসেবে পুলিশের নিকট উপস্থাপন করা।',
+              'যদি তাৎক্ষণিক শারীরিক বিপদের আশঙ্কা থাকে, তবে সরাসরি জাতীয় জরুরি সেবা ৯৯৯ নম্বরে কল দিয়ে পুলিশের সাহায্য নেওয়া।'
+            ]
+          : [
+              'Formally lodge a General Diary (GD) with your local police station to establish an official record.',
+              'Submit digital evidence (screenshots, recordings, phone numbers, profile links) to the police.',
+              'Dial the 999 National Emergency Service immediately if there is any immediate physical threat.'
+            ],
+        whatToDoNext: isBn
+          ? 'হুমকিদাতার সাথে কোনো প্রকার উত্তপ্ত বাক্যবিনিময়ে যাবেন না। দ্রুত সব স্ক্রিনশট ও প্রমাণ নিরাপদে ব্যাকআপ রাখুন এবং সংশ্লিষ্ট থানার ওসির বরাবরে জিডি খসড়া প্রস্তুত করুন।'
+          : 'Avoid engaging or confronting the sender. Back up all digital evidence safely and prepare a GD application addressed to the Officer-in-Charge.'
+      },
+      draftOffer: {
+        prompt: isBn
+          ? 'আপনি কি এই ঘটনার ভিত্তিতে একটি আনুষ্ঠানিক খসড়া আবেদন প্রস্তুত করতে চান?'
+          : 'Would you like to prepare a formal draft based on this incident?',
+        documentType: 'gd',
+        documentTitle: isBn
+          ? 'থানার ভারপ্রাপ্ত কর্মকর্তা (OC) বরাবর সাধারণ ডায়েরি (GD) আবেদন'
+          : 'General Diary (GD) Application to Officer-in-Charge (OC)',
+        description: isBn
+          ? 'MyLaws আপনার ঘটনার বিবরণ অনুযায়ী থানার ওসির নিকট দাখিলের জন্য একটি প্রমিত জিডি খসড়া প্রস্তুত করবে। নাম, ঠিকানা বা তারিখের কোনো তথ্য বাকি থাকলে তা পূরণ করে তাৎক্ষণিক A4 PDF ডাউনলোড করতে পারবেন।'
+          : 'MyLaws will generate a structured GD application for the police station. You can supplement any missing details in Bangla and export an official print-ready A4 PDF.',
+        missingDetails: isBn
+          ? ['ঘটনা সংঘটনের এলাকা বা থানার নাম', 'হুমকিদাতার ফোন নম্বর বা সোশ্যাল মিডিয়া প্রোফাইল লিঙ্ক (যদি জানা থাকে)']
+          : ['Incident jurisdiction or police station name', 'Sender phone number or profile link (if known)']
+      }
     };
   }
 
@@ -393,5 +627,43 @@ export function createLegalWorkflow(
     ],
     sourcePackVersion: SOURCE_VERSION,
     allowedDraftOptions: [],
+    // Canonical 4-Step User Journey
+    problemSummary: {
+      identifiedIssue: isBn
+        ? 'আইনি অধিকার ও সুরক্ষা পর্যালোচনা'
+        : 'Legal Rights & Statutory Review',
+      understanding: isBn
+        ? 'আমরা আপনার পরিস্থিতিটি যত্নসহকারে বিশ্লেষণ করেছি। বাংলাদেশের আইন অনুসারে যেকোনো বিরোধ বা অধিকার লঙ্ঘনের ক্ষেত্রে সুনির্দিষ্ট আইনি প্রতিকারের পথ খোলা রয়েছে।'
+        : 'We have analyzed your inquiry. Under Bangladesh law, legal remedies exist for protection of fundamental rights and statutory entitlements.',
+      additionalInfoNeeded: [],
+    },
+    plainLanguageExplanation: {
+      meaning: isBn
+        ? 'সহজ কথায়, সংবিধান ও দেশের প্রচলিত আইন অনুযায়ী আপনার অধিকার সুরক্ষিত এবং আপনি যেকোনো অন্যায় বা বিরোধে সরকারি আইনি সহায়তা ও প্রতিকার লাভের পূর্ণ অধিকারী।'
+        : 'In plain language, the Constitution of Bangladesh guarantees that no detrimental action can be taken against you except in accordance with the law.',
+      userRightsAndOptions: isBn
+        ? [
+            'আইনের আশ্রয় লাভ এবং ন্যায়বিচার পাওয়ার সাংবিধানিক অধিকার।',
+            'সরকারি জাতীয় আইনি সহায়তা সংস্থা (১৬৬৯৯) থেকে বিনামূল্যে পরামর্শ ও আইনজীবী সেবা গ্রহণের সুযোগ।'
+          ]
+        : [
+            'Constitutional entitlement to protection of law and fair treatment.',
+            'Access to free government legal aid and panel attorneys via 16699.'
+          ],
+      whatToDoNext: isBn
+        ? 'আপনার কাছে থাকা নথিপত্র সংগ্রহ করুন এবং নিচে দেওয়া প্রাথমিক চেকলিস্টটি দেখুন।'
+        : 'Organize your documents and review the preliminary checklist below.'
+    },
+    draftOffer: {
+      prompt: isBn
+        ? 'আপনি কি এই ঘটনার ভিত্তিতে একটি আনুষ্ঠানিক খসড়া আবেদন প্রস্তুত করতে চান?'
+        : 'Would you like to prepare a formal draft based on this incident?',
+      documentType: 'gd',
+      documentTitle: isBn ? 'আইনি নোটিশ বা জিডি আবেদন' : 'Formal Legal Notice or Application',
+      description: isBn
+        ? 'MyLaws আপনাকে ঘটনার ওপর ভিত্তি করে প্রাতিষ্ঠানিক খসড়া তৈরিতে সহায়তা করে।'
+        : 'MyLaws assists you in preparing structured drafts based on confirmed facts.',
+      missingDetails: []
+    }
   };
 }

@@ -89,6 +89,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err) {
+    console.error('Error in /api/answer:', err);
     return NextResponse.json(
       { error: 'Internal server error processing legal request.' },
       { status: 500 }

@@ -27,6 +27,11 @@ import {
   Info,
   ArrowRight,
   ExternalLink,
+  CheckCircle2,
+  BookOpen,
+  MessageSquare,
+  ListOrdered,
+  Check,
 } from 'lucide-react';
 
 function AskContent() {
@@ -43,6 +48,7 @@ function AskContent() {
 
   // Clarification answers
   const [clarificationAnswers, setClarificationAnswers] = useState<Record<string, string>>({});
+  const [draftDeclined, setDraftDeclined] = useState<boolean>(false);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -276,99 +282,151 @@ function AskContent() {
           </div>
         )}
 
-        {/* Result Container */}
+        {/* Result Container: 4 Clear Canonical Steps */}
         {result && (
-          <div className="mt-8 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-200">
-            {/* Clarification Section if essential facts are missing */}
-            {result.questions && result.questions.length > 0 && (
-              <div className="p-5 rounded-2xl border border-accent-light/40 dark:border-accent-dark/40 bg-accent-light/5 dark:bg-accent-dark/10 space-y-4">
-                <div className="flex items-center gap-2 text-accent-light dark:text-accent-dark font-bold text-xs uppercase tracking-wider">
-                  <HelpCircle className="h-4 w-4" />
-                  <span>{t('সঠিক আইনি ধারার জন্য কিছু তথ্য প্রয়োজন:', 'Key facts needed to confirm statutory route:')}</span>
+          <div className="mt-8 space-y-7 animate-in fade-in slide-in-from-bottom-2 duration-200">
+            
+            {/* ========================================================
+                STEP 1: UNDERSTAND THE USER'S PROBLEM
+                ======================================================== */}
+            <div className="p-6 sm:p-7 rounded-3xl border border-border-light bg-surface-cardLight shadow-sm space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-light/60 pb-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
+                  <MessageSquare className="h-4 w-4" />
+                  <span className="font-cinzel tracking-wider uppercase font-bold text-[11px]">
+                    {t('ধাপ ০১ · সমস্যার বিশ্লেষণ ও অনুধাবন', 'STEP 1 · UNDERSTAND THE PROBLEM')}
+                  </span>
                 </div>
-
-                <div className="space-y-3">
-                  {result.questions.map((q, idx) => (
-                    <div key={idx} className="space-y-1.5">
-                      <label className="block text-xs font-medium text-primary-light dark:text-primary-dark">
-                        {q}
-                      </label>
-                      <input
-                        type="text"
-                        placeholder={t('এখানে উত্তর লিখুন...', 'Type answer here...')}
-                        value={clarificationAnswers[`q_${idx}`] || ''}
-                        onChange={(e) =>
-                          setClarificationAnswers({
-                            ...clarificationAnswers,
-                            [`q_${idx}`]: e.target.value,
-                          })
-                        }
-                        className="w-full text-xs rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark p-2 text-primary-light dark:text-primary-dark"
-                      />
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleClarificationSubmit}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent-light text-surface-light dark:bg-accent-dark dark:text-bg-dark text-xs font-semibold hover:opacity-90"
-                >
-                  <span>{t('তথ্য আপডেট করুন', 'Update Information')}</span>
-                  <RotateCcw className="h-3 w-3" />
-                </button>
+                {result.problemSummary?.identifiedIssue && (
+                  <span className="text-xs font-bold px-3 py-1 rounded-full bg-accent-light/10 text-accent-light border border-accent-light/20 font-hind">
+                    {result.problemSummary.identifiedIssue}
+                  </span>
+                )}
               </div>
-            )}
 
-            {/* Substantive Action Checklist */}
-            <Checklist
-              steps={result.checklist}
-              onOpenSource={(srcId) => setSelectedSourceId(srcId)}
-              onOpenOffice={(offId) => setSelectedOfficeId(offId)}
-            />
+              {/* Natural Empathetic Understanding Text */}
+              <p className="font-hind text-sm sm:text-base leading-relaxed text-[#231F1C] font-medium">
+                {result.problemSummary?.understanding || result.explanation[0]?.text}
+              </p>
 
-            {/* Legal Explanation & Supporting Claims */}
-            <div className="p-5 rounded-2xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark space-y-4 shadow-sm">
-              <div className="flex items-center justify-between border-b border-border-light/60 dark:border-border-dark/60 pb-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-primary-light dark:text-primary-dark flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-accent-light dark:text-accent-dark" />
-                  <span>{t('যাচাইকৃত আইনি ভিত্তি ও ব্যাখ্যা', 'Verified Statutory Basis & Explanation')}</span>
-                </h3>
-                <span className="text-[11px] text-secondary-light dark:text-secondary-dark">
-                  {t('প্যাক সংস্করণ: ', 'Pack Version: ')}{result.sourcePackVersion}
+              {/* Additional facts needed (Clarification Inputs) */}
+              {result.questions && result.questions.length > 0 && (
+                <div className="mt-4 p-4 rounded-2xl border border-accent-light/30 bg-[#F1EDE1]/60 space-y-3">
+                  <div className="flex items-center gap-2 text-accent-light font-bold text-xs uppercase tracking-wider">
+                    <HelpCircle className="h-4 w-4" />
+                    <span>{t('পরিস্থিতিটি আরও নিখুঁত করার জন্য অতিরিক্ত তথ্য (ঐচ্ছিক):', 'Additional details to confirm exact jurisdiction (Optional):')}</span>
+                  </div>
+
+                  <div className="space-y-3">
+                    {result.questions.map((q, idx) => (
+                      <div key={idx} className="space-y-1.5">
+                        <label className="block text-xs font-medium text-primary-light">
+                          {q}
+                        </label>
+                        <input
+                          type="text"
+                          placeholder={t('এখানে উত্তর লিখুন...', 'Type answer here...')}
+                          value={clarificationAnswers[`q_${idx}`] || ''}
+                          onChange={(e) =>
+                            setClarificationAnswers({
+                              ...clarificationAnswers,
+                              [`q_${idx}`]: e.target.value,
+                            })
+                          }
+                          className="w-full text-xs rounded-lg border border-border-light bg-surface-light p-2.5 text-primary-light focus:outline-none focus:ring-1 focus:ring-accent-light"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleClarificationSubmit}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent-light text-surface-light text-xs font-semibold hover:opacity-90 transition-all cursor-pointer"
+                  >
+                    <span>{t('তথ্য আপডেট করুন', 'Update Information')}</span>
+                    <RotateCcw className="h-3 w-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* ========================================================
+                STEP 2: EXPLAIN THE SITUATION IN SIMPLE LANGUAGE & LEGAL SOURCES
+                ======================================================== */}
+            <div className="p-6 sm:p-7 rounded-3xl border border-border-light bg-surface-cardLight shadow-sm space-y-5">
+              <div className="flex items-center justify-between border-b border-border-light/60 pb-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
+                  <BookOpen className="h-4 w-4" />
+                  <span className="font-cinzel tracking-wider uppercase font-bold text-[11px]">
+                    {t('ধাপ ০২ · সহজ ভাষায় পরিস্থিতি ও অধিকার ব্যাখ্যা', 'STEP 2 · EXPLAIN IN SIMPLE LANGUAGE')}
+                  </span>
+                </div>
+                <span className="text-[11px] font-cinzel text-secondary-light">
+                  {t('প্যাক সংস্করণ: ', 'Corpus: ')}{result.sourcePackVersion}
                 </span>
               </div>
 
-              <div className="space-y-3.5">
-                {result.explanation.map((claim, idx) => (
-                  <div key={idx} className="space-y-1.5">
-                    <p className="text-xs sm:text-sm leading-relaxed text-primary-light dark:text-primary-dark">
-                      {claim.text}
-                    </p>
-                    {claim.sourceIds && claim.sourceIds.length > 0 && (
-                      <div className="flex items-center gap-1.5 pt-1">
-                        <span className="text-[10px] text-secondary-light dark:text-secondary-dark font-medium">
-                          {t('উৎস ধারা: ', 'Cited Section: ')}
-                        </span>
-                        {claim.sourceIds.map((sid) => (
-                          <button
-                            key={sid}
-                            onClick={() => setSelectedSourceId(sid)}
-                            className="text-[10px] px-2 py-0.5 rounded bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark hover:underline font-medium"
-                          >
-                            {sid}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
+              {/* Plain Language Meaning */}
+              <div className="space-y-2">
+                <h4 className="font-anek text-sm sm:text-base font-bold text-[#231F1C]">
+                  {t('সহজ ভাষায় আপনার পরিস্থিতি:', 'What this means in plain language:')}
+                </h4>
+                <p className="font-hind text-xs sm:text-sm text-[#5A534A] leading-relaxed">
+                  {result.plainLanguageExplanation?.meaning ||
+                    result.explanation.map((c) => c.text).join(' ')}
+                </p>
+              </div>
+
+              {/* Your Rights & Options */}
+              {result.plainLanguageExplanation?.userRightsAndOptions && (
+                <div className="space-y-2 pt-2 border-t border-border-light/60">
+                  <h4 className="font-anek text-sm sm:text-base font-bold text-[#231F1C]">
+                    {t('আপনার আইনগত অধিকার ও বিকল্পসমূহ:', 'Your legal rights and options:')}
+                  </h4>
+                  <ul className="space-y-2 text-xs sm:text-sm text-[#5A534A] font-hind">
+                    {result.plainLanguageExplanation.userRightsAndOptions.map((opt, i) => (
+                      <li key={i} className="flex items-start gap-2.5">
+                        <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0 mt-0.5" />
+                        <span>{opt}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Next Steps Guidance */}
+              {result.plainLanguageExplanation?.whatToDoNext && (
+                <div className="p-3.5 rounded-xl border border-border-light bg-[#F1EDE1]/50 text-xs sm:text-sm text-[#5A534A] font-hind flex items-start gap-2.5">
+                  <Info className="h-4 w-4 text-accent-light shrink-0 mt-0.5" />
+                  <p>{result.plainLanguageExplanation.whatToDoNext}</p>
+                </div>
+              )}
+
+              {/* Naturally Embedded Legal Sources & Citations */}
+              <div className="pt-2 border-t border-border-light/60 space-y-2">
+                <span className="font-cinzel text-[11px] font-bold text-secondary-light uppercase tracking-wider block">
+                  {t('প্রাসঙ্গিক আইনি বিধান ও অফিশিয়াল গেজেট উৎস:', 'RELEVANT LEGAL SOURCES & GAZETTE PROVISIONS:')}
+                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  {result.explanation.flatMap((c) => c.sourceIds || []).filter((v, i, a) => a.indexOf(v) === i).map((sid) => (
+                    <button
+                      key={sid}
+                      onClick={() => setSelectedSourceId(sid)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-light bg-surface-light text-xs font-semibold text-accent-light hover:border-accent-light transition-all shadow-2xs cursor-pointer"
+                    >
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      <span>{sid}</span>
+                      <ExternalLink className="h-3 w-3 opacity-60" />
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Limitations note */}
               {result.limitations && result.limitations.length > 0 && (
-                <div className="pt-3 border-t border-border-light/40 dark:border-border-dark/40 text-[11px] text-secondary-light dark:text-secondary-dark space-y-1">
-                  <span className="font-semibold text-primary-light dark:text-primary-dark">
+                <div className="pt-2 text-[11px] text-secondary-light/90 space-y-1">
+                  <span className="font-semibold text-primary-light">
                     {t('সীমাবদ্ধতা ও আইনি সতর্কতা: ', 'Statutory Boundaries: ')}
                   </span>
                   <ul className="list-disc list-inside space-y-0.5">
@@ -380,47 +438,104 @@ function AskContent() {
               )}
             </div>
 
-            {/* Draft Preparation Action Banner */}
-            {result.allowedDraftOptions && result.allowedDraftOptions.length > 0 && (
-              <div className="p-6 rounded-2xl border border-accent-light/40 dark:border-accent-dark/40 bg-accent-light/5 dark:bg-accent-dark/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="space-y-1 text-center sm:text-left">
-                  <div className="flex items-center justify-center sm:justify-start gap-2">
-                    <FileText className="h-5 w-5 text-accent-light dark:text-accent-dark" />
-                    <h3 className="text-sm font-cinzel font-bold text-primary-light dark:text-gold-gradient">
-                      {t('এই ঘটনার ভিত্তিতে খসড়া আবেদন তৈরি করুন', 'Prepare a formal draft from this incident')}
-                    </h3>
-                  </div>
-                  <p className="text-xs text-secondary-light dark:text-secondary-dark max-w-md">
-                    {result.allowedDraftOptions.includes('dife')
-                      ? t(
-                          'শ্রম পরিদর্শক বরাবর বকেয়া মজুরি আদায়ের লিখিত অভিযোগের খসড়া তৈরি করুন এবং A4 PDF ডাউনলোড করুন।',
-                          'Create a structured written complaint to the labour inspector with full A4 PDF export.'
-                        )
-                      : t(
-                          'সংশ্লিষ্ট থানা বরাবর সাধারণ ডায়েরির (GD) খসড়া তৈরি করুন এবং A4 PDF ডাউনলোড করুন।',
-                          'Create an organized General Diary (GD) draft addressed to the police with full A4 PDF export.'
-                        )}
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2 shrink-0 justify-center">
-                  {result.allowedDraftOptions.map((opt) => (
-                    <button
-                      key={opt}
-                      onClick={() => handleGoToDraft(opt)}
-                      className="bracket-btn inline-flex items-center gap-2 px-5 py-2.5 text-xs font-cinzel font-bold tracking-wider"
-                    >
-                      <span>
-                        {opt === 'dife'
-                          ? t('ডিআইএফই অভিযোগ প্রস্তুত করুন', 'Prepare DIFE Complaint')
-                          : t('জিডি খসড়া প্রস্তুত করুন', 'Prepare GD Draft')}
-                      </span>
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </button>
-                  ))}
-                </div>
+            {/* ========================================================
+                STEP 3: STEP-BY-STEP ACTION CHECKLIST
+                ======================================================== */}
+            <div className="p-6 sm:p-7 rounded-3xl border border-border-light bg-surface-cardLight shadow-sm space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light mb-1">
+                <ListOrdered className="h-4 w-4" />
+                <span className="font-cinzel tracking-wider uppercase font-bold text-[11px]">
+                  {t('ধাপ ০৩ · ধাপে ধাপে ব্যবহারিক চেকলিস্ট', 'STEP 3 · ACTION CHECKLIST')}
+                </span>
               </div>
-            )}
+
+              <Checklist
+                steps={result.checklist}
+                onOpenSource={(srcId) => setSelectedSourceId(srcId)}
+                onOpenOffice={(offId) => setSelectedOfficeId(offId)}
+              />
+            </div>
+
+            {/* ========================================================
+                STEP 4: OFFER TO PREPARE A FORMAL DRAFT
+                ======================================================== */}
+            <div className="p-7 sm:p-8 rounded-3xl border-2 border-accent-light/40 bg-accent-light/5 shadow-md space-y-5">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/15 text-accent-light">
+                  <FileText className="h-4 w-4" />
+                  <span className="font-cinzel tracking-wider uppercase font-bold text-[11px]">
+                    {t('ধাপ ০৪ · আনুষ্ঠানিক খসড়া প্রস্তুতের প্রস্তাব', 'STEP 4 · FORMAL DRAFT OFFER')}
+                  </span>
+                </div>
+                <span className="text-xs font-cinzel font-bold text-accent-light">
+                  {t('ঐচ্ছিক পরবর্তী পদক্ষেপ', 'OPTIONAL NEXT STEP')}
+                </span>
+              </div>
+
+              {/* Conversational Prompt */}
+              <div className="space-y-2">
+                <h3 className="font-anek text-xl sm:text-2xl font-extrabold text-[#231F1C] tracking-tight">
+                  “{result.draftOffer?.prompt || t('আপনি কি এই ঘটনার ভিত্তিতে একটি আনুষ্ঠানিক খসড়া আবেদন প্রস্তুত করতে চান?', 'Would you like to prepare a formal draft based on this incident?')}”
+                </h3>
+                <p className="font-hind text-xs sm:text-sm text-[#5A534A] leading-relaxed max-w-2xl">
+                  {result.draftOffer?.description ||
+                    t(
+                      'MyLaws আপনার নিশ্চিত তথ্যের ভিত্তিতে সংশ্লিষ্ট কর্তৃপক্ষ বরাবর একটি প্রমিত আবেদনপত্র তৈরি করে দেবে। ব্রাউজারেই বাংলায় সম্পাদনা করে প্রিন্ট-রেডি A4 PDF ডাউনলোড করতে পারবেন।',
+                      'MyLaws will prepare a formal application draft for the relevant authority. You can edit in Bangla and export a print-ready A4 PDF.'
+                    )}
+                </p>
+              </div>
+
+              {/* Missing Details Notice */}
+              {result.draftOffer?.missingDetails && result.draftOffer.missingDetails.length > 0 && !draftDeclined && (
+                <div className="p-3.5 rounded-xl border border-border-light bg-surface-light text-xs text-[#5A534A] font-hind space-y-1">
+                  <span className="font-semibold text-primary-light">
+                    {t('খসড়াটি পূর্ণাঙ্গ করতে এই তথ্যগুলো ব্যবহার করা হবে:', 'Details that will be filled in the draft:')}
+                  </span>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {result.draftOffer.missingDetails.map((det, i) => (
+                      <span key={i} className="px-2.5 py-1 rounded-md bg-[#F1EDE1] border border-border-light text-[11px] text-primary-light">
+                        {det}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Interactive User Choices */}
+              {!draftDeclined ? (
+                <div className="flex flex-wrap items-center gap-4 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => handleGoToDraft(result.draftOffer?.documentType || result.allowedDraftOptions[0] || 'gd')}
+                    className="bracket-btn text-xs font-bold tracking-wider py-3 px-6 shadow-sm cursor-pointer"
+                  >
+                    <span>
+                      — {t('হ্যাঁ, খসড়া আবেদন তৈরি করুন', 'YES, PREPARE FORMAL DRAFT')} —
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDraftDeclined(true)}
+                    className="px-4 py-2.5 rounded-lg border border-border-light bg-surface-light text-xs font-medium text-secondary-light hover:text-primary-light transition-all cursor-pointer"
+                  >
+                    {t('না, আমি শুধু তথ্য দেখতে চেয়েছিলাম', 'No, I just needed information')}
+                  </button>
+                </div>
+              ) : (
+                <div className="p-3.5 rounded-xl bg-accent-light/10 text-accent-light text-xs font-hind flex items-center gap-2">
+                  <Check className="h-4 w-4 shrink-0" />
+                  <span>
+                    {t(
+                      'ধন্যবাদ! আপনি যেকোনো সময় পরবর্তীতে শীর্ষ নেভিগেশনের "খসড়া" মেন্যু থেকে আবেদন তৈরি করতে পারবেন।',
+                      'Thank you! You can prepare a draft at any time from the "Drafts" navigation menu.'
+                    )}
+                  </span>
+                </div>
+              )}
+            </div>
+
           </div>
         )}
       </main>

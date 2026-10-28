@@ -1,8 +1,27 @@
 import { describe, it, expect } from 'vitest';
 import { checkRateLimit, isMetaConfigured } from '../src/lib/meta';
 import { legalPackManifest, androidReleaseManifest } from '../src/data/manifest';
+import { POST } from '../src/app/api/answer/route';
+import { NextRequest } from 'next/server';
 
 describe('Server & API Security Integrity', () => {
+  it('returns valid 4-step canonical result from /api/answer', async () => {
+    const req = new NextRequest('http://localhost:3000/api/answer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-forwarded-for': '127.0.0.99' },
+      body: JSON.stringify({
+        originalMessage: 'ফেসবুক ও ফোনে অপরিচিত ব্যক্তি হুমকি দিচ্ছে। কীভাবে জিডি করব?',
+        language: 'bn',
+      }),
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.problemSummary).toBeDefined();
+    expect(data.plainLanguageExplanation).toBeDefined();
+    expect(data.checklist.length).toBeGreaterThan(0);
+    expect(data.draftOffer).toBeDefined();
+  });
   it('enforces rate limiter per IP', () => {
     const testIp = '192.168.1.100';
     for (let i = 0; i < 10; i++) {

@@ -90,6 +90,26 @@ export interface Claim {
   sourceIds: string[];
 }
 
+export interface ProblemSummary {
+  identifiedIssue: string;
+  understanding: string;
+  additionalInfoNeeded?: string[];
+}
+
+export interface PlainLanguageExplanation {
+  meaning: string;
+  userRightsAndOptions: string[];
+  whatToDoNext: string;
+}
+
+export interface DraftOffer {
+  prompt: string;
+  documentType: DocumentType;
+  documentTitle: string;
+  description: string;
+  missingDetails?: string[];
+}
+
 export interface AnswerResult {
   schemaVersion: number;
   answerId: string;
@@ -102,6 +122,10 @@ export interface AnswerResult {
   limitations: string[];
   sourcePackVersion: string;
   allowedDraftOptions: DocumentType[];
+  // 4-Step Canonical Legal Journey
+  problemSummary?: ProblemSummary;
+  plainLanguageExplanation?: PlainLanguageExplanation;
+  draftOffer?: DraftOffer;
 }
 
 export interface SourceRecord {

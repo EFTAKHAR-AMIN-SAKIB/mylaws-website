@@ -430,72 +430,108 @@ export default function HomePage() {
         </section>
 
         {/* ========================================================
-            3-STEP JOURNEY SECTION
+            4-STEP CANONICAL LEGAL JOURNEY SECTION
             ======================================================== */}
         <section className="py-16 md:py-24 border-b border-border-light/80">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto space-y-3">
               <span className="font-cinzel text-xs font-semibold uppercase tracking-[0.2em] text-accent-light">
-                {t('পদ্ধতি ও কার্যপ্রণালী', 'THREE-STEP METHODOLOGY')}
+                {t('কার্যপ্রণালী ও সেবা পদ্ধতি', 'FOUR-STEP METHODOLOGY')}
               </span>
               <h2 className="font-display text-2xl sm:text-4xl font-bold text-[#231F1C]">
-                {t('সমস্যা বর্ণনা থেকে খসড়া প্রস্তুত—৩টি ধাপে', 'From Problem Statement to Finished Draft in 3 Steps')}
+                {t('সমস্যা বর্ণনা থেকে আনুষ্ঠানিক খসড়া—৪টি ধাপে', 'From Problem Statement to Finished Draft in 4 Steps')}
               </h2>
               <p className="text-xs sm:text-sm text-[#5A534A]">
                 {t(
-                  'কোনো বিভ্রান্তিকর আইনি পরিভাষা ছাড়া আপনার করণীয় স্পষ্টভাবে জানা সম্ভব।',
-                  'Gain clarity without intimidating legal jargon or hallucinated court advice.'
+                  'কোনো জটিল আইনি বইয়ের ভাষা নয়; সহানুভূতিশীল ব্যাখ্যা, বাস্তবিক চেকলিস্ট ও নির্ভুল খসড়ার সমন্বিত সমাধান।',
+                  'Not an intimidating legal textbook; supportive plain-language explanations, actionable checklists, and verified draft preparation.'
                 )}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-14">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-14">
               {/* Step 1 */}
-              <div className="p-7 rounded-2xl border border-border-light bg-surface-cardLight space-y-4 shadow-sm hover:border-accent-light/50 transition-colors">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-light/10 text-accent-light font-cinzel font-bold text-base border border-accent-light/20">
-                  I
+              <div className="p-6 sm:p-7 rounded-2xl border border-border-light bg-surface-cardLight space-y-3.5 shadow-sm hover:border-accent-light/50 transition-colors flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-light/10 text-accent-light font-cinzel font-bold text-base border border-accent-light/20">
+                    I
+                  </div>
+                  <h3 className="font-anek text-lg font-bold text-[#231F1C]">
+                    {t('১. সমস্যার গভীর অনুধাবন', '1. Understand the Problem')}
+                  </h3>
+                  <p className="text-xs text-[#5A534A] leading-relaxed font-hind">
+                    {t(
+                      'AI ব্যবহারকারীর পুরো ঘটনা পড়ে, কী ঘটেছে তা গভীরভাবে অনুধাবন করে, মূল আইনি সমস্যা শনাক্ত করে এবং অতিরিক্ত কোনো তথ্যের প্রয়োজন আছে কি না তা নির্ধারণ করে।',
+                      'The AI reads the user\'s story, understands what happened, identifies the main issue, and determines what additional information might be needed.'
+                    )}
+                  </p>
                 </div>
-                <h3 className="font-display text-lg font-bold text-[#231F1C]">
-                  {t('১. সহজ ভাষায় সমস্যা বলুন', '1. Describe in Your Own Words')}
-                </h3>
-                <p className="text-xs text-[#5A534A] leading-relaxed">
-                  {t(
-                    'বাংলা, বাংলিশ বা ইংরেজিতে স্বাভাবিকভাবে লিখুন। সিস্টেমটি স্বয়ংক্রিয়ভাবে মূল তথ্য ও ঘটনা বিশ্লেষণ করে এবং প্রয়োজনীয় ক্ষেত্রে নির্দিষ্ট প্রশ্ন জিজ্ঞেস করে।',
-                    'Write naturally in Bangla, Banglish, or English. The assistant analyzes key factual predicates and asks clarifying questions only when critical facts are missing.'
-                  )}
-                </p>
+                <div className="pt-2 text-[11px] font-bold text-accent-light font-cinzel">
+                  {t('বিশ্লেষণ ও শনাক্তকরণ', 'PROBLEM IDENTIFICATION')}
+                </div>
               </div>
 
               {/* Step 2 */}
-              <div className="p-7 rounded-2xl border border-border-light bg-surface-cardLight space-y-4 shadow-sm hover:border-accent-light/50 transition-colors">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-light/10 text-accent-light font-cinzel font-bold text-base border border-accent-light/20">
-                  II
+              <div className="p-6 sm:p-7 rounded-2xl border border-border-light bg-surface-cardLight space-y-3.5 shadow-sm hover:border-accent-light/50 transition-colors flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-light/10 text-accent-light font-cinzel font-bold text-base border border-accent-light/20">
+                    II
+                  </div>
+                  <h3 className="font-anek text-lg font-bold text-[#231F1C]">
+                    {t('২. সহজ ভাষায় ব্যাখ্যা ও আইনি উৎস', '2. Explain in Simple Language')}
+                  </h3>
+                  <p className="text-xs text-[#5A534A] leading-relaxed font-hind">
+                    {t(
+                      'সমস্যার অর্থ কী, আপনার বিকল্পসমূহ কী এবং এরপরে কী করা সম্ভব—তা সহজ ও আন্তরিক ভাষায় বুঝিয়ে দেওয়া হয়। সাথে প্রাসঙ্গিক সরকারি গেজেটের নির্ভরযোগ্য লিঙ্ক প্রদর্শিত হয়।',
+                      'The AI explains what the problem means, what the user\'s options are, and what they can do next naturally and supportively, with reliable statutory source links.'
+                    )}
+                  </p>
                 </div>
-                <h3 className="font-display text-lg font-bold text-[#231F1C]">
-                  {t('২. চেকলিস্ট ও মূল উৎস দেখুন', '2. Inspect Checklist & Sources')}
-                </h3>
-                <p className="text-xs text-[#5A534A] leading-relaxed">
-                  {t(
-                    'প্রথমেই ৩-৫টি ব্যবহারিক করণীয় পদক্ষেপের তালিকা পান। প্রতিটি পদক্ষেপের সাথে সংশ্লিষ্ট সরকারি আইনের মূল ধারা ও সরকারি পোর্টালের লিঙ্ক যাচাই করুন।',
-                    'Receive 3 to 5 actionable next steps immediately. Inspect verbatim quotations from official gazettes with direct links to bdlaws.minlaw.gov.bd.'
-                  )}
-                </p>
+                <div className="pt-2 text-[11px] font-bold text-accent-light font-cinzel">
+                  {t('সহজ ব্যাখ্যা ও গেজেট লিঙ্ক', 'PLAIN LANGUAGE & SOURCES')}
+                </div>
               </div>
 
               {/* Step 3 */}
-              <div className="p-7 rounded-2xl border border-border-light bg-surface-cardLight space-y-4 shadow-sm hover:border-accent-light/50 transition-colors">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-light/10 text-accent-light font-cinzel font-bold text-base border border-accent-light/20">
-                  III
+              <div className="p-6 sm:p-7 rounded-2xl border border-border-light bg-surface-cardLight space-y-3.5 shadow-sm hover:border-accent-light/50 transition-colors flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-light/10 text-accent-light font-cinzel font-bold text-base border border-accent-light/20">
+                    III
+                  </div>
+                  <h3 className="font-anek text-lg font-bold text-[#231F1C]">
+                    {t('৩. ধাপে ধাপে অ্যাকশন চেকলিস্ট', '3. Action Checklist')}
+                  </h3>
+                  <p className="text-xs text-[#5A534A] leading-relaxed font-hind">
+                    {t(
+                      'পরিস্থিতি ব্যাখ্যা করার পর, ক্রমানুসারে আপনার করণীয় কাজগুলোর একটি বাস্তবসম্মত চেকলিস্ট দেওয়া হয়—কোন প্রমাণ রাখবেন, কখন সরকারি দপ্তরে যাবেন তা স্পষ্ট থাকে।',
+                      'MyLaws gives the user an intuitive, practical checklist of what to do in the exact right order—evidence to preserve, statutory limits, and government routing.'
+                    )}
+                  </p>
                 </div>
-                <h3 className="font-display text-lg font-bold text-[#231F1C]">
-                  {t('৩. অভিযোগ বা জিডির খসড়া প্রস্তুত', '3. Prepare an Editable Draft')}
-                </h3>
-                <p className="text-xs text-[#5A534A] leading-relaxed">
-                  {t(
-                    'অনলাইনে আপনার ব্যক্তিগত বিবরণ পূরণ করুন, খসড়াটি বাংলায় সম্পাদনা করুন এবং এক ক্লিকে স্পষ্ট মার্জিন ও পৃষ্ঠা নম্বরসহ A4 PDF ডাউনলোড করুন।',
-                    'Fill in your confirmed facts into structured GD or DIFE templates, review in Bangla, and export as a clean multi-page A4 PDF.'
-                  )}
-                </p>
+                <div className="pt-2 text-[11px] font-bold text-accent-light font-cinzel">
+                  {t('ধাপে ধাপে করণীয় পদক্ষেপ', 'ORDERED ACTION STEPS')}
+                </div>
+              </div>
+
+              {/* Step 4 */}
+              <div className="p-6 sm:p-7 rounded-2xl border border-border-light bg-surface-cardLight space-y-3.5 shadow-sm hover:border-accent-light/50 transition-colors flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-light/10 text-accent-light font-cinzel font-bold text-base border border-accent-light/20">
+                    IV
+                  </div>
+                  <h3 className="font-anek text-lg font-bold text-[#231F1C]">
+                    {t('৪. আনুষ্ঠানিক খসড়া প্রস্তুতের প্রস্তাব', '4. Formal Draft Offer')}
+                  </h3>
+                  <p className="text-xs text-[#5A534A] leading-relaxed font-hind">
+                    {t(
+                      'পরিস্থিতি নিশ্চিত হলে MyLaws প্রস্তাব করে: “আপনি কি আনুষ্ঠানিক খসড়া তৈরি করতে চান?” ব্যবহারকারী রাজি হলে প্রয়োজনীয় তথ্য নিয়ে প্রিন্ট-রেডি A4 PDF প্রস্তুত করা হয়।',
+                      'MyLaws offers the next step: “Would you like to prepare a formal draft based on this incident?” If agreed, it prepares a structured complaint letter, notice, or GD.'
+                    )}
+                  </p>
+                </div>
+                <div className="pt-2 text-[11px] font-bold text-accent-light font-cinzel">
+                  {t('প্রমিত আবেদন ও A4 PDF', 'FORMAL DRAFT & PDF')}
+                </div>
               </div>
             </div>
           </div>
