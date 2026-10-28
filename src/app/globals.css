@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-color: #F7F3EC;
+  --surface-color: #FFFCF7;
+  --primary-text: #24231F;
+  --secondary-text: #625D53;
+  --accent-color: #80551E;
+  --accent-hover: #684415;
+  --border-color: #D8D0C3;
+  --card-shadow: 0 4px 20px -2px rgba(36, 35, 31, 0.05), 0 2px 6px -1px rgba(36, 35, 31, 0.03);
+}
+
+.dark {
+  --bg-color: #10162B;
+  --surface-color: #19213B;
+  --primary-text: #F7F0E4;
+  --secondary-text: #C4C7D4;
+  --accent-color: #F2B866;
+  --accent-hover: #dfa14d;
+  --border-color: #3E4865;
+  --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35), 0 2px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--primary-text);
+  font-family: 'Noto Sans Bengali', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+/* Serif headings for refined editorial styling */
+.font-display {
+  font-family: 'Merriweather', Georgia, serif;
+}
+
+/* Custom subtle case-folder grid texture */
+.bg-folder-texture {
+  background-image: radial-gradient(var(--border-color) 0.75px, transparent 0.75px);
+  background-size: 24px 24px;
+}
+
+/* Accessible focus outline */
+*:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Print styling for clean A4 printing */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 20mm 15mm 20mm 15mm;
+  }
+  
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+  }
+  
+  .printable-document {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    font-size: 11pt !important;
+    line-height: 1.6 !important;
+    color: #000000 !important;
+  }
+}
