@@ -40,8 +40,8 @@ export function isGdQuestion(text: string): boolean {
 
 export function isConsumerQuestion(text: string): boolean {
   return (
-    /\b(consumer|mrp|overcharge|expired|fake|refund|delivery|online\s+shop)\b/i.test(text) ||
-    /ভোক্তা|অতিরিক্ত\s*দাম|মেয়াদোত্তীর্ণ|মেয়াদোত্তীর্ণ|ডেলিভারি|টাকা\s*ফেরত/u.test(text)
+    /\b(consumer|mrp|overcharge|expired|fake|refund|delivery|online\s+shop|fraud|cheating)\b/i.test(text) ||
+    /ভোক্তা|অতিরিক্ত\s*দাম|মেয়াদোত্তীর্ণ|মেয়াদোত্তীর্ণ|ডেলিভারি|টাকা\s*ফেরত|নকল|ভেজাল|ওজনে\s*কম|পণ্য|প্রতারণা/u.test(text)
   );
 }
 
@@ -387,7 +387,7 @@ export function createLegalWorkflow(
           : 'Under Section 60, complaints filed after the 30-day limitation period are time-barred.',
       ],
       sourcePackVersion: SOURCE_VERSION,
-      allowedDraftOptions: ['dife'],
+      allowedDraftOptions: ['dncrp'],
       // Canonical 4-Step User Journey
       problemSummary: {
         identifiedIssue: isBn
@@ -421,7 +421,7 @@ export function createLegalWorkflow(
         prompt: isBn
           ? 'আপনি কি এই ঘটনার ভিত্তিতে একটি আনুষ্ঠানিক খসড়া আবেদন প্রস্তুত করতে চান?'
           : 'Would you like to prepare a formal draft based on this incident?',
-        documentType: 'dife',
+        documentType: 'dncrp',
         documentTitle: isBn
           ? 'জাতীয় ভোক্তা অধিকার সংরক্ষণ অধিদপ্তর (DNCRP) বরাবর লিখিত অভিযোগ'
           : 'Written Complaint to National Consumer Rights Protection (DNCRP)',

@@ -36,7 +36,7 @@ export type Verification = 'illustrative' | 'authoritative' | 'needs_verificatio
 
 export type FactStatus = 'user_confirmed' | 'user_reported' | 'unknown';
 
-export type DocumentType = 'gd' | 'dife';
+export type DocumentType = 'gd' | 'dife' | 'dncrp';
 
 export type ReviewStatus = 'incomplete' | 'needs_review' | 'reviewed';
 

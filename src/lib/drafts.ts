@@ -27,19 +27,22 @@ export function getRequiredFields(type: DocumentType): string[] {
   if (type === 'dife') {
     return [...common, 'role', 'period', 'amount'];
   }
+  if (type === 'dncrp') {
+    return [...common, 'amount'];
+  }
   return common;
 }
 
 export function getDraftTitle(type: DocumentType): string {
-  return type === 'gd'
-    ? 'সাধারণ ডায়েরির আবেদন — খসড়া'
-    : 'DIFE-তে লিখিত অভিযোগ — খসড়া';
+  if (type === 'gd') return 'সাধারণ ডায়েরির আবেদন — খসড়া';
+  if (type === 'dncrp') return 'ভোক্তা অধিকার সংরক্ষণ অধিদপ্তর বরাবর অভিযোগ — খসড়া';
+  return 'DIFE-তে লিখিত অভিযোগ — খসড়া';
 }
 
 export function getDefaultRecipient(type: DocumentType): string {
-  return type === 'gd'
-    ? 'ভারপ্রাপ্ত কর্মকর্তা (OC), সংশ্লিষ্ট থানা, বাংলাদেশ পুলিশ'
-    : 'মহাপরিদর্শক / আঞ্চলিক উপ-মহাপরিদর্শক, কলকারখানা ও প্রতিষ্ঠান পরিদর্শন অধিদপ্তর (DIFE)';
+  if (type === 'gd') return 'ভারপ্রাপ্ত কর্মকর্তা (OC), সংশ্লিষ্ট থানা, বাংলাদেশ পুলিশ';
+  if (type === 'dncrp') return 'মহাপরিচালক / উপপরিচালক, জাতীয় ভোক্তা অধিকার সংরক্ষণ অধিদপ্তর (DNCRP)';
+  return 'মহাপরিদর্শক / আঞ্চলিক উপ-মহাপরিদর্শক, কলকারখানা ও প্রতিষ্ঠান পরিদর্শন অধিদপ্তর (DIFE)';
 }
 
 export function prepareDraftDocument(
@@ -76,6 +79,10 @@ export function prepareDraftDocument(
   if (type === 'dife') {
     paragraphs.push(
       `কাজ ও চাকরির সময়কাল: ${v('role')}\nবকেয়ার সময়কাল: ${v('period')}\nবকেয়া পরিমাণ (আবেদনকারীর তথ্য): ${v('amount')}`
+    );
+  } else if (type === 'dncrp') {
+    paragraphs.push(
+      `দাবিকৃত বা প্রতারিত অর্থের পরিমাণ: ${v('amount')}`
     );
   }
 

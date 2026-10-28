@@ -59,7 +59,7 @@ export default function DraftsPage() {
       const stored = sessionStorage.getItem('mylaws_pending_draft');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed.type && ['gd', 'dife'].includes(parsed.type)) {
+        if (parsed.type && ['gd', 'dife', 'dncrp'].includes(parsed.type)) {
           setDocType(parsed.type);
         }
         if (parsed.facts && Array.isArray(parsed.facts)) {
@@ -177,6 +177,18 @@ export default function DraftsPage() {
               }`}
             >
               {t('সাধারণ ডায়েরির আবেদন (GD)', 'POLICE GD')}
+            </button>
+            <button
+              onClick={() => handleTypeChange('dncrp')}
+              className={`px-3.5 py-2 text-xs tracking-wider rounded-lg transition-all ${
+                lang === 'bn' ? 'font-hind font-semibold' : 'font-cinzel'
+              } ${
+                docType === 'dncrp'
+                  ? 'bg-accent-light text-surface-light font-bold shadow-2xs'
+                  : 'text-secondary-light hover:text-primary-light'
+              }`}
+            >
+              {t('ভোক্তা অধিকার (DNCRP)', 'CONSUMER DNCRP')}
             </button>
           </div>
         </div>

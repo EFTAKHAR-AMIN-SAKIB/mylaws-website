@@ -66,6 +66,21 @@ describe('Action Checklist & Legal Workflow Engine', () => {
     expect(res.explanation.some((c) => c.sourceIds.includes('penal-503'))).toBe(true);
   });
 
+  it('handles consumer complaints with DNCRP workflow and 4 steps', () => {
+    const req: AnswerRequest = {
+      requestId: 'test-consumer',
+      originalMessage: 'অনলাইনে নকল পণ্য দিয়ে প্রতারণা করেছে, টাকা ফেরত দিচ্ছে না',
+      language: 'bn',
+      facts: [],
+    };
+
+    const res = createLegalWorkflow(req);
+    expect(res.problemSummary?.identifiedIssue).toContain('ভোক্তা অধিকার');
+    expect(res.plainLanguageExplanation?.meaning).toBeDefined();
+    expect(res.draftOffer?.documentType).toBe('dncrp');
+    expect(res.allowedDraftOptions).toContain('dncrp');
+  });
+
   it('declines contradictory claims (e.g. paid in full)', () => {
     const req: AnswerRequest = {
       requestId: 'test-contradiction',
