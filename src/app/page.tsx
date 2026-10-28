@@ -76,254 +76,309 @@ export default function HomePage() {
 
       <main className="flex-1">
         {/* ========================================================
-            SCROLL-DRIVEN 3D TURNTABLE HERO & FEATURES SECTION
-            min-h-[320vh] 12-Column Sticky Split-Screen Layout
+            HERO SECTION: 12-Column Split Screen with 3D Turntable
             ======================================================== */}
         <section
           ref={turntableContainerRef}
-          className="relative min-h-[320vh] w-full border-b border-border-light/80"
+          className="relative w-full border-b border-border-light/80 py-8 sm:py-12 lg:py-16 flex items-center min-h-[calc(100vh-5rem)]"
         >
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 relative">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
               
-              {/* LEFT 6 COLUMNS: Scrolls naturally through Hero headline & Feature blocks */}
-              <div className="lg:col-span-6 space-y-36 sm:space-y-48 pt-10 sm:pt-20 pb-40">
+              {/* LEFT 6 COLUMNS: Headline, Promise, CTA & Guarantees */}
+              <div className="lg:col-span-6 space-y-6">
                 
-                {/* ----------------------------------------------------
-                    BLOCK 1: Hero Introduction (0% to ~25% Scroll)
-                    ---------------------------------------------------- */}
-                <div className="space-y-6 pt-2">
-                  {/* Reference Pill Label */}
-                  <div className="inline-flex items-center gap-2 rounded-full border border-border-light bg-surface-light px-3.5 py-1 text-xs font-cinzel tracking-wider text-secondary-light shadow-2xs">
-                    <span className="flex h-2 w-2 rounded-full bg-accent-light" />
-                    <span>
-                      {t(
-                        'বাংলাদেশ আইন ও প্রশাসনিক প্রস্তুতি সহকারী',
-                        'BANGLADESH LEGAL INFORMATION & PREPARATION ASSISTANT'
-                      )}
-                    </span>
-                  </div>
-
-                  {/* Main Hero Headline */}
-                  {lang === 'bn' ? (
-                    <h1 className="font-anek text-3xl sm:text-5xl md:text-[3.35rem] font-extrabold text-[#231F1C] leading-[1.3] tracking-tight">
-                      MyLaws: বাংলাদেশের প্রত্যেক নাগরিকের জন্য<br className="hidden md:inline" /> নির্ভরযোগ্য আইনি সহায়তা
-                    </h1>
-                  ) : (
-                    <h1 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.14] text-[#231F1C]">
-                      MyLaws: Intelligent Legal Assistance for Every Citizen of Bangladesh
-                    </h1>
-                  )}
-
-                  {/* Subtitle / Promise */}
-                  {lang === 'bn' ? (
-                    <p className="font-hind text-lg sm:text-xl font-semibold text-accent-light tracking-wide">
-                      আপনার অধিকার বুঝুন। নির্ভরযোগ্য পরবর্তী পদক্ষেপ নিন।
-                    </p>
-                  ) : (
-                    <p className="font-display text-lg sm:text-xl font-medium text-accent-light italic">
-                      Understand your rights. Know your next step.
-                    </p>
-                  )}
-
-                  {/* Body Copy */}
-                  <p className="font-hind text-sm sm:text-base text-[#5A534A] leading-relaxed max-w-xl font-normal">
+                {/* Reference Pill Label */}
+                <div className="inline-flex items-center gap-2 rounded-full border border-border-light bg-surface-light px-3.5 py-1 text-xs font-cinzel tracking-wider text-secondary-light shadow-2xs">
+                  <span className="flex h-2 w-2 rounded-full bg-accent-light" />
+                  <span>
                     {t(
-                      'সহজ বাংলা, বাংলিশ বা ইংরেজিতে আপনার সমস্যাটি বলুন। MyLaws জটিল আইনকে স্পষ্ট চেকলিস্টে রূপান্তরিত করে, সরকারি গেজেটের মূল বিধান দেখায় এবং প্রয়োজনীয় লিখিত অভিযোগ বা সাধারণ ডায়েরির (GD) খসড়া প্রস্তুত করে।',
-                      'Describe everyday legal situations naturally in Bangla, Banglish, or English. MyLaws translates complex statutes into clear Action Checklists, inspects official gazette sources, and prepares editable drafts.'
+                      'বাংলাদেশ আইন ও প্রশাসনিক প্রস্তুতি সহকারী',
+                      'BANGLADESH LEGAL INFORMATION & PREPARATION ASSISTANT'
                     )}
+                  </span>
+                </div>
+
+                {/* Main Hero Headline */}
+                {lang === 'bn' ? (
+                  <h1 className="font-anek text-3xl sm:text-5xl md:text-[3.25rem] font-extrabold text-[#231F1C] leading-[1.28] tracking-tight">
+                    MyLaws: বাংলাদেশের প্রত্যেক নাগরিকের জন্য<br className="hidden md:inline" /> নির্ভরযোগ্য আইনি সহায়তা
+                  </h1>
+                ) : (
+                  <h1 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.14] text-[#231F1C]">
+                    MyLaws: Intelligent Legal Assistance for Every Citizen of Bangladesh
+                  </h1>
+                )}
+
+                {/* Subtitle / Promise */}
+                {lang === 'bn' ? (
+                  <p className="font-hind text-lg sm:text-xl font-semibold text-accent-light tracking-wide">
+                    আপনার অধিকার বুঝুন। নির্ভরযোগ্য পরবর্তী পদক্ষেপ নিন।
                   </p>
+                ) : (
+                  <p className="font-display text-lg sm:text-xl font-medium text-accent-light italic">
+                    Understand your rights. Know your next step.
+                  </p>
+                )}
 
-                  {/* Action Buttons: Signature Bracket Button & Application Target */}
-                  <div className="flex flex-wrap items-center gap-4 pt-2">
-                    <Link
-                      href="/ask"
-                      className="bracket-btn text-[#231F1C] hover:text-accent-light py-3.5 px-7 shadow-sm"
-                    >
-                      <span className={lang === 'bn' ? 'font-hind font-bold text-xs' : 'font-cinzel text-xs font-bold'}>
-                        — {t('এখনই প্রশ্ন করুন', 'USE ONLINE NOW')} —
-                      </span>
-                    </Link>
+                {/* Body Copy */}
+                <p className="font-hind text-sm sm:text-base text-[#5A534A] leading-relaxed max-w-xl font-normal">
+                  {t(
+                    'সহজ বাংলা, বাংলিশ বা ইংরেজিতে আপনার সমস্যাটি বলুন। MyLaws জটিল আইনকে স্পষ্ট চেকলিস্টে রূপান্তরিত করে, সরকারি গেজেটের মূল বিধান দেখায় এবং প্রয়োজনীয় লিখিত অভিযোগ বা সাধারণ ডায়েরির (GD) খসড়া প্রস্তুত করে।',
+                    'Describe everyday legal situations naturally in Bangla, Banglish, or English. MyLaws translates complex statutes into clear Action Checklists, inspects official gazette sources, and prepares editable drafts.'
+                  )}
+                </p>
 
-                    <Link
-                      href="/download"
-                      className="inline-flex items-center gap-2 rounded-lg border border-border-light bg-surface-light px-5 py-3 text-xs tracking-wider text-[#231F1C] hover:border-accent-light hover:text-accent-light transition-all shadow-2xs"
-                    >
-                      <Smartphone className="h-4 w-4 text-accent-light" />
-                      <span className={lang === 'bn' ? 'font-hind font-semibold text-xs' : 'font-cinzel text-xs'}>
-                        {t('অ্যাপ্লিকেশন', 'APPLICATION')}
-                      </span>
-                    </Link>
+                {/* Action Buttons: Signature Bracket Button & Application Target */}
+                <div className="flex flex-wrap items-center gap-4 pt-1">
+                  <Link
+                    href="/ask"
+                    className="bracket-btn text-[#231F1C] hover:text-accent-light py-3.5 px-7 shadow-sm"
+                  >
+                    <span className={lang === 'bn' ? 'font-hind font-bold text-xs' : 'font-cinzel text-xs font-bold'}>
+                      — {t('এখনই প্রশ্ন করুন', 'USE ONLINE NOW')} —
+                    </span>
+                  </Link>
+
+                  <Link
+                    href="/download"
+                    className="inline-flex items-center gap-2 rounded-lg border border-border-light bg-surface-light px-5 py-3 text-xs tracking-wider text-[#231F1C] hover:border-accent-light hover:text-accent-light transition-all shadow-2xs"
+                  >
+                    <Smartphone className="h-4 w-4 text-accent-light" />
+                    <span className={lang === 'bn' ? 'font-hind font-semibold text-xs' : 'font-cinzel text-xs'}>
+                      {t('অ্যাপ্লিকেশন', 'APPLICATION')}
+                    </span>
+                  </Link>
+                </div>
+
+                {/* Trust guarantees */}
+                <div className="flex flex-wrap items-center gap-5 pt-2 text-xs text-[#5A534A]">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0" />
+                    <span>{t('লগইন বা একাউন্ট ছাড়াই ব্যবহারযোগ্য', 'Zero login required')}</span>
                   </div>
-
-                  {/* Trust guarantees */}
-                  <div className="flex flex-wrap items-center gap-5 pt-3 text-xs text-[#5A534A]">
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle2 className="h-4 w-4 text-accent-light" />
-                      <span>{t('লগইন বা একাউন্ট ছাড়াই ব্যবহারযোগ্য', 'Zero login required')}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle2 className="h-4 w-4 text-accent-light" />
-                      <span>{t('অফিশিয়াল গেজেটের আসল পাঠ ও লিঙ্ক', 'Exact gazette citations')}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle2 className="h-4 w-4 text-accent-light" />
-                      <span>{t('ব্রাউজারেই তথ্য নিরাপদ', '100% private in browser')}</span>
-                    </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0" />
+                    <span>{t('অফিশিয়াল গেজেটের আসল পাঠ ও লিঙ্ক', 'Exact gazette citations')}</span>
                   </div>
-
-                  {/* Interactive Animated Scroll Cue */}
-                  <div className="pt-4 flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        window.scrollBy({ top: window.innerHeight * 0.85, behavior: 'smooth' });
-                      }}
-                      className="group inline-flex items-center gap-2.5 text-xs text-[#5A534A] hover:text-accent-light transition-all py-1 cursor-pointer"
-                      aria-label={t('স্ক্রল করে ৩ডি ভিউ দেখুন', 'Scroll to rotate 3D turntable')}
-                    >
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full border border-border-light bg-surface-light group-hover:border-accent-light group-hover:bg-accent-light/10 shadow-2xs transition-all">
-                        <ChevronDown className="h-4 w-4 text-accent-light animate-scroll-bounce" />
-                      </div>
-                      <span className={lang === 'bn' ? 'font-hind font-semibold text-xs' : 'font-cinzel text-xs tracking-wider'}>
-                        {t('নিচে স্ক্রল করে ৩ডি পরিভ্রমণ দেখুন', 'SCROLL TO ROTATE 360°')}
-                      </span>
-                      <span className="h-[1.5px] w-16 bg-border-light group-hover:w-24 group-hover:bg-accent-light transition-all" />
-                    </button>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0" />
+                    <span>{t('ব্রাউজারেই তথ্য নিরাপদ', '100% private in browser')}</span>
                   </div>
                 </div>
 
-                {/* ----------------------------------------------------
-                    BLOCK 2: Feature 01 - Statutory Verification (~25% to ~50% Scroll)
-                    ---------------------------------------------------- */}
-                <div className="p-7 sm:p-9 rounded-3xl border border-border-light bg-surface-cardLight/95 shadow-sm space-y-5 transition-all">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
-                    <ShieldCheck className="h-4 w-4" />
-                    <span className="font-cinzel text-[11px] tracking-wider uppercase">
-                      {t('বৈশিষ্ট্য ০১ · গেজেটভিত্তিক তথ্য', 'FEATURE 01 · STATUTORY VERIFICATION')}
+                {/* Interactive Animated Scroll Cue */}
+                <div className="pt-3 flex items-center gap-3">
+                  <a
+                    href="#core-features"
+                    className="group inline-flex items-center gap-2.5 text-xs text-[#5A534A] hover:text-accent-light transition-all py-1 cursor-pointer"
+                    aria-label={t('স্ক্রল করে মূল বৈশিষ্ট্যসমূহ দেখুন', 'Scroll to view core features')}
+                  >
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-border-light bg-surface-light group-hover:border-accent-light group-hover:bg-accent-light/10 shadow-2xs transition-all">
+                      <ChevronDown className="h-4 w-4 text-accent-light animate-scroll-bounce" />
+                    </div>
+                    <span className={lang === 'bn' ? 'font-hind font-semibold text-xs' : 'font-cinzel text-xs tracking-wider'}>
+                      {t('মূল ৩টি আইনি স্তম্ভ দেখুন', 'VIEW 3 CORE PILLARS')}
                     </span>
+                    <span className="h-[1.5px] w-16 bg-border-light group-hover:w-24 group-hover:bg-accent-light transition-all" />
+                  </a>
+                </div>
+              </div>
+
+              {/* RIGHT 6 COLUMNS: 3D Turntable Scales of Justice */}
+              <div className="lg:col-span-6 flex items-center justify-center py-2 px-1">
+                <TurntableScales containerRef={turntableContainerRef} />
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================
+            CORE FEATURES SECTION: Balanced 3-Column Dossier Grid
+            ======================================================== */}
+        <section id="core-features" className="py-16 sm:py-24 border-b border-border-light/80 bg-surface-light/35 scroll-mt-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            
+            {/* Section Header */}
+            <div className="text-center space-y-2.5 mb-12 sm:mb-16">
+              <span className="font-cinzel text-xs font-semibold uppercase tracking-[0.2em] text-accent-light">
+                {t('মৌলিক ৩টি আইনি সক্ষমতা', 'THREE CORE CAPABILITIES')}
+              </span>
+              <h2 className="font-display text-2xl sm:text-4xl font-bold text-[#231F1C] tracking-tight">
+                {t(
+                  'আইনি সচেতনতা থেকে কার্যকর পদক্ষেপ—MyLaws এর ৩টি মূল স্তম্ভ',
+                  'From Legal Awareness to Action: Three Foundational Pillars'
+                )}
+              </h2>
+              <p className="text-xs sm:text-sm text-[#5A534A] max-w-2xl mx-auto font-hind leading-relaxed">
+                {t(
+                  'সরকারি গেজেটের আসল রেফারেন্স যাচাই, ধাপে ধাপে ব্যবহারিক চেকলিস্ট এবং প্রমিত আইনি আবেদনপত্র প্রস্তুতের সমন্বিত সমাধান।',
+                  'A comprehensive framework combining statutory verification, actionable checklists, and verified draft preparation.'
+                )}
+              </p>
+            </div>
+
+            {/* 3-Column Architectural Cards Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+              
+              {/* Feature 01: Statutory Verification */}
+              <div className="p-7 sm:p-8 rounded-3xl border border-border-light bg-surface-cardLight/95 shadow-sm flex flex-col justify-between space-y-5 hover:border-accent-light/50 transition-all">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
+                      <ShieldCheck className="h-4 w-4" />
+                      <span className="font-cinzel text-[11px] tracking-wider uppercase">
+                        {t('বৈশিষ্ট্য ০১ · গেজেটভিত্তিক তথ্য', 'FEATURE 01 · STATUTORY VERIFICATION')}
+                      </span>
+                    </div>
+                    <span className="font-cinzel font-bold text-accent-light/60 text-lg">০১</span>
                   </div>
 
-                  <h2 className="font-anek text-2xl sm:text-3xl font-extrabold text-[#231F1C] tracking-tight leading-snug">
+                  <h3 className="font-anek text-xl sm:text-2xl font-extrabold text-[#231F1C] tracking-tight leading-snug">
                     {t(
                       'সরকারি গেজেট ও আইনের মূল ধারা থেকে সরাসরি উদ্ধৃতি',
                       'Verified Statutory Grounding & Exact Gazette Citations'
                     )}
-                  </h2>
+                  </h3>
 
-                  <p className="font-hind text-sm text-[#5A534A] leading-relaxed">
+                  <p className="font-hind text-xs sm:text-sm text-[#5A534A] leading-relaxed">
                     {t(
-                      'MyLaws কোনো কাল্পনিক বা অনুমাননির্ভর আইনি তথ্য প্রদান করে না। প্রতিটি দাবির সাথে বাংলাদেশ কোডের (bdlaws.minlaw.gov.bd) অফিসিয়াল আইনের সংশ্লিষ্ট ধারা ও হুবহু মূল পাঠ প্রদর্শিত হয়, যা সরাসরি সরকারি পোর্টাল থেকে মিলিয়ে দেখা সম্ভব।',
-                      'No fabricated statutes or hallucinated legal advice. Every claim is strictly grounded in verified legislation from the official Bangladesh Code with verbatim quotations under 25 words.'
+                      'MyLaws কোনো কাল্পনিক বা অনুমাননির্ভর আইনি তথ্য প্রদান করে না। প্রতিটি দাবির সাথে বাংলাদেশ কোডের (bdlaws.minlaw.gov.bd) সংশ্লিষ্ট ধারা ও হুবহু মূল পাঠ প্রদর্শিত হয়, যা সরাসরি সরকারি পোর্টাল থেকে মিলিয়ে দেখা সম্ভব।',
+                      'No fabricated statutes or hallucinated legal advice. Every claim is strictly grounded in verified legislation from the official Bangladesh Code with verbatim quotations.'
                     )}
                   </p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
-                    <div className="p-3 rounded-xl border border-border-light bg-[#F1EDE1]/60 space-y-1">
-                      <span className="font-bold text-accent-light font-cinzel text-base">২৩টি</span>
-                      <p className="text-[11px] text-[#5A534A] font-hind">যাচাইকৃত মূল ধারা</p>
+                  <div className="grid grid-cols-3 gap-2 pt-2 text-center text-xs">
+                    <div className="p-2.5 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
+                      <span className="font-bold text-accent-light font-cinzel text-base block">২৩টি</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">যাচাইকৃত ধারা</p>
                     </div>
-                    <div className="p-3 rounded-xl border border-border-light bg-[#F1EDE1]/60 space-y-1">
-                      <span className="font-bold text-accent-light font-cinzel text-base">৬টি</span>
-                      <p className="text-[11px] text-[#5A534A] font-hind">মৌলিক আইনের পরিধি</p>
+                    <div className="p-2.5 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
+                      <span className="font-bold text-accent-light font-cinzel text-base block">৬টি</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">আইনের পরিধি</p>
                     </div>
-                    <div className="p-3 rounded-xl border border-border-light bg-[#F1EDE1]/60 space-y-1">
-                      <span className="font-bold text-accent-light font-cinzel text-base">১০০%</span>
-                      <p className="text-[11px] text-[#5A534A] font-hind">bdlaws অফিশিয়াল লিঙ্ক</p>
+                    <div className="p-2.5 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
+                      <span className="font-bold text-accent-light font-cinzel text-base block">১০০%</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">bdlaws লিঙ্ক</p>
                     </div>
-                  </div>
-
-                  <div className="pt-2">
-                    <Link
-                      href="/sources"
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-light hover:underline font-hind"
-                    >
-                      <span>{t('সম্পূর্ণ আইনি ডাটাবেজ পরীক্ষা করুন →', 'Explore Verified Legal Corpus →')}</span>
-                    </Link>
                   </div>
                 </div>
 
-                {/* ----------------------------------------------------
-                    BLOCK 3: Feature 02 - Action Checklist (~50% to ~75% Scroll)
-                    ---------------------------------------------------- */}
-                <div className="p-7 sm:p-9 rounded-3xl border border-border-light bg-surface-cardLight/95 shadow-sm space-y-5 transition-all">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
-                    <CheckSquare className="h-4 w-4" />
-                    <span className="font-cinzel text-[11px] tracking-wider uppercase">
-                      {t('বৈশিষ্ট্য ০২ · ব্যবহারিক চেকলিস্ট', 'FEATURE 02 · ACTION CHECKLIST')}
-                    </span>
+                <div className="pt-4 border-t border-border-light/60">
+                  <Link
+                    href="/sources"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-light hover:underline font-hind"
+                  >
+                    <span>{t('সম্পূর্ণ আইনি ডাটাবেজ পরীক্ষা করুন →', 'Explore Verified Legal Corpus →')}</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Feature 02: Action Checklist */}
+              <div className="p-7 sm:p-8 rounded-3xl border border-border-light bg-surface-cardLight/95 shadow-sm flex flex-col justify-between space-y-5 hover:border-accent-light/50 transition-all">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
+                      <CheckSquare className="h-4 w-4" />
+                      <span className="font-cinzel text-[11px] tracking-wider uppercase">
+                        {t('বৈশিষ্ট্য ০২ · ব্যবহারিক চেকলিস্ট', 'FEATURE 02 · ACTION CHECKLIST')}
+                      </span>
+                    </div>
+                    <span className="font-cinzel font-bold text-accent-light/60 text-lg">০২</span>
                   </div>
 
-                  <h2 className="font-anek text-2xl sm:text-3xl font-extrabold text-[#231F1C] tracking-tight leading-snug">
+                  <h3 className="font-anek text-xl sm:text-2xl font-extrabold text-[#231F1C] tracking-tight leading-snug">
                     {t(
                       'জটিল আইনি ভাষায় না জড়িয়ে ৩ থেকে ৫টি করণীয় পদক্ষেপ',
                       'Clear Action Checklists & Official Jurisdiction Routing'
                     )}
-                  </h2>
+                  </h3>
 
-                  <p className="font-hind text-sm text-[#5A534A] leading-relaxed">
+                  <p className="font-hind text-xs sm:text-sm text-[#5A534A] leading-relaxed">
                     {t(
-                      'আপনার পরিস্থিতির বিবরণ পাওয়ার সাথে সাথে MyLaws ৩ থেকে ৫টি বাস্তবায়নযোগ্য পদক্ষেপ সাজিয়ে দেয়। কোন সরকারি দপ্তরে (DIFE 16104, পুলিশ ৯৯৯ বা ভোক্তা অধিকার ১৬১২১) কখন যাবেন এবং কী প্রমাণ সংগ্রহ করবেন তা সুস্পষ্ট থাকে।',
+                      'আপনার পরিস্থিতির বিবরণ পাওয়ার সাথে সাথে MyLaws ৩ থেকে ৫টি বাস্তবায়নযোগ্য পদক্ষেপ সাজিয়ে দেয়। কোন সরকারি দপ্তরে কখন যাবেন এবং কী প্রমাণ সংগ্রহ করবেন তা সুস্পষ্ট থাকে।',
                       'Translate complex statutes into an intuitive 3 to 5 step checklist. Know exactly what evidence to preserve, statutory deadlines to respect, and which governmental hotline to contact.'
                     )}
                   </p>
 
-                  <div className="space-y-2 pt-2 text-xs font-hind">
-                    <div className="flex items-center gap-2 text-[#5A534A]">
-                      <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0" />
+                  <div className="space-y-2 pt-1 text-xs font-hind">
+                    <div className="flex items-start gap-2 text-[#5A534A]">
+                      <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0 mt-0.5" />
                       <span>প্রমাণ ও দালিলিক কাগজপত্র সংরক্ষণের সুনির্দিষ্ট দিকনির্দেশনা</span>
                     </div>
-                    <div className="flex items-center gap-2 text-[#5A534A]">
-                      <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0" />
-                      <span>কলকারখানা পরিদর্শক (DIFE 16104) ও জাতীয় জরুরি সেবা (999) হটলাইন</span>
+                    <div className="flex items-start gap-2 text-[#5A534A]">
+                      <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0 mt-0.5" />
+                      <span>কলকারখানা পরিদর্শক (16104) ও জাতীয় জরুরি সেবা (999) হটলাইন</span>
                     </div>
-                    <div className="flex items-center gap-2 text-[#5A534A]">
-                      <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0" />
-                      <span>কখন আইনজীবী নিয়োগ করবেন এবং কখন সরকারি লিগ্যাল এইড (16699) পাবেন</span>
+                    <div className="flex items-start gap-2 text-[#5A534A]">
+                      <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0 mt-0.5" />
+                      <span>কখন আইনজীবী প্রয়োজন এবং সরকারি লিগ্যাল এইড (16699) প্রাপ্তির নিয়ম</span>
                     </div>
                   </div>
                 </div>
 
-                {/* ----------------------------------------------------
-                    BLOCK 4: Feature 03 - Drafts & A4 PDF (~75% to 100% Scroll)
-                    ---------------------------------------------------- */}
-                <div className="p-7 sm:p-9 rounded-3xl border border-border-light bg-surface-cardLight/95 shadow-sm space-y-5 transition-all">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
-                    <FileText className="h-4 w-4" />
-                    <span className="font-cinzel text-[11px] tracking-wider uppercase">
-                      {t('বৈশিষ্ট্য ০৩ · প্রমিত খসড়া প্রস্তুত', 'FEATURE 03 · DRAFT PREPARATION')}
-                    </span>
+                <div className="pt-4 border-t border-border-light/60">
+                  <Link
+                    href="/ask"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-light hover:underline font-hind"
+                  >
+                    <span>{t('অনলাইন সহকারী ব্যবহার করে দেখুন →', 'Try Action Assistant Online →')}</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Feature 03: Drafts & A4 PDF */}
+              <div className="p-7 sm:p-8 rounded-3xl border border-border-light bg-surface-cardLight/95 shadow-sm flex flex-col justify-between space-y-5 hover:border-accent-light/50 transition-all">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
+                      <FileText className="h-4 w-4" />
+                      <span className="font-cinzel text-[11px] tracking-wider uppercase">
+                        {t('বৈশিষ্ট্য ০৩ · প্রমিত খসড়া প্রস্তুত', 'FEATURE 03 · DRAFT PREPARATION')}
+                      </span>
+                    </div>
+                    <span className="font-cinzel font-bold text-accent-light/60 text-lg">০৩</span>
                   </div>
 
-                  <h2 className="font-anek text-2xl sm:text-3xl font-extrabold text-[#231F1C] tracking-tight leading-snug">
+                  <h3 className="font-anek text-xl sm:text-2xl font-extrabold text-[#231F1C] tracking-tight leading-snug">
                     {t(
                       'বাংলায় লিখিত অভিযোগ ও জিডির খসড়া এবং A4 PDF ডাউনলোড',
                       'Standardized Bangla Complaints & Print-Ready A4 PDF'
                     )}
-                  </h2>
+                  </h3>
 
-                  <p className="font-hind text-sm text-[#5A534A] leading-relaxed">
+                  <p className="font-hind text-xs sm:text-sm text-[#5A534A] leading-relaxed">
                     {t(
                       'আপনার উত্তর ও ঘটনার ভিত্তিতে শ্রম পরিদর্শক বা থানার ভারপ্রাপ্ত কর্মকর্তা বরাবর প্রমিত আইনি আবেদনপত্র প্রস্তুত হয়। ব্রাউজারে বাংলায় সরাসরি সম্পাদনা করে নির্ভুল মার্জিন ও পৃষ্ঠা নম্বরসহ A4 PDF ডাউনলোড করুন।',
                       'Generate structured General Diary (GD) or DIFE written complaint drafts from confirmed facts. Review, customize in Bangla, and export crisp multi-page A4 PDFs with zero cloud tracking.'
                     )}
                   </p>
 
-                  <div className="pt-2">
-                    <Link
-                      href="/drafts"
-                      className="bracket-btn text-xs font-bold tracking-wider"
-                    >
-                      <span>— {t('খসড়া তৈরি শুরু করুন', 'START DRAFTING')} —</span>
-                    </Link>
+                  <div className="space-y-2 pt-1 text-xs font-hind">
+                    <div className="flex items-start gap-2 text-[#5A534A]">
+                      <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0 mt-0.5" />
+                      <span>তাৎক্ষণিক বাংলায় এডিটেবল প্রমিত আবেদন ও জিডি খসড়া</span>
+                    </div>
+                    <div className="flex items-start gap-2 text-[#5A534A]">
+                      <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0 mt-0.5" />
+                      <span>অফিসিয়াল মার্জিন ও পৃষ্ঠা নম্বরসহ প্রিন্ট-রেডি A4 PDF এক্সপোর্ট</span>
+                    </div>
+                    <div className="flex items-start gap-2 text-[#5A534A]">
+                      <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0 mt-0.5" />
+                      <span>১০০% ব্রাউজারে ব্যক্তিগত ও নিরাপদ—কোনো ক্লাউড স্টোরেজ নেই</span>
+                    </div>
                   </div>
                 </div>
 
-              </div>
-
-              {/* RIGHT 6 COLUMNS: Sticky top-0 h-screen keeping the 3D Scales pinned */}
-              <div className="lg:col-span-6 sticky top-0 h-screen flex items-center justify-center overflow-hidden py-2 px-1">
-                <TurntableScales containerRef={turntableContainerRef} />
+                <div className="pt-4 border-t border-border-light/60">
+                  <Link
+                    href="/drafts"
+                    className="bracket-btn text-xs font-bold tracking-wider inline-block text-center w-full sm:w-auto"
+                  >
+                    <span>— {t('খসড়া তৈরি শুরু করুন', 'START DRAFTING')} —</span>
+                  </Link>
+                </div>
               </div>
 
             </div>
