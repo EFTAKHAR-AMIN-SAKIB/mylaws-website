@@ -6,7 +6,7 @@ import { useApp } from './AppContext';
 import { Scale, Sparkles } from 'lucide-react';
 
 export function LadyJustice() {
-  const { t } = useApp();
+  const { lang, t } = useApp();
   const [tiltMode, setTiltMode] = useState<'auto' | 'left' | 'right'>('auto');
 
   return (
@@ -155,11 +155,13 @@ export function LadyJustice() {
 
       {/* Classical Badge under the Statue */}
       <div className="text-center mt-2 flex flex-col items-center">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border-light/80 bg-surface-light/80 backdrop-blur-xs text-[11px] font-cinzel font-semibold tracking-wider text-secondary-light shadow-2xs">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border-light/80 bg-surface-light/80 backdrop-blur-xs text-[11px] font-semibold tracking-wider text-secondary-light shadow-2xs">
           <Scale className="h-3.5 w-3.5 text-accent-light" />
-          <span>{t('লেডি জাস্টিস · আইনের চিরন্তন সমতা', 'JUSTITIA · EQUALITY BEFORE LAW')}</span>
+          <span className={lang === 'bn' ? 'font-hind font-semibold' : 'font-cinzel tracking-wider'}>
+            {t('লেডি জাস্টিস · আইনের চিরন্তন সমতা', 'JUSTITIA · EQUALITY BEFORE LAW')}
+          </span>
         </div>
-        <p className="text-[10px] text-secondary-light/80 mt-1 font-serif italic">
+        <p className={`text-[10px] text-secondary-light/80 mt-1 ${lang === 'bn' ? 'font-hind font-medium' : 'font-serif italic'}`}>
           {t('পাল্লা স্পর্শ করে ভারসাম্য পরীক্ষা করুন', 'Hover pans to balance facts against statutory rights')}
         </p>
       </div>

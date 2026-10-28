@@ -58,11 +58,11 @@ export default function SourcesPage() {
             <span>{t('উৎস সত্যতা ও নিরীক্ষা নীতি', 'Source Integrity & Verification Methodology')}</span>
           </div>
 
-          <h1 className="font-cinzel text-3xl sm:text-4xl font-bold tracking-wide text-primary-light">
+          <h1 className="font-anek text-3xl sm:text-4xl font-extrabold tracking-tight text-primary-light">
             {t('যাচাইকৃত আইনি উৎস ও কার্যপদ্ধতি', 'Verified Statutory Corpus & Methodology')}
           </h1>
 
-          <p className="text-xs sm:text-sm text-secondary-light dark:text-secondary-dark leading-relaxed">
+          <p className="font-hind text-xs sm:text-sm text-secondary-light leading-relaxed">
             {t(
               'মাই লজ (MyLaws) কোনো অনুমাননির্ভর তথ্য বা কাল্পনিক আইনের উদ্ধৃতি প্রদান করে না। বর্তমান পাইলট ডাটাবেজে বাংলাদেশ সরকারের আইন মন্ত্রণালয়ের লেজিসলেটিভ ও সংসদ বিষয়ক বিভাগের অফিশিয়াল পোর্টাল (bdlaws.minlaw.gov.bd) থেকে সংগৃহীত ৬টি মূল আইনের ২৩টি বিধান সংরক্ষিত রয়েছে।',
               'MyLaws does not hallucinate statutes. The current verified corpus contains 23 specific provisions across 6 core instruments from the official Bangladesh Code portal (bdlaws.minlaw.gov.bd).'

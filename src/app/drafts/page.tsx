@@ -141,10 +141,10 @@ export default function DraftsPage() {
         {/* Page Header */}
         <div className="no-print flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-border-light/80 gap-4">
           <div>
-            <h1 className="font-cinzel text-2xl sm:text-3xl font-bold tracking-wide text-primary-light">
+            <h1 className="font-anek text-2xl sm:text-3xl font-extrabold tracking-tight text-primary-light">
               {t('অভিযোগ ও জিডি খসড়া প্রস্তুতকারক', 'Bangla Complaint & GD Draft Generator')}
             </h1>
-            <p className="text-xs text-secondary-light dark:text-secondary-dark mt-1 font-sans">
+            <p className="font-hind text-xs sm:text-sm text-secondary-light mt-1">
               {t(
                 'অনলাইনে ঘটনা ও ব্যক্তিগত বিবরণ নিশ্চিত করুন, প্রমিত খসড়া সম্পাদনা করুন এবং নির্ভুল A4 PDF ডাউনলোড করুন।',
                 'Verify details, edit standardized Bangla complaint templates, and export clean A4 PDFs.'
@@ -153,23 +153,27 @@ export default function DraftsPage() {
           </div>
 
           {/* Template Switcher Tabs */}
-          <div className="flex items-center gap-1.5 p-1 bg-surface-cardLight dark:bg-surface-cardDark border border-border-light dark:border-border-dark rounded-xl shadow-sm">
+          <div className="flex items-center gap-1.5 p-1 bg-surface-cardLight border border-border-light rounded-xl shadow-2xs">
             <button
               onClick={() => handleTypeChange('dife')}
-              className={`px-3.5 py-2 text-xs font-cinzel tracking-wider rounded-lg transition-all ${
+              className={`px-3.5 py-2 text-xs tracking-wider rounded-lg transition-all ${
+                lang === 'bn' ? 'font-hind font-semibold' : 'font-cinzel'
+              } ${
                 docType === 'dife'
-                  ? 'bg-accent-light text-surface-light dark:bg-accent-dark dark:text-bg-dark font-bold shadow-sm'
-                  : 'text-secondary-light dark:text-secondary-dark hover:text-primary-light dark:hover:text-primary-dark'
+                  ? 'bg-accent-light text-surface-light font-bold shadow-2xs'
+                  : 'text-secondary-light hover:text-primary-light'
               }`}
             >
               {t('ডিআইএফই শ্রম অভিযোগ', 'DIFE COMPLAINT')}
             </button>
             <button
               onClick={() => handleTypeChange('gd')}
-              className={`px-3.5 py-2 text-xs font-cinzel tracking-wider rounded-lg transition-all ${
+              className={`px-3.5 py-2 text-xs tracking-wider rounded-lg transition-all ${
+                lang === 'bn' ? 'font-hind font-semibold' : 'font-cinzel'
+              } ${
                 docType === 'gd'
-                  ? 'bg-accent-light text-surface-light dark:bg-accent-dark dark:text-bg-dark font-bold shadow-sm'
-                  : 'text-secondary-light dark:text-secondary-dark hover:text-primary-light dark:hover:text-primary-dark'
+                  ? 'bg-accent-light text-surface-light font-bold shadow-2xs'
+                  : 'text-secondary-light hover:text-primary-light'
               }`}
             >
               {t('সাধারণ ডায়েরির আবেদন (GD)', 'POLICE GD')}

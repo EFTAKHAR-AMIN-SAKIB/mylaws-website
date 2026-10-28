@@ -153,10 +153,10 @@ function AskContent() {
               <Sparkles className="h-3.5 w-3.5" />
               <span>{t('আইনি অনুসন্ধান ও সমাধান', 'Legal Inquiry & Resolution')}</span>
             </div>
-            <h1 className="font-cinzel text-2xl sm:text-3xl font-bold tracking-wide text-primary-light">
+            <h1 className="font-anek text-2xl sm:text-3xl font-extrabold tracking-tight text-primary-light">
               {t('অনলাইন আইনি সহকারী', 'Online Legal Assistant')}
             </h1>
-            <p className="text-xs sm:text-sm text-secondary-light dark:text-secondary-dark mt-1">
+            <p className="font-hind text-xs sm:text-sm text-secondary-light mt-1">
               {t(
                 'বাংলাদেশ কোডের গেজেটভিত্তিক তথ্য, অ্যাকশন চেকলিস্ট ও খসড়া তৈরির সহায়তা',
                 'Official gazette provisions, actionable checklists, and draft preparation'
@@ -164,19 +164,19 @@ function AskContent() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-secondary-light dark:text-secondary-dark bg-surface-light dark:bg-surface-dark px-3 py-1.5 rounded-lg border border-border-light dark:border-border-dark self-start sm:self-auto">
-            <Info className="h-3.5 w-3.5 text-accent-light dark:text-accent-dark" />
-            <span>{t('কোনো একাউন্ট বা লগইন প্রয়োজন নেই', 'No login required')}</span>
+          <div className="flex items-center gap-2 text-xs text-secondary-light bg-surface-light px-3 py-1.5 rounded-lg border border-border-light self-start sm:self-auto shadow-2xs">
+            <Info className="h-3.5 w-3.5 text-accent-light" />
+            <span className="font-hind">{t('কোনো একাউন্ট বা লগইন প্রয়োজন নেই', 'No login required')}</span>
           </div>
         </div>
 
         {/* Input Composer Section */}
-        <div className="mt-6 p-4 sm:p-6 rounded-2xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-sm space-y-4">
+        <div className="mt-6 p-4 sm:p-6 rounded-2xl border border-border-light bg-surface-light shadow-sm space-y-4">
           <div className="flex items-center justify-between">
-            <label htmlFor="legal-input" className="block text-xs font-cinzel font-bold tracking-wider uppercase text-primary-light dark:text-accent-dark">
+            <label htmlFor="legal-input" className="block text-xs font-hind font-bold tracking-wide uppercase text-primary-light">
               {t('আপনার পরিস্থিতি বা আইনি প্রশ্নটি লিখুন:', 'Describe your situation or legal question:')}
             </label>
-            <span className="text-[11px] text-secondary-light dark:text-secondary-dark hidden sm:inline">
+            <span className="text-[11px] font-hind text-secondary-light hidden sm:inline">
               {t('গোপনীয় ও নিরাপদ · ব্রাউজারের বাইরে তথ্য সংরক্ষিত হয় না', 'Private & Secure · No browser tracking')}
             </span>
           </div>

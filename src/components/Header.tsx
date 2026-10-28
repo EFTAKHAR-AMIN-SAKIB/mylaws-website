@@ -37,7 +37,11 @@ export function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`font-cinzel text-xs tracking-[0.16em] uppercase transition-colors relative py-1 ${
+                className={`transition-colors relative py-1 ${
+                  lang === 'bn'
+                    ? 'font-hind font-semibold text-[13px] tracking-wide'
+                    : 'font-cinzel text-xs tracking-[0.16em] uppercase'
+                } ${
                   isActive
                     ? 'text-accent-light font-bold'
                     : 'text-secondary-light/90 hover:text-primary-light'
@@ -57,7 +61,9 @@ export function Header() {
           {/* Language Switch */}
           <button
             onClick={() => setLang(lang === 'bn' ? 'en' : 'bn')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium font-cinzel tracking-wider rounded border border-border-light bg-surface-light text-secondary-light hover:border-accent-light hover:text-primary-light transition-all shadow-2xs"
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium tracking-wider rounded border border-border-light bg-surface-light text-secondary-light hover:border-accent-light hover:text-primary-light transition-all shadow-2xs ${
+              lang === 'bn' ? 'font-hind font-semibold' : 'font-cinzel'
+            }`}
             title={t('Switch to English', 'বাংলায় পরিবর্তন করুন')}
           >
             <Globe className="h-3 w-3 text-accent-light" />
@@ -71,7 +77,9 @@ export function Header() {
           >
             <span className="flex items-center gap-1.5">
               <span>—</span>
-              <span>{t('এখনই প্রশ্ন করুন', 'ASK MYLAWS')}</span>
+              <span className={lang === 'bn' ? 'font-hind font-bold text-xs' : 'font-cinzel text-xs font-bold'}>
+                {t('এখনই প্রশ্ন করুন', 'ASK MYLAWS')}
+              </span>
             </span>
           </Link>
         </div>

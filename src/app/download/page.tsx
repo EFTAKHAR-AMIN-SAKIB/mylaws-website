@@ -33,11 +33,11 @@ export default function DownloadPage() {
             <span>{t('অ্যান্ড্রয়েড রিলিজ ও বিবরণী', 'Android Release Manifest')}</span>
           </div>
 
-          <h1 className="font-cinzel text-3xl sm:text-4xl font-bold tracking-wide text-primary-light">
+          <h1 className="font-anek text-3xl sm:text-4xl font-extrabold tracking-tight text-primary-light">
             {t('মাই লজ অ্যান্ড্রয়েড অ্যাপ্লিকেশন', 'MyLaws Android Application')}
           </h1>
 
-          <p className="text-xs sm:text-sm text-secondary-light dark:text-secondary-dark leading-relaxed">
+          <p className="font-hind text-xs sm:text-sm text-secondary-light leading-relaxed">
             {t(
               'স্মার্টফোনে ব্যবহার উপযোগী জেটপ্যাক কম্পোজ (Jetpack Compose) ভিত্তিক নেটিভ অ্যাপ্লিকেশন। অনলাইন সহকারী ব্যবহারের পাশাপাশি ডিভাইসে স্থানীয় আইনি প্যাক ও ড্রাফট তৈরির সুবিধা প্রদান করে।',
               'Native Android application built with Jetpack Compose. Combines online assistant services with local database persistence and optional offline legal packs.'

@@ -92,24 +92,30 @@ export default function HomePage() {
                   </span>
                 </div>
 
-                {/* Hero Title: Deep Charcoal / Ink Serif Typography */}
-                <h1 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.12] text-primary-light">
-                  {t(
-                    'মাই লজ: বাংলাদেশের প্রত্যেক নাগরিকের জন্য নির্ভরযোগ্য আইনি সহায়তা',
-                    'MyLaws: Intelligent Legal Assistance for Every Citizen of Bangladesh'
-                  )}
-                </h1>
+                {/* Hero Title: Bold Geometric Display Bangla matching user reference screenshot */}
+                {lang === 'bn' ? (
+                  <h1 className="font-anek text-3xl sm:text-5xl md:text-[3.35rem] font-extrabold text-primary-light leading-[1.3] tracking-tight">
+                    মাই লজ: বাংলাদেশের প্রত্যেক নাগরিকের জন্য<br className="hidden md:inline" /> নির্ভরযোগ্য আইনি সহায়তা
+                  </h1>
+                ) : (
+                  <h1 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.14] text-primary-light">
+                    MyLaws: Intelligent Legal Assistance for Every Citizen of Bangladesh
+                  </h1>
+                )}
 
                 {/* Subtitle / Promise */}
-                <p className="font-display text-lg sm:text-xl font-medium text-accent-light italic">
-                  {t(
-                    'আপনার অধিকার বুঝুন। নির্ভরযোগ্য পরবর্তী পদক্ষেপ নিন।',
-                    'Understand your rights. Know your next step.'
-                  )}
-                </p>
+                {lang === 'bn' ? (
+                  <p className="font-hind text-lg sm:text-xl font-semibold text-accent-light tracking-wide">
+                    আপনার অধিকার বুঝুন। নির্ভরযোগ্য পরবর্তী পদক্ষেপ নিন।
+                  </p>
+                ) : (
+                  <p className="font-display text-lg sm:text-xl font-medium text-accent-light italic">
+                    Understand your rights. Know your next step.
+                  </p>
+                )}
 
                 {/* Body Copy */}
-                <p className="text-sm sm:text-base text-secondary-light leading-relaxed max-w-2xl font-sans">
+                <p className="font-hind text-sm sm:text-base text-secondary-light leading-relaxed max-w-2xl font-normal">
                   {t(
                     'সহজ বাংলা, বাংলিশ বা ইংরেজিতে আপনার সমস্যাটি বলুন। মাই লজ (MyLaws) জটিল আইনকে স্পষ্ট চেকলিস্টে রূপান্তরিত করে, সরকারি গেজেটের মূল বিধান দেখায় এবং প্রয়োজনীয় লিখিত অভিযোগ বা সাধারণ ডায়েরির (GD) খসড়া প্রস্তুত করে।',
                     'Describe everyday legal situations naturally in Bangla, Banglish, or English. MyLaws translates complex statutes into clear Action Checklists, inspects official gazette sources, and prepares editable drafts.'
@@ -120,17 +126,21 @@ export default function HomePage() {
                 <div className="flex flex-wrap items-center gap-4 pt-2">
                   <Link
                     href="/ask"
-                    className="bracket-btn text-primary-light hover:text-accent-light py-3.5 px-7 text-xs font-bold shadow-sm"
+                    className="bracket-btn text-primary-light hover:text-accent-light py-3.5 px-7 shadow-sm"
                   >
-                    <span>— {t('এখনই প্রশ্ন করুন', 'USE ONLINE NOW')} —</span>
+                    <span className={lang === 'bn' ? 'font-hind font-bold text-xs' : 'font-cinzel text-xs font-bold'}>
+                      — {t('এখনই প্রশ্ন করুন', 'USE ONLINE NOW')} —
+                    </span>
                   </Link>
 
                   <Link
                     href="/download"
-                    className="inline-flex items-center gap-2 rounded-lg border border-border-light bg-surface-light px-5 py-3 text-xs font-cinzel tracking-wider text-primary-light hover:border-accent-light hover:text-accent-light transition-all shadow-2xs"
+                    className="inline-flex items-center gap-2 rounded-lg border border-border-light bg-surface-light px-5 py-3 text-xs tracking-wider text-primary-light hover:border-accent-light hover:text-accent-light transition-all shadow-2xs"
                   >
                     <Smartphone className="h-4 w-4 text-accent-light" />
-                    <span>{t('অ্যান্ড্রয়েড প্রিভিউ', 'ANDROID PREVIEW')}</span>
+                    <span className={lang === 'bn' ? 'font-hind font-semibold text-xs' : 'font-cinzel text-xs'}>
+                      {t('অ্যান্ড্রয়েড প্রিভিউ', 'ANDROID PREVIEW')}
+                    </span>
                   </Link>
                 </div>
 
