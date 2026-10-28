@@ -382,36 +382,34 @@ export default function DraftsPage() {
               ref={printRef}
               className="printable-document bg-white text-black p-8 sm:p-14 rounded-2xl border border-border-light shadow-xl min-h-[750px] font-bangla text-sm leading-relaxed space-y-6"
             >
-              {/* Document Header Notice */}
-              <div className="border-b-2 border-black/80 pb-3 text-center space-y-1">
-                <h2 className="text-base font-bold uppercase tracking-wider font-cinzel">
-                  খসড়া — জমা দেওয়ার আগে তথ্য যাচাই করুন
-                </h2>
-                <p className="text-xs font-semibold text-gray-700">
-                  {reviewed && isComplete
-                    ? 'তথ্য পর্যালোচিত খসড়া / Reviewed draft'
-                    : 'অসম্পূর্ণ খসড়া / Incomplete draft'}
-                </p>
-              </div>
-
               {/* Document Paragraphs */}
-              <div className="space-y-4 pt-2">
+              <div className="space-y-4">
                 {doc.paragraphs.map((p, idx) => (
                   <div key={idx} className="whitespace-pre-line leading-relaxed">
                     {p}
                   </div>
                 ))}
               </div>
+            </div>
 
-              {/* Bottom Reference Section */}
-              <div className="pt-8 mt-12 border-t border-gray-300 text-[10px] text-gray-600 space-y-1">
-                <p>
-                  <strong>আইনি উৎস ও টেমপ্লেট:</strong> {doc.templateId} · সংস্করণ {doc.templateVersion} · প্যাক {doc.sourcePackVersion}
-                </p>
-                <p>
-                  <strong>সতর্কতা:</strong> এটি MyLaws দ্বারা প্রস্তুতকৃত একটি খসড়া। এটি আদালত কর্তৃক গৃহীত মামলা, থানার জিডি বা পরিদর্শকের আদেশ নয়। দাখিলের পূর্বে সকল তথ্য যাচাই করে নিন।
-                </p>
+            {/* Screen-Only Legal Reference & Guidance (Excluded from PDF download & Print) */}
+            <div className="no-print p-4 rounded-xl border border-border-light/80 bg-surface-cardLight text-xs text-secondary-light space-y-2 shadow-2xs">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-light/60 pb-2">
+                <span>
+                  <strong className="text-primary-light font-medium">{t('আইনি উৎস ও টেমপ্লেট:', 'Legal Template & Source:')}</strong>{' '}
+                  <span className="font-mono text-[11px]">{doc.templateId} · v{doc.templateVersion} · {doc.sourcePackVersion}</span>
+                </span>
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${isComplete ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
+                  {isComplete ? t('প্রিন্ট-রেডি ফরম্যাট', 'Print-ready format') : t('তথ্য অসম্পূর্ণ', 'Details pending')}
+                </span>
               </div>
+              <p className="text-[11px] leading-relaxed text-secondary-light/90">
+                <strong className="text-primary-light font-medium">{t('ব্যবহারকারী নির্দেশিকা:', 'Notice:')}</strong>{' '}
+                {t(
+                  'এটি MyLaws দ্বারা প্রস্তুতকৃত একটি খসড়া আবেদনপত্র। এটি কোনো আদালত বা থানার সিলমোহরযুক্ত নথি নয়। সংশ্লিষ্ট কর্তৃপক্ষ বা থানায় দাখিল করার পূর্বে নাম, তারিখ ও বিবরণ নিজে পুনরায় যাচাই করে নিন।',
+                  'This draft document is prepared by MyLaws for formal submission. Verify all facts, dates, and names before signing and submitting to authorities.'
+                )}
+              </p>
             </div>
           </div>
         </div>

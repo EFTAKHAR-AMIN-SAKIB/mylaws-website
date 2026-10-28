@@ -34,9 +34,9 @@ export function getRequiredFields(type: DocumentType): string[] {
 }
 
 export function getDraftTitle(type: DocumentType): string {
-  if (type === 'gd') return 'সাধারণ ডায়েরির আবেদন — খসড়া';
-  if (type === 'dncrp') return 'ভোক্তা অধিকার সংরক্ষণ অধিদপ্তর বরাবর অভিযোগ — খসড়া';
-  return 'DIFE-তে লিখিত অভিযোগ — খসড়া';
+  if (type === 'gd') return 'সাধারণ ডায়েরি (GD) করার জন্য আবেদন';
+  if (type === 'dncrp') return 'ভোক্তা অধিকার সংরক্ষণ আইন অনুযায়ী লিখিত অভিযোগ';
+  return 'বকেয়া মজুরি ও শ্রম অধিকার সুরক্ষার লক্ষ্যে লিখিত অভিযোগ';
 }
 
 export function getDefaultRecipient(type: DocumentType): string {
