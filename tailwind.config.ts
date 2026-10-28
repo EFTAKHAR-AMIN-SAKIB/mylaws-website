@@ -12,33 +12,33 @@ const config: Config = {
       colors: {
         bg: {
           light: "#F4EFE6",
-          dark: "#0A1122",
+          dark: "#F4EFE6",
         },
         surface: {
           light: "#FAF7F0",
           cardLight: "#FDFBFA",
-          dark: "#101B33",
-          cardDark: "#142240",
+          dark: "#FAF7F0",
+          cardDark: "#FDFBFA",
         },
         primary: {
           light: "#111625",
-          dark: "#F7F2E8",
+          dark: "#111625",
         },
         secondary: {
           light: "#485061",
-          dark: "#8E9DB0",
+          dark: "#485061",
         },
         accent: {
           light: "#9A6F32",
-          dark: "#D8B17A",
-          gold: "#DFBB84",
-          bronze: "#C49856",
+          dark: "#9A6F32",
+          gold: "#B68B4C",
+          bronze: "#7E5723",
         },
         border: {
           light: "#DDD3C1",
-          dark: "#213050",
+          dark: "#DDD3C1",
           accentLight: "#CBBFA8",
-          accentDark: "#33466D",
+          accentDark: "#CBBFA8",
         },
       },
       fontFamily: {

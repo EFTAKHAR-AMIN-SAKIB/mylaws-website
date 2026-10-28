@@ -6,7 +6,7 @@ import type { Lang } from '@/data/legal';
 interface AppContextType {
   lang: Lang;
   setLang: (lang: Lang) => void;
-  theme: 'light' | 'dark';
+  theme: 'light';
   toggleTheme: () => void;
   t: (bn: string, en: string) => string;
 }
@@ -15,25 +15,19 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Lang>('bn');
-  const [theme, setThemeState] = useState<'light' | 'dark'>('light');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Only load non-sensitive preferences from localStorage
+    // Exclusively light mode: remove any dark class and clear legacy theme preference
+    try {
+      localStorage.removeItem('mylaws_theme');
+      document.documentElement.classList.remove('dark');
+    } catch {}
+
     try {
       const savedLang = localStorage.getItem('mylaws_lang') as Lang;
       if (savedLang && (savedLang === 'bn' || savedLang === 'en')) {
         setLangState(savedLang);
-      }
-
-      const savedTheme = localStorage.getItem('mylaws_theme') as 'light' | 'dark';
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-      setThemeState(initialTheme);
-      if (initialTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
       }
     } catch {
       // In private browsing or restricted environments, keep in-memory defaults
@@ -48,23 +42,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     } catch {}
   };
 
+  // Locked to light mode: no-op toggle preserved for interface stability
   const toggleTheme = () => {
-    const next = theme === 'light' ? 'dark' : 'light';
-    setThemeState(next);
-    try {
-      localStorage.setItem('mylaws_theme', next);
-    } catch {}
-    if (next === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.remove('dark');
   };
 
   const t = (bnText: string, enText: string) => (lang === 'bn' ? bnText : enText);
 
   return (
-    <AppContext.Provider value={{ lang, setLang, theme, toggleTheme, t }}>
+    <AppContext.Provider value={{ lang, setLang, theme: 'light', toggleTheme, t }}>
       <div className={mounted ? '' : 'invisible'}>{children}</div>
     </AppContext.Provider>
   );

@@ -134,14 +134,14 @@ export default function DraftsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg-light text-primary-light dark:bg-bg-dark dark:text-primary-dark transition-colors bg-parchment-grid">
+    <div className="min-h-screen flex flex-col bg-bg-light text-primary-light transition-colors bg-parchment-grid">
       <Header />
 
       <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         {/* Page Header */}
-        <div className="no-print flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-border-light/80 dark:border-border-dark/80 gap-4">
+        <div className="no-print flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-border-light/80 gap-4">
           <div>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold text-primary-light dark:text-gold-gradient">
+            <h1 className="font-cinzel text-2xl sm:text-3xl font-bold tracking-wide text-primary-light">
               {t('অভিযোগ ও জিডি খসড়া প্রস্তুতকারক', 'Bangla Complaint & GD Draft Generator')}
             </h1>
             <p className="text-xs text-secondary-light dark:text-secondary-dark mt-1 font-sans">

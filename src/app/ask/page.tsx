@@ -142,7 +142,7 @@ function AskContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg-light text-primary-light dark:bg-bg-dark dark:text-primary-dark transition-colors">
+    <div className="min-h-screen flex flex-col bg-bg-light text-primary-light transition-colors bg-parchment-grid">
       <Header />
 
       <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full">
@@ -153,7 +153,7 @@ function AskContent() {
               <Sparkles className="h-3.5 w-3.5" />
               <span>{t('আইনি অনুসন্ধান ও সমাধান', 'Legal Inquiry & Resolution')}</span>
             </div>
-            <h1 className="font-cinzel text-2xl sm:text-3xl font-bold tracking-wide text-primary-light dark:text-gold-gradient">
+            <h1 className="font-cinzel text-2xl sm:text-3xl font-bold tracking-wide text-primary-light">
               {t('অনলাইন আইনি সহকারী', 'Online Legal Assistant')}
             </h1>
             <p className="text-xs sm:text-sm text-secondary-light dark:text-secondary-dark mt-1">

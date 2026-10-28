@@ -16,29 +16,14 @@
   --accent-gold: #B68B4C;
   --accent-hover: #7E5723;
   --border-color: #DDD3C1;
-  --grid-line: rgba(180, 165, 145, 0.18);
+  --grid-line: rgba(180, 165, 145, 0.22);
   --card-shadow: 0 4px 20px -2px rgba(25, 20, 15, 0.06), 0 1px 4px -1px rgba(25, 20, 15, 0.04);
 }
 
-.dark {
-  /* Deep Imperial Midnight Navy & Antique Champagne Gold (Exact match to reference dark mode) */
-  --bg-color: #0A1122;
-  --bg-texture-tint: rgba(14, 25, 48, 0.6);
-  --surface-color: #101B33;
-  --surface-card: #142240;
-  --primary-text: #F7F2E8;
-  --secondary-text: #8E9DB0;
-  --accent-color: #D8B17A;
-  --accent-gold: #DFBB84;
-  --accent-hover: #E9C998;
-  --border-color: #213050;
-  --grid-line: rgba(60, 85, 130, 0.22);
-  --card-shadow: 0 4px 25px -2px rgba(0, 0, 0, 0.5), 0 2px 8px -1px rgba(0, 0, 0, 0.35);
-}
-
-body {
-  background-color: var(--bg-color);
-  color: var(--primary-text);
+/* Enforce light parchment theme exclusively */
+html, body {
+  background-color: #F4EFE6 !important;
+  color: #111625 !important;
   font-family: 'Noto Sans Bengali', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -50,8 +35,8 @@ body {
 /* Subtle architectural paper grid pattern overlay across the whole site */
 .bg-parchment-grid {
   background-image: 
-    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    linear-gradient(to right, rgba(180, 165, 145, 0.22) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(180, 165, 145, 0.22) 1px, transparent 1px);
   background-size: 80px 80px;
 }
 
@@ -64,7 +49,7 @@ body {
   font-family: 'Cinzel', serif;
 }
 
-/* Signature corner bracketed button motif from reference: [ — LOGIN ] */
+/* Signature corner bracketed button motif from reference: [ — ASK MYLAWS ] */
 .bracket-btn {
   position: relative;
   display: inline-flex;
@@ -75,6 +60,8 @@ body {
   font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  color: #111625;
+  background-color: transparent;
   transition: all 0.2s ease;
 }
 
@@ -84,7 +71,7 @@ body {
   position: absolute;
   width: 7px;
   height: 7px;
-  border-color: currentColor;
+  border-color: #9A6F32;
   pointer-events: none;
   transition: all 0.2s ease;
 }
@@ -105,32 +92,99 @@ body {
   border-right: 1.5px solid;
 }
 
+.bracket-btn:hover {
+  color: #9A6F32;
+  background-color: rgba(154, 111, 50, 0.05);
+}
+
 .bracket-btn:hover::before {
   width: 12px;
   height: 12px;
+  border-color: #7E5723;
 }
 
 .bracket-btn:hover::after {
   width: 12px;
   height: 12px;
-}
-
-/* Gold Heading Highlight for Dark Mode */
-.dark .text-gold-gradient {
-  color: #D8B17A;
-  background: linear-gradient(135deg, #F0D5AA 0%, #D8B17A 50%, #C49856 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.text-gold-gradient {
-  color: #111625;
+  border-color: #7E5723;
 }
 
 /* Accessible focus outline */
 *:focus-visible {
-  outline: 2px solid var(--accent-color);
+  outline: 2px solid #9A6F32;
   outline-offset: 3px;
+}
+
+/* ========================================================
+   LADY JUSTICE BALANCE SCALE PHYSICS & ANIMATION
+   ======================================================== */
+
+/* The main horizontal beam oscillates gently around its fulcrum */
+@keyframes scale-beam-sway {
+  0% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+  100% {
+    transform: rotate(-6deg);
+  }
+}
+
+/* Hanging pans counter-rotate so they stay horizontal to the ground */
+@keyframes pan-counter-sway-left {
+  0% {
+    transform: rotate(6deg) translateY(-2px);
+  }
+  50% {
+    transform: rotate(-6deg) translateY(2px);
+  }
+  100% {
+    transform: rotate(6deg) translateY(-2px);
+  }
+}
+
+@keyframes pan-counter-sway-right {
+  0% {
+    transform: rotate(6deg) translateY(2px);
+  }
+  50% {
+    transform: rotate(-6deg) translateY(-2px);
+  }
+  100% {
+    transform: rotate(6deg) translateY(2px);
+  }
+}
+
+/* Smooth harmonic oscillation class */
+.animate-scale-beam {
+  transform-origin: 100px 50px;
+  animation: scale-beam-sway 5.6s ease-in-out infinite;
+}
+
+.animate-pan-left {
+  transform-origin: 32px 64px;
+  animation: pan-counter-sway-left 5.6s ease-in-out infinite;
+}
+
+.animate-pan-right {
+  transform-origin: 168px 64px;
+  animation: pan-counter-sway-right 5.6s ease-in-out infinite;
+}
+
+/* Subtle breathing animation for statue */
+@keyframes statue-breathe {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-statue-breathe {
+  animation: statue-breathe 6.5s ease-in-out infinite;
 }
 
 /* Print styling for clean A4 printing */
@@ -147,20 +201,5 @@ body {
   
   .no-print {
     display: none !important;
-  }
-  
-  .print-only {
-    display: block !important;
-  }
-  
-  .printable-document {
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    font-size: 11pt !important;
-    line-height: 1.6 !important;
-    color: #000000 !important;
   }
 }

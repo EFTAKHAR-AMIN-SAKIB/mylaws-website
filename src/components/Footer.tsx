@@ -3,32 +3,26 @@
 import React from 'react';
 import Link from 'next/link';
 import { useApp } from './AppContext';
+import { BrandLogo } from './BrandLogo';
 import { Scale, ShieldCheck, ExternalLink, AlertTriangle } from 'lucide-react';
 
 export function Footer() {
   const { t } = useApp();
 
   return (
-    <footer className="no-print border-t border-border-light/70 bg-surface-light dark:border-border-dark/70 dark:bg-surface-dark transition-colors">
+    <footer className="no-print border-t border-border-light/70 bg-surface-light transition-colors">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand & Purpose */}
           <div className="md:col-span-2 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark border border-accent-light/20 dark:border-accent-dark/30">
-                <Scale className="h-4 w-4" />
-              </div>
-              <span className="font-cinzel text-lg font-bold tracking-wider text-primary-light dark:text-gold-gradient">
-                MyLaws
-              </span>
-            </div>
-            <p className="text-xs text-secondary-light dark:text-secondary-dark leading-relaxed max-w-md">
+            <BrandLogo showSubtitle={true} />
+            <p className="text-xs text-secondary-light leading-relaxed max-w-md">
               {t(
                 'মাই লজ (MyLaws) বাংলাদেশের সাধারণ মানুষের জন্য একটি আইনি তথ্য ও প্রস্তুতি সহায়ক প্ল্যাটফর্ম। এটি কোনো আইনজীবী, আদালত বা সরকারি সংস্থা নয়। এখানে প্রদত্ত তথ্য কোনো আনুষ্ঠানিক আইনি পরামর্শ বা মামলার চূড়ান্ত সিদ্ধান্ত হিসেবে বিবেচনা করা যাবে না।',
                 'MyLaws is a legal information and preparation assistance platform for ordinary people in Bangladesh. It is not a law firm, court, or governmental agency. Information provided is not formal legal advice or a guarantee of legal outcome.'
               )}
             </p>
-            <div className="inline-flex items-center gap-2 rounded-md bg-accent-light/5 dark:bg-accent-dark/10 px-3 py-1.5 text-[11px] text-accent-light dark:text-accent-dark border border-accent-light/15 dark:border-accent-dark/20">
+            <div className="inline-flex items-center gap-2 rounded-md bg-accent-light/5 px-3 py-1.5 text-[11px] text-accent-light border border-accent-light/15">
               <ShieldCheck className="h-3.5 w-3.5" />
               <span>
                 {t(

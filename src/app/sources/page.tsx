@@ -47,18 +47,18 @@ export default function SourcesPage() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg-light text-primary-light dark:bg-bg-dark dark:text-primary-dark transition-colors">
+    <div className="min-h-screen flex flex-col bg-bg-light text-primary-light transition-colors bg-parchment-grid">
       <Header />
 
       <main className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-10">
         {/* Header Banner */}
         <div className="space-y-3 max-w-3xl">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light dark:bg-accent-dark/15 dark:text-accent-dark">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
             <ShieldCheck className="h-4 w-4" />
             <span>{t('উৎস সত্যতা ও নিরীক্ষা নীতি', 'Source Integrity & Verification Methodology')}</span>
           </div>
 
-          <h1 className="font-cinzel text-3xl sm:text-4xl font-bold tracking-wide text-primary-light dark:text-gold-gradient">
+          <h1 className="font-cinzel text-3xl sm:text-4xl font-bold tracking-wide text-primary-light">
             {t('যাচাইকৃত আইনি উৎস ও কার্যপদ্ধতি', 'Verified Statutory Corpus & Methodology')}
           </h1>
 
