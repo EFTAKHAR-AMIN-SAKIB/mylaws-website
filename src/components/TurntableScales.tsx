@@ -136,8 +136,8 @@ export function TurntableScales({ containerRef }: TurntableScalesProps) {
 
     // Scroll listener: smoothly scrubs turntable based on scroll offset
     const handleScroll = () => {
-      // 1 full 360 rotation per ~800px of vertical scroll
-      scrollProgressRef.current = (window.scrollY * 0.0012) % 1.0;
+      // Fast, responsive 360 rotation on scroll
+      scrollProgressRef.current = (window.scrollY * 0.0018) % 1.0;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -159,9 +159,9 @@ export function TurntableScales({ containerRef }: TurntableScalesProps) {
       const dt = Math.min((timestamp - lastTimestampRef.current) / 1000, 0.1);
       lastTimestampRef.current = timestamp;
 
-      // Auto-round: continuous gentle turntable rotation (~18 seconds per 360° turn)
+      // Auto-round: energetic, brisk 3D turntable rotation (~5 seconds per 360° turn)
       if (!prefersReducedMotion && !isDraggingRef.current) {
-        autoRotateOffsetRef.current = (autoRotateOffsetRef.current + dt * 0.055) % 1.0;
+        autoRotateOffsetRef.current = (autoRotateOffsetRef.current + dt * 0.20) % 1.0;
       }
 
       // Target progress combines user scroll scrub + manual drag + auto-rotation
@@ -171,11 +171,11 @@ export function TurntableScales({ containerRef }: TurntableScalesProps) {
       if (prefersReducedMotion) {
         currentProgressRef.current = targetProgress;
       } else {
-        // Silky circular shortest-path interpolation (prevents 360 wrap glitch)
+        // Silky circular shortest-path interpolation with fast, snappy response
         let diff = targetProgress - currentProgressRef.current;
         if (diff > 0.5) diff -= 1.0;
         if (diff < -0.5) diff += 1.0;
-        currentProgressRef.current = (currentProgressRef.current + diff * 0.12 + 1.0) % 1.0;
+        currentProgressRef.current = (currentProgressRef.current + diff * 0.18 + 1.0) % 1.0;
       }
 
       // Calculate continuous floating frame index [0.0 .. 180.0)
@@ -213,8 +213,8 @@ export function TurntableScales({ containerRef }: TurntableScalesProps) {
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isDraggingRef.current) return;
     const deltaX = e.clientX - dragStartXRef.current;
-    // 500px drag = 1 full 360 degree rotation
-    dragOffsetRef.current = (dragStartOffsetRef.current + deltaX / 500) % 1.0;
+    // 300px drag = 1 full 360 degree rotation (faster, responsive drag)
+    dragOffsetRef.current = (dragStartOffsetRef.current + deltaX / 300) % 1.0;
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
