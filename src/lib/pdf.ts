@@ -15,6 +15,11 @@ export async function exportElementToA4Pdf(
   element: HTMLElement,
   fileName = 'MyLaws_Bangla_Draft.pdf'
 ): Promise<void> {
+  // Wait for all fonts to finish loading so Bengali glyphs render with full ligature shaping
+  if (typeof document !== 'undefined' && document.fonts) {
+    await document.fonts.ready;
+  }
+
   // A4 dimensions in pt: 595.28 x 841.89
   const pdf = new jsPDF({
     orientation: 'portrait',

@@ -6,14 +6,20 @@ import type { ChecklistStep } from '@/types/contracts';
 import { CheckCircle2, Shield, Building, HelpCircle } from 'lucide-react';
 
 interface ChecklistProps {
+  caseId?: string;
   steps: ChecklistStep[];
   onOpenSource: (sourceId: string) => void;
   onOpenOffice: (officeId: string) => void;
 }
 
-export function Checklist({ steps, onOpenSource, onOpenOffice }: ChecklistProps) {
+export function Checklist({ caseId, steps, onOpenSource, onOpenOffice }: ChecklistProps) {
   const { t } = useApp();
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
+
+  // Reset completion state when caseId changes so steps from a previous query don't bleed over
+  React.useEffect(() => {
+    setCompleted({});
+  }, [caseId]);
 
   const toggle = (id: string) => {
     setCompleted((prev) => ({ ...prev, [id]: !prev[id] }));

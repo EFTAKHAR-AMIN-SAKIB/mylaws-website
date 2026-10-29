@@ -34,7 +34,7 @@ export type ServiceError =
 
 export type Verification = 'illustrative' | 'authoritative' | 'needs_verification';
 
-export type FactStatus = 'user_confirmed' | 'user_reported' | 'unknown';
+export type FactStatus = 'user_reported' | 'user_confirmed' | 'inferred' | 'unknown';
 
 export type DocumentType = 'gd' | 'dife' | 'dncrp';
 
@@ -63,11 +63,17 @@ export interface FactValue {
   provenance: string;
 }
 
+export interface ChatHistoryMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export interface AnswerRequest {
   requestId: string;
   originalMessage: string;
   language: 'en' | 'bn';
   facts: FactValue[];
+  conversationHistory?: ChatHistoryMessage[];
   location?: string | null;
   date?: string | null;
   requestedMode?: ExecutionMode;
@@ -97,9 +103,24 @@ export interface ProblemSummary {
 }
 
 export interface PlainLanguageExplanation {
+  heading?: string;
   meaning: string;
   userRightsAndOptions: string[];
   whatToDoNext: string;
+}
+
+export interface ClarificationOption {
+  label: { en: string; bn: string };
+  value: string;
+}
+
+export interface ClarificationQuestion {
+  id: string;
+  fieldId: string;
+  question: { en: string; bn: string };
+  importance: { en: string; bn: string };
+  answerType?: 'text' | 'choice' | 'date';
+  options?: ClarificationOption[];
 }
 
 export interface DraftOffer {
@@ -110,22 +131,43 @@ export interface DraftOffer {
   missingDetails?: string[];
 }
 
+export interface FollowUpResponse {
+  directAnswer: string;
+  keyPoints?: string[];
+  suggestedNextStep?: string;
+  sourceIds?: string[];
+  updatedFact?: { fieldId: string; value: string };
+}
+
 export interface AnswerResult {
   schemaVersion: number;
   answerId: string;
   mode: ExecutionMode;
+  engineProvenance?: 'online_meta' | 'online_guided_fallback';
   status: AnswerStatus;
   questions: string[];
+  clarificationQuestions?: ClarificationQuestion[];
   userFacts: FactValue[];
   checklist: ChecklistStep[];
   explanation: Claim[];
   limitations: string[];
   sourcePackVersion: string;
   allowedDraftOptions: DocumentType[];
+  // Conversational Multi-turn Response
+  isFollowUp?: boolean;
+  isGreeting?: boolean;
+  isCapability?: boolean;
+  followUpResponse?: FollowUpResponse;
   // 4-Step Canonical Legal Journey
   problemSummary?: ProblemSummary;
   plainLanguageExplanation?: PlainLanguageExplanation;
   draftOffer?: DraftOffer;
+  userQuota?: {
+    dailyLimit: number;
+    usedToday: number;
+    remaining: number;
+    canQuery: boolean;
+  };
 }
 
 export interface SourceRecord {

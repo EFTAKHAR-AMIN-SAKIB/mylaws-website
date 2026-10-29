@@ -47,6 +47,7 @@ export default function DraftsPage() {
   const [reviewed, setReviewed] = useState(false);
   const [copied, setCopied] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   // Mobile view tab toggle: 'edit' or 'preview'
   const [mobileTab, setMobileTab] = useState<'edit' | 'preview'>('edit');
@@ -63,16 +64,18 @@ export default function DraftsPage() {
           setDocType(parsed.type);
         }
         if (parsed.facts && Array.isArray(parsed.facts)) {
-          const updated: Record<string, string> = { ...formData };
-          parsed.facts.forEach((f: FactValue) => {
-            if (f.fieldId && f.value) {
-              updated[f.fieldId] = f.value;
+          setFormData((prev) => {
+            const updated: Record<string, string> = { ...prev };
+            parsed.facts.forEach((f: FactValue) => {
+              if (f.fieldId && f.value) {
+                updated[f.fieldId] = f.value;
+              }
+            });
+            if (parsed.query && !updated.chronology) {
+              updated.chronology = parsed.query;
             }
+            return updated;
           });
-          if (parsed.query && !updated.chronology) {
-            updated.chronology = parsed.query;
-          }
-          setFormData(updated);
         }
       }
     } catch {}
@@ -121,13 +124,15 @@ export default function DraftsPage() {
   const handlePdfExport = async () => {
     if (!printRef.current) return;
     setExportingPdf(true);
+    setExportError(null);
     try {
       await exportElementToA4Pdf(
         printRef.current,
         `MyLaws_${docType.toUpperCase()}_Draft.pdf`
       );
-    } catch (err) {
+    } catch (err: any) {
       console.error('PDF export failed:', err);
+      setExportError(t('পিডিএফ ডাউনলোড তৈরি করা যায়নি। ব্রাউজারের প্রিন্ট (Ctrl+P) বিকল্পটি ব্যবহার করুন।', 'PDF generation failed. Please use your browser Print (Ctrl+P) dialog.'));
     } finally {
       setExportingPdf(false);
     }

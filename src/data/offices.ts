@@ -12,15 +12,15 @@ export const nationalLegalAid: OfficeDetail = {
   category: 'legal_aid',
   phone: '16699',
   address: 'National Legal Aid Services Organization, 145 Shanti Nagar, Dhaka-1217',
-  territory: 'Bangladesh',
-  issueScope: 'General legal aid, referral to district legal aid offices and panel lawyers',
+  territory: 'Bangladesh (District Legal Aid Offices in all 64 districts)',
+  issueScope: 'Free legal advice, panel lawyers, and referral to District Legal Aid Officers',
   portalUrl: 'https://bangladesh.gov.bd/pages/static-pages/69a55ba386514399668e4e89',
-  sourceIds: ['constitution-27', 'constitution-31'],
+  sourceIds: [],
   verificationDate: '2026-10-27',
   status: 'authoritative',
   notes: {
-    en: 'Toll-free national legal aid hotline: 16699. Operates 24/7 for citizen inquiries. District office jurisdiction requires verification.',
-    bn: 'টোল-ফ্রি জাতীয় আইনি সহায়তা হেল্পলাইন: ১৬৬৯৯। নাগরিকদের তথ্যের জন্য ২৪ ঘণ্টা চালু। জেলা কার্যালয়ের এখতিয়ার যাচাই সাপেক্ষ।',
+    en: 'Toll-free national legal aid helpline: 16699. Established under the Legal Aid Services Act 2000. Operates 24/7 for citizen inquiries. Physical assistance is assigned through respective District Legal Aid Offices.',
+    bn: 'টোল-ফ্রি জাতীয় আইনি সহায়তা হেল্পলাইন: ১৬৬৯৯ (আইনগত সহায়তা প্রদান আইন ২০০০)। নাগরিকদের তথ্যের জন্য ২৪ ঘণ্টা চালু। জেলা লিগ্যাল এইড অফিসের মাধ্যমে সরাসরি সরকারি আইনজীবী বরাদ্দ করা হয়।',
   },
 };
 

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { AppProvider } from '@/components/AppContext';
+import { AuthProvider } from '@/components/AuthContext';
+import { AuthModal } from '@/components/AuthModal';
 
 export const metadata: Metadata = {
   title: 'MyLaws — বাংলাদেশ আইনি তথ্য ও প্রস্তুতি সহকারী',
@@ -16,7 +18,12 @@ export default function RootLayout({
   return (
     <html lang="bn" suppressHydrationWarning>
       <body className="min-h-screen bg-bg-light text-primary-light dark:bg-bg-dark dark:text-primary-dark transition-colors duration-200">
-        <AppProvider>{children}</AppProvider>
+        <AppProvider>
+          <AuthProvider>
+            {children}
+            <AuthModal />
+          </AuthProvider>
+        </AppProvider>
       </body>
     </html>
   );

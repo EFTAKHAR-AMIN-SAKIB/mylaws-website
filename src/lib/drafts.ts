@@ -65,11 +65,26 @@ export function prepareDraftDocument(
     return `[${draftFieldLabels[key] || key} লিখুন]`;
   };
 
-  const recipientVal = values['recipient']?.trim() || getDefaultRecipient(type);
-  const appDateVal = values['applicationDate']?.trim() || new Date().toISOString().split('T')[0];
+  const recipientVal = values['recipient']?.trim();
+  const recipientResolved = Boolean(recipientVal && recipientVal.length > 0 && !recipientVal.startsWith('['));
+  if (!recipientResolved) {
+    unresolved.push('recipient');
+  }
+  const displayRecipient = recipientResolved
+    ? recipientVal
+    : `[${draftFieldLabels['recipient'] || 'প্রাপক ও এলাকা'} যাচাই করে লিখুন]`;
+
+  const dateVal = values['applicationDate']?.trim();
+  const dateResolved = Boolean(dateVal && dateVal.length > 0 && !dateVal.startsWith('['));
+  if (!dateResolved) {
+    unresolved.push('applicationDate');
+  }
+  const displayDate = dateResolved
+    ? dateVal
+    : `[${draftFieldLabels['applicationDate'] || 'আবেদনের তারিখ'} লিখুন]`;
 
   const paragraphs: string[] = [
-    `বরাবর\n${recipientVal}`,
+    `বরাবর\n${displayRecipient}`,
     `বিষয়: ${getDraftTitle(type)}`,
     'মহোদয়,',
     `আমি ${v('name')}। ঠিকানা: ${v('address')}। যোগাযোগ: ${v('contact')}।`,
@@ -78,7 +93,7 @@ export function prepareDraftDocument(
 
   if (type === 'dife') {
     paragraphs.push(
-      `কাজ ও চাকরির সময়কাল: ${v('role')}\nবকেয়ার সময়কাল: ${v('period')}\nবকেয়া পরিমাণ (আবেদনকারীর তথ্য): ${v('amount')}`
+      `কাজ ও চাকরির সময়কাল: ${v('role')}\nবকেয়ার সময়কাল: ${v('period')}\nবকেয়া পরিমাণ (আবেদনকারীর হিসাব): ${v('amount')}`
     );
   } else if (type === 'dncrp') {
     paragraphs.push(
@@ -90,7 +105,7 @@ export function prepareDraftDocument(
     `ঘটনার বিবরণ:\n${v('chronology')}`,
     `অনুরোধ / প্রতিকার:\n${v('assistance')}`,
     `সংযুক্তি:\n${values['attachments']?.trim() || 'প্রযোজ্য নয় / উল্লেখ করা হয়নি'}`,
-    `আবেদনের তারিখ: ${appDateVal}`,
+    `আবেদনের তারিখ: ${displayDate}`,
     `\nস্বাক্ষর: ____________________\n(${values['name']?.trim() || 'আবেদনকারী'})`
   );
 
@@ -102,7 +117,7 @@ export function prepareDraftDocument(
     templateVersion: '1.0.0',
     type,
     facts,
-    recipient: recipientVal,
+    recipient: displayRecipient,
     paragraphs,
     unresolvedPlaceholders: unresolved,
     reviewStatus: isComplete ? 'needs_review' : 'incomplete',

@@ -23,13 +23,14 @@ export default function SourcesPage() {
   const [activeSourceId, setActiveSourceId] = useState<string | null>(null);
 
   const categories: Array<{ id: Category | 'all'; label: string }> = [
-    { id: 'all', label: t('সকল বিষয় (২৩টি)', 'All Topics (23)') },
-    { id: 'work', label: t('শ্রম ও মজুরি', 'Labour & Wages') },
-    { id: 'rights', label: t('সাংবিধানিক অধিকার', 'Constitutional Rights') },
-    { id: 'consumer', label: t('ভোক্তা অধিকার', 'Consumer Rights') },
-    { id: 'land', label: t('সম্পত্তি ও জমি', 'Property & Land') },
-    { id: 'family', label: t('পারিবারিক সহিংসতা', 'Domestic Violence') },
-    { id: 'digital', label: t('ডিজিটাল নিরাপত্তা ও হুমকি', 'Digital Safety & Threats') },
+    { id: 'all', label: t(`সকল বিষয় (${provisions.length}টি)`, `All Topics (${provisions.length})`) },
+    { id: 'work', label: t('শ্রম ও কর্মসংস্থান', 'Employment & Labor') },
+    { id: 'threats', label: t('হুমকি, হয়রানি ও জিডি', 'Threats, Harassment & GD') },
+    { id: 'digital', label: t('সাইবার ও ডিজিটাল নিরাপত্তা', 'Cyber & Digital Security') },
+    { id: 'consumer', label: t('ভোক্তা অধিকার ও প্রতারণা', 'Consumer Rights & Fraud') },
+    { id: 'land', label: t('জমি ও সম্পত্তি হস্তান্তর', 'Land & Property Transfer') },
+    { id: 'family', label: t('পারিবারিক সহিংসতা ও সুরক্ষা', 'Domestic Violence & Family') },
+    { id: 'rights', label: t('মৌলিক অধিকার ও লিগ্যাল এইড', 'Fundamental Rights & Legal Aid') },
   ];
 
   const filteredProvisions = provisions.filter((p) => {
@@ -64,8 +65,8 @@ export default function SourcesPage() {
 
           <p className="font-hind text-xs sm:text-sm text-secondary-light leading-relaxed">
             {t(
-              'MyLaws কোনো অনুমাননির্ভর তথ্য বা কাল্পনিক আইনের উদ্ধৃতি প্রদান করে না। বর্তমান পাইলট ডাটাবেজে বাংলাদেশ সরকারের আইন মন্ত্রণালয়ের লেজিসলেটিভ ও সংসদ বিষয়ক বিভাগের অফিশিয়াল পোর্টাল (bdlaws.minlaw.gov.bd) থেকে সংগৃহীত ৬টি মূল আইনের ২৩টি বিধান সংরক্ষিত রয়েছে।',
-              'MyLaws does not hallucinate statutes. The current verified corpus contains 23 specific provisions across 6 core instruments from the official Bangladesh Code portal (bdlaws.minlaw.gov.bd).'
+              `MyLaws কোনো অনুমাননির্ভর তথ্য বা কাল্পনিক আইনের উদ্ধৃতি প্রদান করে না। বর্তমান ভেরিফাইড ডাটাবেজে বাংলাদেশ সরকারের আইন মন্ত্রণালয়ের অফিশিয়াল পোর্টাল (bdlaws.minlaw.gov.bd) থেকে সংগৃহীত ৭টি মৌলিক ক্যাটাগরিতে মোট ${provisions.length}টি প্রামাণ্য বিধান সংরক্ষিত রয়েছে।`,
+              `MyLaws does not hallucinate statutes. The current verified corpus contains ${provisions.length} specific provisions across 7 core legal categories from the official Bangladesh Code portal (bdlaws.minlaw.gov.bd).`
             )}
           </p>
         </div>
@@ -75,7 +76,7 @@ export default function SourcesPage() {
           <div className="p-5 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark space-y-2">
             <span className="text-xs font-bold text-primary-light dark:text-primary-dark flex items-center gap-1.5">
               <Calendar className="h-4 w-4 text-accent-light dark:text-accent-dark" />
-              <span>{t('উৎস দেখার তারিখ: ২৬ অক্টোবর ২০২৬', 'Consulted: 26 October 2026')}</span>
+              <span>{t('উৎস দেখার তারিখ: ২৯ অক্টোবর ২০২৬', 'Audited: 29 October 2026')}</span>
             </span>
             <p className="text-xs text-secondary-light dark:text-secondary-dark leading-relaxed">
               {t(

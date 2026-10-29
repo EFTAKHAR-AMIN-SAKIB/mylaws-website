@@ -241,12 +241,24 @@ html, body {
     margin: 20mm 15mm 20mm 15mm;
   }
   
-  body {
+  body, html {
     background: #ffffff !important;
     color: #000000 !important;
   }
   
   .no-print {
     display: none !important;
+  }
+
+  .printable-document {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    background: #ffffff !important;
+    color: #000000 !important;
   }
 }

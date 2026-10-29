@@ -3,11 +3,13 @@ import { isMetaConfigured, getMetaModelName } from '@/lib/meta';
 import { legalPackManifest } from '@/data/manifest';
 
 export async function GET() {
+  const configured = isMetaConfigured();
   return NextResponse.json(
     {
       status: 'operational',
-      configured: isMetaConfigured(),
-      model: getMetaModelName(),
+      mode: configured ? 'meta_assisted' : 'deterministic_guided',
+      keyConfigured: configured,
+      model: configured ? getMetaModelName() : null,
       legalPackVersion: legalPackManifest.id,
       provisionsCount: 23,
       verifiedDate: '2026-10-26',

@@ -16,12 +16,15 @@ export function BrandLogo({ className = '', showSubtitle = false }: BrandLogoPro
       aria-label="MyLaws Home"
     >
       {/* Precision Scaled Vector Balance of Justice Icon */}
-      <div className="relative flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 text-primary-light">
+      <div className="relative flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 shrink-0 text-primary-light">
         <svg
+          width="36"
+          height="36"
           viewBox="0 0 36 36"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full transform transition-transform duration-300 group-hover:scale-105"
+          className="w-8 h-8 sm:w-9 sm:h-9 max-w-[36px] max-h-[36px] transform transition-transform duration-300 group-hover:scale-105"
+          style={{ width: '36px', height: '36px', maxWidth: '36px', maxHeight: '36px', display: 'block' }}
         >
           {/* Top Finial Ring */}
           <circle cx="18" cy="5" r="2.2" stroke="currentColor" strokeWidth="1.6" />

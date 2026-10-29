@@ -48,7 +48,7 @@ export interface Match {
 
 const docs = provisions.map((p) => ({
   p,
-  terms: tokens([p.title.en, p.title.bn, ...p.keywords].join(' ')),
+  terms: tokens([p.title.en, p.title.bn, p.section, p.quote, ...p.keywords].join(' ')),
 }));
 
 const average = docs.reduce((s, d) => s + d.terms.length, 0) / Math.max(docs.length, 1);
@@ -64,6 +64,12 @@ const categorySignals: Record<Category, string[]> = {
     'appointment letter',
     'worker',
     'dife',
+    'maternity',
+    'leave',
+    'holiday',
+    'injury',
+    'compensation',
+    'child labor',
     'বেতন',
     'মজুরি',
     'মজুরী',
@@ -71,9 +77,85 @@ const categorySignals: Record<Category, string[]> = {
     'নিয়োগপত্র',
     'নিয়োগপত্র',
     'শ্রমিক',
+    'মাতৃত্বকালীন',
+    'ছুটি',
+    'অসুস্থতা',
+    'ক্ষতিপূরণ',
+    'শিশুশ্রম',
     'beton',
     'betan',
     'mojuri',
+  ],
+  threats: [
+    'threat',
+    'assault',
+    'intimidation',
+    'extortion',
+    'trespass',
+    'general diary',
+    'gd',
+    'beating',
+    'eve teasing',
+    'eve-teasing',
+    'vandalism',
+    'theft',
+    'stolen',
+    'steal',
+    'snatch',
+    'snatching',
+    'robbery',
+    'pickpocket',
+    'mobile',
+    'phone',
+    'হুমকি',
+    'মারধর',
+    'জিডি',
+    'চাঁদাবাজি',
+    'অনধিকার প্রবেশ',
+    'ইভটিজিং',
+    'ভীতি প্রদর্শন',
+    'ভাঙচুর',
+    'সাধারণ ডায়েরি',
+    'চুরি',
+    'ছিনতাই',
+    'পকেটমার',
+    'মোবাইল চুরি',
+    'ফোন চুরি',
+    'হারিয়ে',
+    'হারানো',
+    'chadabaji',
+    'mardhor',
+    'humki',
+    'churi',
+    'cori',
+    'chori',
+    'curi',
+    'dokan churi',
+    'maal cori',
+    'maal churi',
+    'shop theft',
+    'burglary',
+    'মাল চুরি',
+    'দোকানের মালামাল চুরি',
+    'দোকান চুরি',
+    'bike',
+    'motorbike',
+    'motorcycle',
+    'scooter',
+    'gari',
+    'cycle',
+    'বাইক',
+    'মোটরসাইকেল',
+    'গাড়ি',
+    'স্কুটার',
+    'সাইকেল',
+    'বাইক চুরি',
+    'মোটরসাইকেল চুরি',
+    'গাড়ি চুরি',
+    'bike churi',
+    'bike cori',
+    'gari churi',
+    'gari cori',
   ],
   consumer: [
     'shop',
@@ -85,6 +167,10 @@ const categorySignals: Record<Category, string[]> = {
     'delivered',
     'consumer',
     'dncrp',
+    'fraud',
+    'mrp',
+    'weight',
+    'short measure',
     'পণ্য',
     'দোকান',
     'ভোক্তা',
@@ -92,9 +178,63 @@ const categorySignals: Record<Category, string[]> = {
     'মেয়াদোত্তীর্ণ',
     'বিক্রেতা',
     'ডেলিভারি',
+    'রিফান্ড',
+    'ওজনে কম',
+    'প্রতারণা',
   ],
-  land: ['property', 'land', 'deed', 'ownership', 'khatian', 'bayna', 'জমি', 'সম্পত্তি', 'দলিল', 'মালিকানা', 'খতিয়ান', 'বায়না'],
-  family: ['domestic', 'family', 'spouse', 'husband', 'wife', 'violence', 'পারিবারিক', 'পরিবার', 'স্বামী', 'স্ত্রী', 'সহিংসতা'],
+  land: [
+    'property',
+    'land',
+    'deed',
+    'ownership',
+    'khatian',
+    'bayna',
+    'forged',
+    'grabbing',
+    'mutation',
+    'namjari',
+    'eviction',
+    'boundary',
+    'জমি',
+    'সম্পত্তি',
+    'দলিল',
+    'মালিকানা',
+    'খতিয়ান',
+    'বায়না',
+    'জাল দলিল',
+    'দখল',
+    'বেদখল',
+    'নামজারি',
+    'উচ্ছেদ',
+    'সীমানা',
+  ],
+  family: [
+    'domestic',
+    'family',
+    'spouse',
+    'husband',
+    'wife',
+    'violence',
+    'dowry',
+    'talaq',
+    'divorce',
+    'maintenance',
+    'dower',
+    'mahr',
+    'custody',
+    'child marriage',
+    'পারিবারিক',
+    'পরিবার',
+    'স্বামী',
+    'স্ত্রী',
+    'সহিংসতা',
+    'যৌতুক',
+    'তালাক',
+    'ভরণপোষণ',
+    'দেনমোহর',
+    'হেফাজত',
+    'বাল্যবিয়ে',
+  ],
   digital: [
     'online',
     'privacy',
@@ -103,11 +243,21 @@ const categorySignals: Record<Category, string[]> = {
     'blackmail',
     'harassment',
     'facebook',
+    'hacking',
+    'hacked',
+    'fake id',
+    'impersonation',
+    'intimate',
+    'video viral',
+    'cyber',
     'অনলাইন',
     'গোপনীয়তা',
-    'হুমকি',
     'ব্ল্যাকমেইল',
     'হয়রানি',
+    'হ্যাকিং',
+    'ভুয়া আইডি',
+    'ভিডিও ফাঁসের হুমকি',
+    'সাইবার',
   ],
   rights: [
     'arrest',
@@ -118,6 +268,12 @@ const categorySignals: Record<Category, string[]> = {
     'torture',
     'police custody',
     'magistrate',
+    'bail',
+    'remand',
+    'fir',
+    'legal aid',
+    '16699',
+    'custodial torture',
     'গ্রেপ্তার',
     'গ্রেফতার',
     'আটক',
@@ -125,6 +281,11 @@ const categorySignals: Record<Category, string[]> = {
     'সমতা',
     'নির্যাতন',
     'হাজত',
+    'জামিন',
+    'রিমান্ড',
+    'এজাহার',
+    'লিগ্যাল এইড',
+    'ব্লাস্ট রায়',
   ],
 };
 
@@ -142,11 +303,19 @@ function intentCategories(query: string): Category[] {
 
 export function searchVariant(text: string): string {
   let res = text;
-  if (/\b(beton|betan|betn|mojuri)\b|বেতন|মজুরি/i.test(text)) {
-    res += ' wages salary unpaid employment';
+  const isUnpaidClaim =
+    /\b(unpaid|arrears?|due|withheld|not\s+paid|pending)\b/i.test(text) ||
+    /বকেয়া|বকেয়া|দেয়নি|দেয়নাই|আটক|পায়নি|পাইনি/u.test(text) ||
+    /\b(deynai|painai|paisi\s+na)\b/i.test(text);
+
+  if (isUnpaidClaim && (/\b(beton|betan|betn|mojuri)\b|বেতন|মজুরি/i.test(text))) {
+    res += ' wages salary unpaid employment arrears';
+  } else if (/\b(beton|betan|mojuri)\b|বেতন|মজুরি/i.test(text)) {
+    res += ' wages salary employment';
   }
-  if (/\b(thana|police|gd|threat)\b|জিডি|থানা|হুমকি/i.test(text)) {
-    res += ' intimidation threat general diary';
+
+  if (/\b(thana|police|gd|threat|stolen|theft|churi|steal|mobile|phone|snatch|snatched)\b|জিডি|থানা|হুমকি|চুরি|ছিনতাই|পকেটমার|হারিয়ে/i.test(text)) {
+    res += ' intimidation threat general diary theft stolen penal code 379 police';
   }
   return res;
 }
@@ -182,11 +351,17 @@ export function retrieve(query: string, limit = 3): Match[] {
   return results.filter((x) => x.score >= Math.max(1.2, (results[0]?.score || 0) * 0.22)).slice(0, limit);
 }
 
-export function searchLibrary(query: string): Provision[] {
-  if (!query.trim()) return provisions;
+export function searchLibrary(query: string, category?: Category | null): Provision[] {
+  let pool = provisions;
+  if (category) {
+    pool = pool.filter((p) => p.category === category);
+  }
+  if (!query.trim()) return pool;
   const q = normalize(query);
-  const scored = retrieve(query, provisions.length).map((x) => x.provision);
-  const extra = provisions.filter((p) =>
+  const scored = retrieve(query, provisions.length)
+    .map((x) => x.provision)
+    .filter((p) => !category || p.category === category);
+  const extra = pool.filter((p) =>
     normalize(`${p.act.en} ${p.act.bn} ${p.section} ${p.title.en} ${p.title.bn} ${p.quote}`).includes(q)
   );
   return [...new Map([...scored, ...extra].map((p) => [p.id, p])).values()];

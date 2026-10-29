@@ -12,9 +12,9 @@ export async function POST(req: NextRequest) {
       reviewed?: boolean;
     };
 
-    if (!type || !['gd', 'dife'].includes(type)) {
+    if (!type || !['gd', 'dife', 'dncrp'].includes(type)) {
       return NextResponse.json(
-        { error: 'Invalid document type. Allowed: "gd" or "dife".' },
+        { error: 'Invalid document type. Allowed: "gd", "dife", or "dncrp".' },
         { status: 400 }
       );
     }

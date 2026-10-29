@@ -57,14 +57,14 @@ export default function PrivacyPage() {
           </div>
 
           <div className="p-5 rounded-2xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark space-y-2">
-            <h2 className="text-base font-bold text-primary-light dark:text-primary-dark flex items-center gap-2">
-              <Server className="h-4 w-4 text-accent-light dark:text-accent-dark" />
-              <span>{t('৩. ক্লাউড প্রসেসিং ও এআই প্রোভাইডার নীতি', '3. Cloud Processing & Model Inference')}</span>
+            <h2 className="text-base font-bold text-primary-light flex items-center gap-2">
+              <Server className="h-4 w-4 text-accent-light" />
+              <span>{t('৩. অনলাইন ডাটা-ফ্লো ও ক্লাউড প্রসেসিং', '3. Online Data Flow & Cloud Processing')}</span>
             </h2>
             <p>
               {t(
-                'যখন আপনি অনলাইন আইনি সহকারীতে প্রশ্ন করেন, আপনার প্রশ্নটি প্রাসঙ্গিক আইনের বিধান অনুসন্ধানের জন্য আমাদের নিরাপদ সার্ভার এন্ডপয়েন্টে পাঠানো হয়। মেটা এআই (Muse Spark) সক্ষম থাকলে প্রশ্নটি শুধুমাত্র আইনি উদ্ধৃতি যাচাইয়ের জন্য প্রক্রিয়াজাত করা হয়। আমরা কোনো ব্যক্তিগত বিরোধের সংবেদনশীল তথ্য পাবলিক লগে রাখি না।',
-                'When you submit questions to the online assistant, queries are processed via our server endpoints to match verified statutory provisions. If Meta AI is enabled, inquiries are evaluated solely for legal citation verification.'
+                'অনলাইন সহকারীতে প্রশ্ন সাবমিট করার সময়, আপনার প্রশ্ন এবং প্রেরিত ফ্যাক্টস আমাদের সার্ভার এন্ডপয়েন্টে সাময়িক প্রক্রিয়াকরণের জন্য পাঠানো হয়। আমাদের ব্যাকএন্ড ইন-মেমোরি BM25 সার্চের মাধ্যমে গেজেট বিধানের সাথে তা মেলায়। মেটা এআই (Meta AI) কনফিগার করা থাকলে, প্রশ্ন ও উদ্ধৃতিসমূহ মেটার সুরক্ষিত মডেল এন্ডপয়েন্টে পাঠানো হয়। আমাদের সার্ভারে কোনো ব্যবহারকারী বা আইনি বিরোধের তথ্য স্থায়ীভাবে লগ বা ডাটাবেজে জমা রাখা হয় না। তবে কোনো সংবেদনশীল জাতীয় পরিচয়পত্র বা ব্যক্তিগত পাসওয়ার্ড অনুসন্ধানে প্রবেশ না করানোর পরামর্শ দেওয়া হচ্ছে।',
+                'When you submit questions to the online assistant, your query text and entered facts are transmitted to our server for temporary processing and BM25 statutory matching. When Meta AI is enabled, the query and relevant statutory excerpts are sent to Meta\'s model endpoint to assist in generating grounded explanations. Our application server does not store personal narratives or prompt bodies in persistent logs or databases. We strongly advise users never to submit sensitive credentials, passwords, or personal identity card numbers.'
               )}
             </p>
           </div>

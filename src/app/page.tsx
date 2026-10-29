@@ -124,8 +124,8 @@ export default function HomePage() {
                 {/* Body Copy */}
                 <p className="font-hind text-sm sm:text-base text-[#5A534A] leading-relaxed max-w-xl font-normal">
                   {t(
-                    'সহজ বাংলা, বাংলিশ বা ইংরেজিতে আপনার সমস্যাটি বলুন। MyLaws জটিল আইনকে স্পষ্ট চেকলিস্টে রূপান্তরিত করে, সরকারি গেজেটের মূল বিধান দেখায় এবং প্রয়োজনীয় লিখিত অভিযোগ বা সাধারণ ডায়েরির (GD) খসড়া প্রস্তুত করে।',
-                    'Describe everyday legal situations naturally in Bangla, Banglish, or English. MyLaws translates complex statutes into clear Action Checklists, inspects official gazette sources, and prepares editable drafts.'
+                    'সহজ বাংলা বা ইংরেজিতে আপনার সমস্যাটি বলুন। MyLaws জটিল আইনকে স্পষ্ট চেকলিস্টে রূপান্তরিত করে, সরকারি গেজেটের মূল বিধান দেখায় এবং প্রয়োজনীয় লিখিত অভিযোগ বা সাধারণ ডায়েরির (GD) খসড়া প্রস্তুত করে।',
+                    'Describe everyday legal situations naturally in Bangla or English. MyLaws translates complex statutes into clear Action Checklists, inspects official gazette sources, and prepares editable drafts.'
                   )}
                 </p>
 
@@ -170,15 +170,15 @@ export default function HomePage() {
                 {/* Interactive Animated Scroll Cue */}
                 <div className="pt-3 flex items-center gap-3">
                   <a
-                    href="#core-features"
+                    href="#case-preview-section"
                     className="group inline-flex items-center gap-2.5 text-xs text-[#5A534A] hover:text-accent-light transition-all py-1 cursor-pointer"
-                    aria-label={t('স্ক্রল করে মূল বৈশিষ্ট্যসমূহ দেখুন', 'Scroll to view core features')}
+                    aria-label={t('স্ক্রল করে বাস্তব কেস ফ্লো দেখুন', 'Scroll to view interactive case flow')}
                   >
                     <div className="flex h-7 w-7 items-center justify-center rounded-full border border-border-light bg-surface-light group-hover:border-accent-light group-hover:bg-accent-light/10 shadow-2xs transition-all">
                       <ChevronDown className="h-4 w-4 text-accent-light animate-scroll-bounce" />
                     </div>
                     <span className={lang === 'bn' ? 'font-hind font-semibold text-xs' : 'font-cinzel text-xs tracking-wider'}>
-                      {t('মূল ৩টি আইনি স্তম্ভ দেখুন', 'VIEW 3 CORE PILLARS')}
+                      {t('বাস্তব কেস ফ্লো দেখুন', 'VIEW INTERACTIVE CASE FLOW')}
                     </span>
                     <span className="h-[1.5px] w-16 bg-border-light group-hover:w-24 group-hover:bg-accent-light transition-all" />
                   </a>
@@ -190,6 +190,50 @@ export default function HomePage() {
                 <TurntableScales containerRef={turntableContainerRef} />
               </div>
 
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================
+            INTERACTIVE CASE PREVIEW SECTION
+            ======================================================== */}
+        <section id="case-preview-section" className="py-14 sm:py-20 border-b border-border-light/80 bg-surface-light/40 scroll-mt-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+              
+              <div className="lg:col-span-5 space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>{t('সরাসরি ইন্টারঅ্যাক্টিভ ডেমো', 'Live Interactive Experience')}</span>
+                </div>
+
+                <h2 className="font-display text-2xl sm:text-4xl font-bold text-[#231F1C]">
+                  {t(
+                    'বাস্তব কেস ফোল্ডারের মাধ্যমে কীভাবে সাহায্য পাবেন',
+                    'How MyLaws Works in Real Situations'
+                  )}
+                </h2>
+
+                <p className="text-xs sm:text-sm text-[#5A534A] leading-relaxed">
+                  {t(
+                    'ডানপাশের ফোল্ডারে ক্লিক করে দেখুন কীভাবে MyLaws একটি বকেয়া বেতনের প্রশ্ন বিশ্লেষণ করে স্পষ্ট করণীয় পদক্ষেপ, সরকারি ধারার প্রামাণিক পাঠ এবং প্রস্তুতকৃত খসড়া আবেদন প্রদান করে।',
+                    'Explore the digital case folder to see how an unpaid wages inquiry is structured into actionable steps, official gazette citations, and ready-to-export drafts.'
+                  )}
+                </p>
+
+                <div className="pt-2">
+                  <Link
+                    href="/ask"
+                    className="bracket-btn text-xs font-cinzel font-bold tracking-wider"
+                  >
+                    <span>— {t('আপনার নিজের প্রশ্ন নিয়ে পরীক্ষা করুন', 'TRY WITH YOUR OWN QUESTION')} —</span>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="lg:col-span-7">
+                <CasePreview />
+              </div>
             </div>
           </div>
         </section>
@@ -251,12 +295,12 @@ export default function HomePage() {
 
                   <div className="grid grid-cols-3 gap-2 pt-2 text-center text-xs">
                     <div className="p-2.5 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
-                      <span className="font-bold text-accent-light font-cinzel text-base block">২৩টি</span>
-                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">যাচাইকৃত ধারা</p>
+                      <span className="font-bold text-accent-light font-cinzel text-base block">{t('৮৮টি', '88')}</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">{t('যাচাইকৃত ধারা', 'Verified Sections')}</p>
                     </div>
                     <div className="p-2.5 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
-                      <span className="font-bold text-accent-light font-cinzel text-base block">৬টি</span>
-                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">আইনের পরিধি</p>
+                      <span className="font-bold text-accent-light font-cinzel text-base block">{t('২৫টি', '25')}</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">{t('আইনের পরিধি', 'Statutory Acts')}</p>
                     </div>
                     <div className="p-2.5 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
                       <span className="font-bold text-accent-light font-cinzel text-base block">১০০%</span>
@@ -386,50 +430,6 @@ export default function HomePage() {
         </section>
 
         {/* ========================================================
-            INTERACTIVE CASE PREVIEW SECTION
-            ======================================================== */}
-        <section id="case-preview-section" className="py-14 sm:py-20 border-b border-border-light/80 bg-surface-light/40 scroll-mt-16">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-              
-              <div className="lg:col-span-5 space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>{t('সরাসরি ইন্টারঅ্যাক্টিভ ডেমো', 'Live Interactive Experience')}</span>
-                </div>
-
-                <h2 className="font-display text-2xl sm:text-4xl font-bold text-[#231F1C]">
-                  {t(
-                    'বাস্তব কেস ফোল্ডারের মাধ্যমে কীভাবে সাহায্য পাবেন',
-                    'How MyLaws Works in Real Situations'
-                  )}
-                </h2>
-
-                <p className="text-xs sm:text-sm text-[#5A534A] leading-relaxed">
-                  {t(
-                    'ডানপাশের ফোল্ডারে ক্লিক করে দেখুন কীভাবে MyLaws একটি বকেয়া বেতনের প্রশ্ন বিশ্লেষণ করে স্পষ্ট করণীয় পদক্ষেপ, সরকারি ধারার প্রামাণিক পাঠ এবং প্রস্তুতকৃত খসড়া আবেদন প্রদান করে।',
-                    'Explore the digital case folder to see how an unpaid wages inquiry is structured into actionable steps, official gazette citations, and ready-to-export drafts.'
-                  )}
-                </p>
-
-                <div className="pt-2">
-                  <Link
-                    href="/ask"
-                    className="bracket-btn text-xs font-cinzel font-bold tracking-wider"
-                  >
-                    <span>— {t('আপনার নিজের প্রশ্ন নিয়ে পরীক্ষা করুন', 'TRY WITH YOUR OWN QUESTION')} —</span>
-                  </Link>
-                </div>
-              </div>
-
-              <div className="lg:col-span-7">
-                <CasePreview />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================
             4-STEP CANONICAL LEGAL JOURNEY SECTION
             ======================================================== */}
         <section className="py-16 md:py-24 border-b border-border-light/80">
@@ -457,11 +457,11 @@ export default function HomePage() {
                     I
                   </div>
                   <h3 className="font-anek text-lg font-bold text-[#231F1C]">
-                    {t('১. সমস্যার গভীর অনুধাবন', '1. Understand the Problem')}
+                    {t('১. সমস্যা গভীরভাবে অনুধাবন', '1. Understand User\'s Problem')}
                   </h3>
                   <p className="text-xs text-[#5A534A] leading-relaxed font-hind">
                     {t(
-                      'AI ব্যবহারকারীর পুরো ঘটনা পড়ে, কী ঘটেছে তা গভীরভাবে অনুধাবন করে, মূল আইনি সমস্যা শনাক্ত করে এবং অতিরিক্ত কোনো তথ্যের প্রয়োজন আছে কি না তা নির্ধারণ করে।',
+                      'AI ব্যবহারকারীর পুরো ঘটনা পড়ে, কী ঘটেছে তা গভীরভাবে অনুধাবন করে, মূল আইনি সমস্যা শনাক্ত করে এবং সঠিক এখতিয়ারের জন্য অতিরিক্ত কোনো তথ্যের প্রয়োজন আছে কি না তা নির্ধারণ করে।',
                       'The AI reads the user\'s story, understands what happened, identifies the main issue, and determines what additional information might be needed.'
                     )}
                   </p>
@@ -482,8 +482,8 @@ export default function HomePage() {
                   </h3>
                   <p className="text-xs text-[#5A534A] leading-relaxed font-hind">
                     {t(
-                      'সমস্যার অর্থ কী, আপনার বিকল্পসমূহ কী এবং এরপরে কী করা সম্ভব—তা সহজ ও আন্তরিক ভাষায় বুঝিয়ে দেওয়া হয়। সাথে প্রাসঙ্গিক সরকারি গেজেটের নির্ভরযোগ্য লিঙ্ক প্রদর্শিত হয়।',
-                      'The AI explains what the problem means, what the user\'s options are, and what they can do next naturally and supportively, with reliable statutory source links.'
+                      'সমস্যার অর্থ কী, আপনার বিকল্পসমূহ কী এবং এরপরে কী করতে পারেন—তা সহজ, আন্তরিক ও সহমর্মী ভাষায় বুঝিয়ে দেওয়া হয়। সাথে নির্ভরযোগ্য সরকারি গেজেট ও আইনের সরাসরি লিঙ্ক যুক্ত থাকে।',
+                      'The AI explains what the problem means, what your options are, and what you can do next naturally and supportively, alongside relevant statutory sources and links.'
                     )}
                   </p>
                 </div>
@@ -499,17 +499,17 @@ export default function HomePage() {
                     III
                   </div>
                   <h3 className="font-anek text-lg font-bold text-[#231F1C]">
-                    {t('৩. ধাপে ধাপে অ্যাকশন চেকলিস্ট', '3. Action Checklist')}
+                    {t('৩. ধাপে ধাপে অ্যাকশন চেকলিস্ট', '3. Step-by-Step Action Checklist')}
                   </h3>
                   <p className="text-xs text-[#5A534A] leading-relaxed font-hind">
                     {t(
-                      'পরিস্থিতি ব্যাখ্যা করার পর, ক্রমানুসারে আপনার করণীয় কাজগুলোর একটি বাস্তবসম্মত চেকলিস্ট দেওয়া হয়—কোন প্রমাণ রাখবেন, কখন সরকারি দপ্তরে যাবেন তা স্পষ্ট থাকে।',
-                      'MyLaws gives the user an intuitive, practical checklist of what to do in the exact right order—evidence to preserve, statutory limits, and government routing.'
+                      'পরিস্থিতি ব্যাখ্যা করার পর, MyLaws সঠিক ক্রমানুসারে আপনার করণীয় কাজগুলোর একটি বাস্তবসম্মত চেকলিস্ট প্রদান করে—কী প্রমাণ রাখবেন, কোন দপ্তরে যাবেন তা ধাপে ধাপে সাজানো থাকে।',
+                      'After explaining the situation, MyLaws gives the user a practical checklist of what to do, in the exact right order.'
                     )}
                   </p>
                 </div>
                 <div className="pt-2 text-[11px] font-bold text-accent-light font-cinzel">
-                  {t('ধাপে ধাপে করণীয় পদক্ষেপ', 'ORDERED ACTION STEPS')}
+                  {t('ধাপে ধাপে করণীয় পদক্ষেপ', 'ORDERED ACTION CHECKLIST')}
                 </div>
               </div>
 
@@ -520,17 +520,17 @@ export default function HomePage() {
                     IV
                   </div>
                   <h3 className="font-anek text-lg font-bold text-[#231F1C]">
-                    {t('৪. আনুষ্ঠানিক খসড়া প্রস্তুতের প্রস্তাব', '4. Formal Draft Offer')}
+                    {t('৪. আনুষ্ঠানিক খসড়া প্রস্তুতের প্রস্তাব', '4. Offer to Prepare a Formal Draft')}
                   </h3>
                   <p className="text-xs text-[#5A534A] leading-relaxed font-hind">
                     {t(
-                      'পরিস্থিতি নিশ্চিত হলে MyLaws প্রস্তাব করে: “আপনি কি আনুষ্ঠানিক খসড়া তৈরি করতে চান?” ব্যবহারকারী রাজি হলে প্রয়োজনীয় তথ্য নিয়ে প্রিন্ট-রেডি A4 PDF প্রস্তুত করা হয়।',
-                      'MyLaws offers the next step: “Would you like to prepare a formal draft based on this incident?” If agreed, it prepares a structured complaint letter, notice, or GD.'
+                      'করণীয় বোঝার পর MyLaws প্রস্তাব করে: “আনুষ্ঠানিক খসড়া প্রস্তুত করুন”। ক্লিক করলে পরিস্থিতি অনুযায়ী অভিযোগপত্র, নোটিশ বা জিডি তৈরি করা হয় এবং প্রয়োজনীয় বিবরণ জানতে চাওয়া হয়।',
+                      'Once understood, MyLaws offers the optional next step: “Prepare a formal draft” to help create the complaint letter, notice, or GD, asking for any missing details needed.'
                     )}
                   </p>
                 </div>
                 <div className="pt-2 text-[11px] font-bold text-accent-light font-cinzel">
-                  {t('প্রমিত আবেদন ও A4 PDF', 'FORMAL DRAFT & PDF')}
+                  {t('প্রমিত আবেদন ও A4 PDF', 'FORMAL DRAFT PREPARATION')}
                 </div>
               </div>
             </div>
