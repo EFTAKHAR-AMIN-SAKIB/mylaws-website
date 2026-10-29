@@ -28,3 +28,6 @@ public/frames_raw/
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+.env*
