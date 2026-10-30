@@ -26,7 +26,7 @@ export interface SavedUserQuery {
   createdAt: string;
 }
 
-const DEFAULT_DAILY_LIMIT = parseInt(process.env.DAILY_QUERY_LIMIT || '50', 10);
+export const DEFAULT_DAILY_LIMIT = parseInt(process.env.DAILY_QUERY_LIMIT || '30', 10);
 
 /**
  * Verifies a client-provided Firebase ID token using Google's Identity Toolkit REST API

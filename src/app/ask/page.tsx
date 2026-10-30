@@ -19,7 +19,7 @@ import type {
   ChatHistoryMessage,
 } from '@/types/contracts';
 import type { SavedUserQuery } from '@/lib/userDb';
-import { detectInputLanguage } from '@/lib/followup';
+import { detectInputLanguage, toBanglaNum } from '@/lib/followup';
 import { provisions } from '@/data/legal';
 import {
   Send,
@@ -342,11 +342,13 @@ function AskContent() {
 
       if (res.status === 429) {
         const errJson = await res.json().catch(() => ({}));
+        const activeLimit = errJson.userQuota?.dailyLimit || quota?.dailyLimit || 30;
+        const formattedLimit = lang === 'bn' ? toBanglaNum(activeLimit) : `${activeLimit}`;
         const quotaError =
           errJson.message ||
           t(
-            'আজকের দৈনিক প্রশ্ন কোটা (১০টি) শেষ হয়েছে। দয়া করে আগামীকাল আবার চেষ্টা করুন।',
-            'Daily query limit of 10 reached. Please check back tomorrow.'
+            `আজকের দৈনিক প্রশ্ন কোটা (${formattedLimit}টি) শেষ হয়েছে। দয়া করে আগামীকাল আবার চেষ্টা করুন।`,
+            `Daily query limit of ${formattedLimit} reached. Please check back tomorrow.`
           );
         setErrorMsg(quotaError);
         if (errJson.userQuota) {
@@ -462,7 +464,10 @@ function AskContent() {
   };
 
   const latestResult = [...chatTurns].reverse().find((t) => t.result)?.result;
-  const remainingQuestions = quota ? quota.remaining : 50;
+  const dailyLimit = quota?.dailyLimit || 30;
+  const remainingQuestions = quota ? quota.remaining : dailyLimit;
+  const formattedRemaining = lang === 'bn' ? toBanglaNum(remainingQuestions) : `${remainingQuestions}`;
+  const formattedDailyLimit = lang === 'bn' ? toBanglaNum(dailyLimit) : `${dailyLimit}`;
   const isChatMode = chatTurns.length > 0;
 
   return (
@@ -511,7 +516,7 @@ function AskContent() {
                 <div className="flex items-center gap-1 text-xs text-amber-900 dark:text-amber-200 bg-amber-500/15 px-2.5 py-1.5 rounded-lg border border-amber-600/30 shadow-2xs">
                   <Sparkles className="h-3 w-3 text-amber-700 dark:text-amber-400" />
                   <span className="font-semibold text-[11px]">
-                    {t(`বাকি: ${remainingQuestions}`, `${remainingQuestions} left`)}
+                    {t(`বাকি: ${formattedRemaining}/${formattedDailyLimit}`, `${formattedRemaining}/${formattedDailyLimit} left`)}
                   </span>
                 </div>
               ) : (
@@ -1114,7 +1119,7 @@ function AskContent() {
                   </button>
 
                   <span className="text-[11px] font-hind text-secondary-light/80 px-2 py-0.5 rounded-full bg-bg-light/80 border border-border-light/60">
-                    {t(`বাকি: ${remainingQuestions}টি`, `${remainingQuestions} queries left`)}
+                    {t(`বাকি: ${formattedRemaining}/${formattedDailyLimit}টি`, `${formattedRemaining}/${formattedDailyLimit} queries left`)}
                   </span>
                 </div>
 

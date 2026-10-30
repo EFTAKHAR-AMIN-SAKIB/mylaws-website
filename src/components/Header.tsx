@@ -7,6 +7,7 @@ import { useApp } from './AppContext';
 import { useAuth } from './AuthContext';
 import { BrandLogo } from './BrandLogo';
 import { Menu, X, Globe, User as UserIcon, LogOut, Sparkles, ChevronDown } from 'lucide-react';
+import { toBanglaNum } from '@/lib/followup';
 
 export function Header() {
   const { lang, setLang, t } = useApp();
@@ -35,7 +36,10 @@ export function Header() {
     { href: '/download', label: t('অ্যাপ্লিকেশন', 'APPLICATION') },
   ];
 
-  const remainingQuota = quota ? quota.remaining : 10;
+  const dailyLimit = quota?.dailyLimit || 30;
+  const remainingQuota = quota ? quota.remaining : dailyLimit;
+  const formattedRemaining = lang === 'bn' ? toBanglaNum(remainingQuota) : `${remainingQuota}`;
+  const formattedDailyLimit = lang === 'bn' ? toBanglaNum(dailyLimit) : `${dailyLimit}`;
   const userDisplayName = user?.displayName || user?.email?.split('@')[0] || t('আইন সেবাপ্রার্থী', 'Citizen');
 
   return (
@@ -130,8 +134,8 @@ export function Header() {
                       <span className="max-w-[100px] truncate text-xs font-medium">
                         {userDisplayName}
                       </span>
-                      <span className="rounded bg-amber-200/60 dark:bg-amber-800/40 px-1.5 py-0.2 text-[10px] font-semibold text-amber-900 dark:text-amber-200">
-                        {remainingQuota}/10
+                      <span className="rounded bg-amber-200/60 dark:bg-amber-800/40 px-1.5 py-0.5 text-[10px] font-semibold text-amber-900 dark:text-amber-200">
+                        {formattedRemaining}/{formattedDailyLimit}
                       </span>
                       <ChevronDown className="h-3 w-3 text-secondary-light" />
                     </button>
@@ -153,12 +157,12 @@ export function Header() {
                                 <Sparkles className="h-3 w-3 text-amber-600" />
                                 {t('দৈনিক এআই কোটা', 'Daily AI Quota')}
                               </span>
-                              <span>{remainingQuota} / 10 {t('বাকি', 'left')}</span>
+                              <span>{formattedRemaining} / {formattedDailyLimit} {t('বাকি', 'left')}</span>
                             </div>
                             <div className="mt-1.5 h-1.5 w-full rounded-full bg-amber-200/40 overflow-hidden">
                               <div
                                 className="h-full bg-amber-600 transition-all"
-                                style={{ width: `${(remainingQuota / 10) * 100}%` }}
+                                style={{ width: `${Math.min(100, Math.max(0, (remainingQuota / dailyLimit) * 100))}%` }}
                               />
                             </div>
                           </div>
@@ -245,7 +249,7 @@ export function Header() {
             <div className="rounded-lg border border-amber-600/20 bg-amber-500/10 p-3 text-xs mb-2">
               <div className="flex items-center justify-between font-bold text-primary-light">
                 <span>{userDisplayName}</span>
-                <span className="text-amber-800 font-semibold">{remainingQuota}/10 {t('প্রশ্ন বাকি', 'queries left')}</span>
+                <span className="text-amber-800 font-semibold">{formattedRemaining}/{formattedDailyLimit} {t('প্রশ্ন বাকি', 'queries left')}</span>
               </div>
               <p className="text-[11px] text-secondary-light truncate">{user.email}</p>
             </div>

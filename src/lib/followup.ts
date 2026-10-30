@@ -39,6 +39,15 @@ export function detectInputLanguage(text: string, fallbackLang: 'en' | 'bn' = 'b
 }
 
 /**
+ * Converts English numeral digits to Bengali numerals (e.g. 30 -> ৩০)
+ */
+export function toBanglaNum(n: number | string): string {
+  const s = n.toString();
+  const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+  return s.replace(/\d/g, (d) => bnDigits[parseInt(d, 10)]);
+}
+
+/**
  * Detects whether the query is a friendly greeting or salutation.
  */
 export function isGreetingQuery(text: string): boolean {
