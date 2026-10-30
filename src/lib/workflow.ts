@@ -910,23 +910,36 @@ export function createLegalWorkflow(
         (priorIssue?.includes('theft') ?? false) ||
         isTheftOrLossQuestion(combinedMsg));
 
+    const hasVehicleInQuery = /\b(bike|motorbike|motorcycle|scooter|gari|car|cycle|bicycle|cng|বাইক|মোটরসাইকেল|গাড়ি|স্কুটার|সাইকেল|যানবাহন)\b/i.test(originalMessage);
+    const hasShopInQuery = /\b(dokan|shop|store|maal|goods|inventory|bazar|market|ব্যবসা|দোকান|মালামাল|মাল|গুদাম)\b/i.test(originalMessage);
+    const hasMobileInQuery = /\b(mobile|phone|handset|imei|sim|মোবাইল|ফোন|হ্যান্ডসেট|সিম)\b/i.test(originalMessage);
+
     const isVehicleTheft =
       isTheft &&
-      (/\b(bike|motorbike|motorcycle|scooter|gari|car|cycle|bicycle|cng|বাইক|মোটরসাইকেল|গাড়ি|স্কুটার|সাইকেল|যানবাহন)\b/i.test(combinedMsg) ||
-        priorIssue === 'police_gd_vehicle_theft');
+      (hasVehicleInQuery ||
+        (!hasShopInQuery && !hasMobileInQuery && (
+          /\b(bike|motorbike|motorcycle|scooter|gari|car|cycle|bicycle|cng|বাইক|মোটরসাইকেল|গাড়ি|স্কুটার|সাইকেল|যানবাহন)\b/i.test(combinedMsg) ||
+          priorIssue === 'police_gd_vehicle_theft'
+        )));
 
     const isShopTheft =
       isTheft &&
       !isVehicleTheft &&
-      (/\b(dokan|shop|store|maal|goods|inventory|bazar|market|ব্যবসা|দোকান|মালামাল|মাল|গুদাম)\b/i.test(combinedMsg) ||
-        priorIssue === 'police_fir_shop_theft');
+      (hasShopInQuery ||
+        (!hasVehicleInQuery && !hasMobileInQuery && (
+          /\b(dokan|shop|store|maal|goods|inventory|bazar|market|ব্যবসা|দোকান|মালামাল|মাল|গুদাম)\b/i.test(combinedMsg) ||
+          priorIssue === 'police_fir_shop_theft'
+        )));
 
     const isMobileTheft =
       isTheft &&
       !isVehicleTheft &&
       !isShopTheft &&
-      (/\b(mobile|phone|handset|imei|sim|মোবাইল|ফোন|হ্যান্ডসেট|সিম)\b/i.test(combinedMsg) ||
-        priorIssue === 'police_gd_theft');
+      (hasMobileInQuery ||
+        (!hasVehicleInQuery && !hasShopInQuery && (
+          /\b(mobile|phone|handset|imei|sim|মোবাইল|ফোন|হ্যান্ডসেট|সিম)\b/i.test(combinedMsg) ||
+          priorIssue === 'police_gd_theft'
+        )));
 
     let placeFact = request.facts.find((f) => f.fieldId === 'place' && f.value.trim().length > 0);
     let dateFact = request.facts.find((f) => f.fieldId === 'incident_date' && f.value.trim().length > 0);

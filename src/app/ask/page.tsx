@@ -20,11 +20,13 @@ import type {
 } from '@/types/contracts';
 import type { SavedUserQuery } from '@/lib/userDb';
 import { detectInputLanguage } from '@/lib/followup';
+import { provisions } from '@/data/legal';
 import {
   Send,
   Loader2,
   AlertCircle,
   HelpCircle,
+  Shield,
   ShieldCheck,
   RotateCcw,
   Sparkles,
@@ -48,6 +50,17 @@ import {
   Plus,
   Scale,
 } from 'lucide-react';
+
+function getSourceLabel(sid: string, currentLang: 'en' | 'bn'): string {
+  const prov = provisions.find((p) => p.id === sid);
+  if (prov) {
+    const actName = currentLang === 'bn' ? prov.act.bn : prov.act.en;
+    const shortAct = actName.split(',')[0].split('(')[0].trim();
+    const sec = prov.section ? `(${prov.section})` : '';
+    return `${shortAct} ${sec}`.trim();
+  }
+  return sid;
+}
 
 export interface ChatTurn {
   id: string;
@@ -783,90 +796,87 @@ function AskContent() {
                                     onClick={() => setSelectedSourceId(sid)}
                                     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-anek font-semibold bg-accent-light/10 text-accent-light hover:bg-accent-light hover:text-white transition-all cursor-pointer border border-accent-light/20"
                                   >
-                                    <span>{sid}</span>
+                                    <span>{getSourceLabel(sid, lang)}</span>
                                     <ArrowRight className="h-2.5 w-2.5 opacity-60" />
                                   </button>
                                 ))}
                               </div>
                             )}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-6">
-                        {/* Top Provenance & Issue Banner */}
-                        <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl border border-border-light bg-surface-light shadow-2xs">
-                          <div className="flex items-center gap-2.5">
-                            <span className="p-1.5 rounded-lg bg-accent-light/10 text-accent-light">
-                              <ShieldCheck className="h-4 w-4" />
-                            </span>
-                            <div>
-                              <span className="text-xs font-bold text-primary-light font-anek block">
-                                {turn.result.problemSummary?.identifiedIssue || t('আইনি অধিকার পর্যালোচনা', 'Legal Applicability Review')}
-                              </span>
-                              <span className="text-[11px] text-secondary-light font-hind">
-                                {t('প্যাক সংস্করণ: ', 'Corpus: ')}{turn.result.sourcePackVersion}
-                              </span>
-                            </div>
-                          </div>
 
-                          {/* Provenance Badge */}
-                          <div className="flex items-center gap-2">
-                            {turn.result.engineProvenance === 'online_meta' ? (
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-800 border border-blue-200">
-                                <Cpu className="h-3 w-3" />
-                                <span>{t('মেটা এআই ও গেজেট যৌথভাবে বিশ্লেষিত', 'Meta-assisted verified response')}</span>
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-accent-light/10 text-accent-light border border-accent-light/20">
-                                <BookmarkCheck className="h-3 w-3" />
-                                <span>{t('যাচাইকৃত সংবিধিবদ্ধ নির্দেশিকা', 'Verified statutory guidance')}</span>
-                              </span>
+                            {/* Optional Draft Offer in follow-up if relevant */}
+                            {turn.result.draftOffer && (
+                              <div className="pt-3 border-t border-border-light/60 flex items-center justify-between gap-3 flex-wrap">
+                                <span className="text-xs text-secondary-light font-hind">
+                                  {t('এই বিষয়ের আনুষ্ঠানিক আইনি খসড়া ও আবেদনপত্র প্রস্তুত করতে চান?', 'Ready to draft a formal legal petition or application?')}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleGoToDraft(turn.result!.draftOffer!.documentType, turn.result)}
+                                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-light text-white text-xs font-cinzel font-bold tracking-wider hover:opacity-90 transition-all cursor-pointer shadow"
+                                >
+                                  <span>{t('আনুষ্ঠানিক খসড়া তৈরি করুন', 'PREPARE FORMAL DRAFT')}</span>
+                                  <ArrowRight className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>
-
-                        {/* ====================================================
-                            STEP 1: UNDERSTAND THE USER'S PROBLEM
-                            ==================================================== */}
-                        <div className="p-6 sm:p-7 rounded-3xl border border-border-light bg-surface-cardLight shadow-sm space-y-4">
-                          <div className="flex items-center justify-between border-b border-border-light/60 pb-3">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
-                              <Sparkles className="h-4 w-4" />
-                              <span className="font-cinzel tracking-wider uppercase font-bold text-[11px]">
-                                {t('ধাপ ১ · সমস্যা অনুধাবন ও মূল বিষয় শনাক্তকরণ', 'STEP 1 · UNDERSTAND THE PROBLEM')}
+                      ) : (
+                        <div className="p-6 sm:p-8 rounded-3xl border border-border-light bg-surface-cardLight shadow-sm space-y-6 text-primary-light">
+                          {/* Top Meta Bar: Issue & Provenance */}
+                          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-light/60 pb-3.5">
+                            <div className="flex items-center gap-2.5">
+                              <span className="p-1.5 rounded-lg bg-accent-light/10 text-accent-light">
+                                <Scale className="h-4 w-4" />
                               </span>
+                              <div>
+                                <span className="text-xs sm:text-sm font-bold text-primary-light font-anek block">
+                                  {turn.result.problemSummary?.identifiedIssue || t('আইনি অধিকার পর্যালোচনা', 'Legal Applicability Review')}
+                                </span>
+                                <span className="text-[11px] text-secondary-light font-hind">
+                                  {t('প্যাক সংস্করণ: ', 'Corpus: ')}{turn.result.sourcePackVersion}
+                                </span>
+                              </div>
                             </div>
-                            <span className="text-[11px] font-hind text-secondary-light">
-                              {t('AI ঘটনা বিশ্লেষণ', 'AI Situation Analysis')}
-                            </span>
+
+                            <div className="flex items-center gap-2">
+                              {turn.result.engineProvenance === 'online_meta' ? (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-800 border border-blue-200">
+                                  <Cpu className="h-3 w-3" />
+                                  <span>{t('মেটা এআই ও গেজেট যৌথভাবে বিশ্লেষিত', 'Meta-assisted verified response')}</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-accent-light/10 text-accent-light border border-accent-light/20">
+                                  <BookmarkCheck className="h-3 w-3" />
+                                  <span>{t('যাচাইকৃত সংবিধিবদ্ধ নির্দেশিকা', 'Verified statutory guidance')}</span>
+                                </span>
+                              )}
+                            </div>
                           </div>
 
-                          {/* AI Narrative */}
+                          {/* 1. Conversational Understanding & Empathy */}
                           <div className="space-y-2">
-                            <h3 className="font-anek text-base sm:text-lg font-bold text-primary-light">
-                              {turn.result.problemSummary?.identifiedIssue || t('আইনি অধিকার পর্যালোচনা', 'Legal Applicability Review')}
-                            </h3>
-                            <p className="font-hind text-xs sm:text-sm text-secondary-light leading-relaxed">
+                            <p className="font-hind text-sm sm:text-base text-primary-light font-medium leading-relaxed">
                               {turn.result.problemSummary?.understanding || t(
-                                'আমরা আপনার বিষয়টি গভীরভাবে অনুধাবন করেছি এবং এর সাথে সংশ্লিষ্ট আইনি ক্ষেত্র শনাক্ত করেছি।',
-                                'We have analyzed your story, understand what occurred, and identified the relevant statutory area.'
+                                'আপনার বিষয়টি পর্যালোচনা করে এর সাথে প্রযোজ্য আইনি ক্ষেত্র চিহ্নিত করা হয়েছে।',
+                                'We have analyzed your situation and identified the applicable statutory legal path.'
                               )}
                             </p>
                           </div>
 
                           {/* Clarification Questions (if active in this turn) */}
                           {turn.result.status === 'clarifying' && turn.result.clarificationQuestions && turn.result.clarificationQuestions.length > 0 && (
-                            <div className="mt-4 p-5 sm:p-6 rounded-2xl border border-amber-300 bg-amber-50/70 shadow-2xs space-y-4">
-                              <div className="flex items-center gap-2 text-amber-900 border-b border-amber-200 pb-3">
-                                <HelpCircle className="h-4 w-4 text-amber-700" />
-                                <h4 className="font-anek font-bold text-sm">
+                            <div className="p-4 sm:p-5 rounded-2xl border border-amber-300 bg-amber-50/70 shadow-2xs space-y-3.5">
+                              <div className="flex items-center gap-2 text-amber-900 border-b border-amber-200/80 pb-2.5">
+                                <HelpCircle className="h-4 w-4 text-amber-700 shrink-0" />
+                                <h4 className="font-anek font-bold text-xs sm:text-sm">
                                   {t('আরও নির্ভুল পরামর্শের জন্য কয়েকটি প্রশ্নের উত্তর দিন', 'Answer a few quick questions for tailored guidance')}
                                 </h4>
                               </div>
 
-                              <div className="space-y-4">
+                              <div className="space-y-3">
                                 {turn.result.clarificationQuestions.map((q: ClarificationQuestion) => (
-                                  <div key={q.fieldId} className="space-y-2">
+                                  <div key={q.fieldId} className="space-y-1.5">
                                     <label className="block text-xs font-hind font-semibold text-primary-light">
                                       {t(q.question.bn, q.question.en)}
                                     </label>
@@ -882,9 +892,9 @@ function AskContent() {
                                                 [q.fieldId]: opt.value,
                                               }))
                                             }
-                                            className={`text-xs px-3.5 py-1.5 rounded-lg border transition-all cursor-pointer ${
+                                            className={`text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
                                               clarificationAnswers[q.fieldId] === opt.value
-                                                ? 'border-accent-light bg-accent-light text-surface-light font-medium'
+                                                ? 'border-accent-light bg-accent-light text-white font-medium shadow-xs'
                                                 : 'border-border-light bg-surface-light text-secondary-light hover:border-accent-light/60'
                                             }`}
                                           >
@@ -910,145 +920,128 @@ function AskContent() {
                                 ))}
                               </div>
 
-                              <div className="pt-2 flex justify-end">
+                              <div className="pt-1 flex justify-end">
                                 <button
                                   type="button"
                                   onClick={() => handleClarificationSubmit(turn.result!)}
-                                  className="px-4 py-2 rounded-lg bg-accent-light text-surface-light text-xs font-cinzel font-bold tracking-wider hover:opacity-90 transition-all cursor-pointer shadow"
+                                  className="px-4 py-2 rounded-lg bg-accent-light text-white text-xs font-cinzel font-bold tracking-wider hover:opacity-90 transition-all cursor-pointer shadow"
                                 >
                                   {t('তথ্য জমা দিন ও সম্পূর্ণ সমাধান দেখুন', 'SUBMIT & REFRESH ANALYSIS')}
                                 </button>
                               </div>
                             </div>
                           )}
-                        </div>
 
-                        {/* ====================================================
-                            STEP 2: WHAT THE LAW SAYS (STATUTES & MEANING)
-                            ==================================================== */}
-                        {turn.result.plainLanguageExplanation && (
-                          <div className="p-6 sm:p-7 rounded-3xl border border-border-light bg-surface-cardLight shadow-sm space-y-4">
-                            <div className="flex items-center justify-between border-b border-border-light/60 pb-3">
-                              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
-                                <BookOpen className="h-4 w-4" />
-                                <span className="font-cinzel tracking-wider uppercase font-bold text-[11px]">
-                                  {t('ধাপ ২ · আইনে কী বলা আছে (সহজ ব্যাখ্যা)', 'STEP 2 · WHAT THE LAW SAYS')}
-                                </span>
+                          {/* 2. What the Law Says (আইনের মতে ও সংবিধিবদ্ধ বিধান) */}
+                          {turn.result.plainLanguageExplanation && (
+                            <div className="pt-2 border-t border-border-light/60 space-y-3">
+                              <div className="flex items-center gap-2">
+                                <BookOpen className="h-4 w-4 text-accent-light shrink-0" />
+                                <h4 className="font-anek text-sm sm:text-base font-bold text-primary-light">
+                                  {t('আইনের মতে:', 'What the Law Says:')}
+                                </h4>
                               </div>
-                              <span className="text-[11px] font-hind text-secondary-light">
-                                {t('গেজেট ও মূল ধারা সম্বলিত', 'Verified Statutes')}
-                              </span>
-                            </div>
 
-                            <div className="space-y-2">
-                              <h3 className="font-anek text-base sm:text-lg font-bold text-primary-light">
-                                {turn.result.plainLanguageExplanation.heading || t('আইন ও সংবিধিবদ্ধ বিধানের সারসংক্ষেপ', 'Statutory Provisions & Legal Meaning')}
-                              </h3>
                               <p className="font-hind text-xs sm:text-sm text-secondary-light leading-relaxed whitespace-pre-line">
                                 {turn.result.plainLanguageExplanation.meaning}
                               </p>
-                            </div>
 
-                            {/* Key Caveat / Next Steps */}
-                            {turn.result.plainLanguageExplanation.whatToDoNext && (
-                              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-600/20 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2.5">
-                                <Info className="h-4 w-4 shrink-0 text-amber-700 mt-0.5" />
-                                <div className="space-y-1">
-                                  <span className="font-bold block">{t('পরবর্তী করণীয়:', 'What to do next:')}</span>
-                                  <span className="font-hind leading-relaxed">
-                                    {turn.result.plainLanguageExplanation.whatToDoNext}
-                                  </span>
+                              {/* Clickable Statutory Sources (Source pills as drawn in user sketch) */}
+                              {(() => {
+                                const allSourceIds = Array.from(
+                                  new Set([
+                                    ...(turn.result.explanation?.flatMap((e) => e.sourceIds || []) || []),
+                                    ...(turn.result.checklist?.flatMap((c) => c.sourceIds || []) || []),
+                                    ...(turn.result.followUpResponse?.sourceIds || []),
+                                  ])
+                                ).filter(Boolean);
+
+                                if (allSourceIds.length === 0) return null;
+
+                                return (
+                                  <div className="flex flex-wrap items-center gap-2 pt-1.5">
+                                    <span className="text-[11px] font-hind text-secondary-light flex items-center gap-1">
+                                      <Shield className="h-3 w-3 text-accent-light" />
+                                      {t('আইনি উৎস ও ধারা:', 'Statutory Sources:')}
+                                    </span>
+                                    {allSourceIds.map((sid) => (
+                                      <button
+                                        key={sid}
+                                        type="button"
+                                        onClick={() => setSelectedSourceId(sid)}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-anek font-semibold bg-accent-light/10 text-accent-light hover:bg-accent-light hover:text-white transition-all cursor-pointer border border-accent-light/20 shadow-2xs"
+                                        title={t('মূল সরকারি গেজেট ও ধারা দেখুন', 'View official statutory text')}
+                                      >
+                                        <span>{getSourceLabel(sid, lang)}</span>
+                                        <ArrowRight className="h-2.5 w-2.5 opacity-60" />
+                                      </button>
+                                    ))}
+                                  </div>
+                                );
+                              })()}
+
+                              {/* Key Caveat / Advice */}
+                              {turn.result.plainLanguageExplanation.whatToDoNext && (
+                                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-600/20 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2.5">
+                                  <Info className="h-4 w-4 shrink-0 text-amber-700 mt-0.5" />
+                                  <div className="space-y-0.5">
+                                    <span className="font-bold block">{t('জরুরি করণীয়:', 'What to do next:')}</span>
+                                    <span className="font-hind leading-relaxed">
+                                      {turn.result.plainLanguageExplanation.whatToDoNext}
+                                    </span>
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* ====================================================
-                            STEP 3: ACTION CHECKLIST
-                            ==================================================== */}
-                        {turn.result.checklist && turn.result.checklist.length > 0 && (
-                          <div className="p-6 sm:p-7 rounded-3xl border border-border-light bg-surface-cardLight shadow-sm space-y-4">
-                            <div className="flex items-center justify-between border-b border-border-light/60 pb-3">
-                              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
-                                <ListOrdered className="h-4 w-4" />
-                                <span className="font-cinzel tracking-wider uppercase font-bold text-[11px]">
-                                  {t('ধাপ ৩ · আপনার পরবর্তী করণীয় পদক্ষেপ', 'STEP 3 · ACTION CHECKLIST')}
-                                </span>
-                              </div>
-                              <span className="text-[11px] font-hind text-secondary-light">
-                                {t('ধাপে ধাপে সমাধান', 'Sequential Steps')}
-                              </span>
+                              )}
                             </div>
+                          )}
 
-                            <Checklist
-                              caseId={turn.result.answerId}
-                              steps={turn.result.checklist}
-                              onOpenSource={(id: string) => setSelectedSourceId(id)}
-                              onOpenOffice={(id: string) => setSelectedOfficeId(id)}
-                            />
-                          </div>
-                        )}
+                          {/* 3. Action Steps (আপনি এখন যে পদক্ষেপ নিবেন:-) */}
+                          {turn.result.checklist && turn.result.checklist.length > 0 && (
+                            <div className="pt-2 border-t border-border-light/60 space-y-3.5">
+                              <Checklist
+                                caseId={turn.result.answerId}
+                                steps={turn.result.checklist}
+                                onOpenSource={(id: string) => setSelectedSourceId(id)}
+                                onOpenOffice={(id: string) => setSelectedOfficeId(id)}
+                                variant="lineByLine"
+                              />
+                            </div>
+                          )}
 
-                        {/* ====================================================
-                            STEP 4: READY LEGAL DRAFT & PETITION OFFER
-                            ==================================================== */}
-                        {turn.result.draftOffer && (
-                          <div className="p-6 sm:p-7 rounded-3xl border border-accent-light/30 bg-surface-cardLight shadow-md space-y-4">
-                            <div className="flex items-center justify-between border-b border-border-light/60 pb-3">
-                              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light text-white">
-                                <FileText className="h-4 w-4" />
-                                <span className="font-cinzel tracking-wider uppercase font-bold text-[11px]">
-                                  {t('ধাপ ৪ · প্রস্তুত আইনি খসড়া ও আবেদনপত্র', 'STEP 4 · LEGAL DRAFT & PETITION')}
-                                </span>
+                          {/* 4. Prepare Formal Draft (আনুষ্ঠানিক খসড়া তৈরি করুন) */}
+                          {turn.result.draftOffer && (
+                            <div className="pt-3 border-t border-border-light/60">
+                              <div className="p-4 sm:p-5 rounded-2xl bg-accent-light/5 border border-accent-light/25 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <FileText className="h-4 w-4 text-accent-light shrink-0" />
+                                    <h4 className="font-anek font-bold text-sm sm:text-base text-primary-light">
+                                      {turn.result.draftOffer.documentTitle}
+                                    </h4>
+                                  </div>
+                                  <p className="font-hind text-xs text-secondary-light">
+                                    {turn.result.draftOffer.description}
+                                  </p>
+                                  {turn.result.draftOffer.missingDetails && turn.result.draftOffer.missingDetails.length > 0 && (
+                                    <p className="text-[11px] text-secondary-light/90 font-hind pt-1">
+                                      <span className="font-semibold">{t('প্রয়োজনীয় তথ্য: ', 'Details needed: ')}</span>
+                                      {turn.result.draftOffer.missingDetails.join(' • ')}
+                                    </p>
+                                  )}
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleGoToDraft(turn.result!.draftOffer!.documentType, turn.result)}
+                                  className="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-accent-light text-white text-xs sm:text-sm font-cinzel font-bold tracking-wider hover:opacity-90 transition-all cursor-pointer shadow hover:shadow-md"
+                                >
+                                  <span>{t('আনুষ্ঠানিক খসড়া তৈরি করুন', 'PREPARE A FORMAL DRAFT')}</span>
+                                  <ArrowRight className="h-4 w-4" />
+                                </button>
                               </div>
-                              <span className="text-[11px] font-hind text-secondary-light">
-                                {t('প্রিন্ট ও PDF উপযোগী', 'Print & PDF Ready')}
-                              </span>
                             </div>
-
-                            <div className="space-y-1.5">
-                              <h3 className="font-anek text-base sm:text-lg font-extrabold text-primary-light">
-                                {turn.result.draftOffer.documentTitle}
-                              </h3>
-                              <p className="font-hind text-xs sm:text-sm text-secondary-light leading-relaxed">
-                                {turn.result.draftOffer.description}
-                              </p>
-                            </div>
-
-                            {/* Missing Details */}
-                            {turn.result.draftOffer.missingDetails && turn.result.draftOffer.missingDetails.length > 0 && (
-                              <div className="p-3.5 rounded-2xl bg-bg-light/80 border border-border-light space-y-2 text-xs">
-                                <span className="font-bold text-primary-light font-anek block">
-                                  {t('খসড়াটি নির্ভুলভাবে প্রস্তুত করতে যেসব তথ্য প্রয়োজন হবে:', 'Details needed to prepare an accurate draft:')}
-                                </span>
-                                <ul className="list-disc list-inside space-y-1 text-secondary-light font-hind">
-                                  {turn.result.draftOffer.missingDetails.map((detail, idx) => (
-                                    <li key={idx}>{detail}</li>
-                                  ))}
-                                </ul>
-                                <p className="text-[11px] text-accent-light pt-0.5 font-hind italic">
-                                  {t('* খসড়া এডিটরে আপনি সরাসরি এগুলো পূরণ বা সম্পাদনা করতে পারবেন।', '* You can fill in or edit these details directly inside the draft editor.')}
-                                </p>
-                              </div>
-                            )}
-
-                            <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
-                              <span className="text-[11px] text-secondary-light font-hind">
-                                {t('বাংলায় সরাসরি সম্পাদনা করে প্রিন্ট বা অফিসিয়াল A4 PDF ডাউনলোড করতে পারবেন', 'You can edit in Bangla and export a print-ready A4 PDF')}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => handleGoToDraft(turn.result!.draftOffer!.documentType, turn.result)}
-                                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent-light text-surface-light text-xs font-cinzel font-bold tracking-wider hover:opacity-90 transition-all cursor-pointer shadow"
-                              >
-                                <span>{t('আনুষ্ঠানিক খসড়া প্রস্তুত করুন', 'PREPARE A FORMAL DRAFT')}</span>
-                                <ArrowRight className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                          )}
+                        </div>
                       )
                     ) : null}
                   </div>

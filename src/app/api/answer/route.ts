@@ -256,13 +256,21 @@ export async function POST(req: NextRequest) {
       requestedMode: 'online',
     };
 
-    // 1. Retrieve candidate verified provisions (contextualized with previous user turns)
-    const prevQueries = sanitizedHistory
-      .filter((m) => m.role === 'user')
-      .map((m) => m.content)
-      .slice(-2)
-      .join(' ');
-    const searchContext = prevQueries ? `${prevQueries} ${request.originalMessage}` : request.originalMessage;
+    // 1. Detect Intent: Is this a new primary legal problem or a follow-up query?
+    const isPrimary = isPrimaryLegalInquiry(request.originalMessage);
+    const isFollowUp = !isPrimary && isFollowUpQuery(request.originalMessage, sanitizedHistory.length);
+
+    // Contextualize retrieval: for follow-ups, include recent user query context;
+    // for fresh inquiries, search strictly with the current inquiry to prevent cross-topic pollution
+    let searchContext = request.originalMessage;
+    if (isFollowUp) {
+      const prevQueries = sanitizedHistory
+        .filter((m) => m.role === 'user')
+        .map((m) => m.content)
+        .slice(-2)
+        .join(' ');
+      searchContext = prevQueries ? `${prevQueries} ${request.originalMessage}` : request.originalMessage;
+    }
     const matches = retrieve(searchContext, 3);
     const candidateProvisions = matches.map((m) => m.provision);
 
@@ -274,9 +282,7 @@ export async function POST(req: NextRequest) {
       workflowResult.sourcePackVersion = `${workflowResult.sourcePackVersion} · Cloudflare D1`;
     }
 
-    // 2.5 Follow-up Intent Detection & Conversational Response Generation
-    const isPrimary = isPrimaryLegalInquiry(request.originalMessage);
-    const isFollowUp = !isPrimary && isFollowUpQuery(request.originalMessage, sanitizedHistory.length);
+    // 2.5 Handle Follow-up Response Generation
     if (isFollowUp) {
       workflowResult.isFollowUp = true;
       const primaryIssue = workflowResult.userFacts.find((f) => f.fieldId === 'issue_type')?.value || '';
