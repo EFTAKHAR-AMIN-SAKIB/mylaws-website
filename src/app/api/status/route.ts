@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { isMetaConfigured, getMetaModelName } from '@/lib/meta';
 import { legalPackManifest } from '@/data/manifest';
+import { canonicalProvisions } from '@/data/legal.generated';
 
 export async function GET() {
   const configured = isMetaConfigured();
@@ -11,8 +12,9 @@ export async function GET() {
       keyConfigured: configured,
       model: configured ? getMetaModelName() : null,
       legalPackVersion: legalPackManifest.id,
-      provisionsCount: 23,
-      verifiedDate: '2026-10-26',
+      corpusVersion: legalPackManifest.legalVersion,
+      provisionsCount: canonicalProvisions.length,
+      verifiedDate: '2026-10-30',
     },
     {
       headers: {

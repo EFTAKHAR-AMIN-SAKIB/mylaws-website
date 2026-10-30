@@ -2,9 +2,20 @@ import { describe, it, expect } from 'vitest';
 import { checkRateLimit, isMetaConfigured } from '../src/lib/meta';
 import { legalPackManifest, androidReleaseManifest } from '../src/data/manifest';
 import { POST } from '../src/app/api/answer/route';
+import { GET as getStatus } from '../src/app/api/status/route';
 import { NextRequest } from 'next/server';
 
 describe('Server & API Security Integrity', () => {
+  it('reports operational status and honest corpus metadata from /api/status', async () => {
+    const res = await getStatus();
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.status).toBe('operational');
+    expect(data.provisionsCount).toBe(255);
+    expect(data.corpusVersion).toBe('2026.10.30-batch2.2');
+    expect(data.legalPackVersion).toBe('bd-release-2026-10-30.3');
+  });
+
   it('returns valid 4-step canonical result from /api/answer', async () => {
     const req = new NextRequest('http://localhost:3000/api/answer', {
       method: 'POST',
@@ -22,6 +33,7 @@ describe('Server & API Security Integrity', () => {
     expect(data.checklist.length).toBeGreaterThan(0);
     expect(data.draftOffer).toBeDefined();
   }, 30000);
+
   it('enforces rate limiter per IP', () => {
     const testIp = '192.168.1.100';
     for (let i = 0; i < 10; i++) {
