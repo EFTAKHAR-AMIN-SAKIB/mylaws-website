@@ -927,10 +927,12 @@ export function createLegalWorkflow(
   // DOMAIN 2: CONSUMER FRAUD, EXPIRED MEDICINE & STATUTORY REMEDIES
   // -------------------------------------------------------------
   if (isConsumer) {
-    const isExpired = /মেয়াদোত্তীর্ণ|মেয়াদ উত্তীর্ণ|তারিখ পার|date\s*over|expired|ঔষধ|ওষুধ|medicine|ফার্মেসি/i.test(originalMessage);
-    const isAdulteration = /ভেজাল|রাসায়নিক|ফরমালিন|বিষাক্ত|ক্ষতিকর|adulterat/i.test(originalMessage);
-    const isCounterfeit = /নকল|জাল|fake|duplicate|counterfeit/i.test(originalMessage);
-    const isShortWeight = /ওজনে কম|কম ওজন|পরিমাপ|বাটখারা|স্কেল|short\s*weight/i.test(originalMessage);
+    const isExpired = /মেয়াদোত্তীর্ণ|মেয়াদ উত্তীর্ণ|তারিখ পার|date\s*over|expired|ঔষধ|ওষুধ|medicine|ফার্মেসি/i.test(effectiveQuery);
+    const isMixingFoodHarmful = /খাদ্যে\s*মিশ্রণ|নিষিদ্ধ\s*উপাদান|রাসায়নিক\s*মেশানো|বিষাক্ত\s*উপাদান|formalin|toxic\s*chemical/i.test(effectiveQuery);
+    const isAdulteration = !isExpired && (/ভেজাল|adulterat/i.test(effectiveQuery) || isMixingFoodHarmful);
+    const isCounterfeit = /নকল|জাল|fake|duplicate|counterfeit/i.test(effectiveQuery);
+    const isShortMeasure = /পরিমাপে কম|কম পরিমাপ|তেল কম|পেট্রোল\s*পাম্প|মিটার\s*কারচুপি|short\s*measure|fuel\s*fraud/i.test(effectiveQuery);
+    const isShortWeight = !isShortMeasure && /ওজনে কম|কম ওজন|বাটখারা|স্কেল|short\s*weight/i.test(effectiveQuery);
 
     const checklist: ChecklistStep[] = [];
     if (isExpired) {
@@ -947,9 +949,9 @@ export function createLegalWorkflow(
       checklist.push({
         id: 'step-consumer-1',
         text: isBn
-          ? 'ভেজাল বা ক্ষতিকর রাসায়নিকযুক্ত পণ্যের ক্রয় রশিদ এবং পণ্যের অবিকৃত নমুনা নিরাপদ হেফাজতে সংরক্ষণ করুন।'
-          : 'Preserve the purchase receipt and an unadulterated sample of the contaminated product.',
-        sourceIds: ['consumer-41'],
+          ? 'ভেজাল বা ক্ষতিকর রাসায়নিকযুক্ত পণ্যের ক্রয় রশিদ এবং পণ্যের অবিকৃত নমুনা নিরাপদ হেফাজতে সংরক্ষণ করুন (ভোক্তা আইনের ধারা ৪১ ও ৪২ অনুযায়ী)।'
+          : 'Preserve the purchase receipt and an unadulterated sample of the contaminated product (under CRPA Sections 41 & 42).',
+        sourceIds: isMixingFoodHarmful ? ['consumer-42', 'consumer-41'] : ['consumer-41'],
         condition: isBn ? 'দালিলিক প্রমাণ ও পণ্যের নমুনা সংরক্ষণ আবশ্যক' : 'Documentary evidence and product sample required',
       });
     } else if (isCounterfeit) {
@@ -958,8 +960,17 @@ export function createLegalWorkflow(
         text: isBn
           ? 'নকল বা জাল পণ্যের ক্রয় রশিদ, আসল পণ্যের সাথে তুলনামূলক ছবি ও বিক্রেতার মেমো সংরক্ষণ করুন।'
           : 'Gather the purchase memo, comparison photos against the genuine product, and vendor receipts.',
-        sourceIds: ['consumer-50'],
+        sourceIds: ['consumer-50', 'penal-486'],
         condition: isBn ? 'নকল পণ্যের নমুনা ও মেমো সংরক্ষণ' : 'Preserve sample of counterfeit product and memo',
+      });
+    } else if (isShortMeasure) {
+      checklist.push({
+        id: 'step-consumer-1',
+        text: isBn
+          ? 'পরিমাপে কম দেওয়ার ক্ষেত্রে ডিসপেনসার মিটারের রিডিংয়ের ছবি, বিল/ক্যাশ মেমো ও প্রতিষ্ঠানের বিবরণ সংরক্ষণ করুন।'
+          : 'Preserve dispenser meter reading photos, fuel/liquid bills, and station details.',
+        sourceIds: ['consumer-48', 'consumer-49'],
+        condition: isBn ? 'পরিমাপ কারচুপির প্রমাণ সংরক্ষণ' : 'Preserve volume measurement evidence',
       });
     } else if (isShortWeight) {
       checklist.push({
@@ -1013,36 +1024,51 @@ export function createLegalWorkflow(
     if (isExpired) {
       explanation.push({
         text: isBn
-          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৫১ অনুযায়ী কোনো মেয়াদোত্তীর্ণ ওষুধ বা পণ্য বিক্রয় করা বা বিক্রয়ের প্রস্তাব করা দণ্ডনীয় অপরাধ (অনূর্ধ্ব ১ বছর কারাদণ্ড বা ৫০,০০০ টাকা অর্থদণ্ড)।'
-          : 'Under Section 51 of the Consumers’ Right Protection Act 2009, selling or offering for sale expired goods or medicines is a statutory offense punishable with up to 1 year imprisonment or up to 50,000 BDT fine.',
+          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৫১ অনুযায়ী কোনো মেয়াদোত্তীর্ণ ওষুধ বা পণ্য বিক্রয় করা বা বিক্রয়ের প্রস্তাব করা দণ্ডনীয় অপরাধ (অনূর্ধ্ব ১ বছর কারাদণ্ড বা ৫০,০০০ টাকা অর্থদণ্ড বা উভয় দণ্ড)।'
+          : 'Under Section 51 of the Consumers’ Right Protection Act 2009, selling or offering for sale expired goods or medicines is a statutory offense punishable with up to 1 year imprisonment or up to 50,000 BDT fine, or both.',
         sourceIds: ['consumer-51'],
       });
     } else if (isAdulteration) {
+      if (isMixingFoodHarmful) {
+        explanation.push({
+          text: isBn
+            ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৪২ অনুযায়ী খাদ্য পণ্যে মানুষের জীবন বা স্বাস্থ্যের জন্য ক্ষতিকারক নিষিদ্ধ দ্রব্যের মিশ্রণ করা শাস্তিযোগ্য অপরাধ (অনূর্ধ্ব ৩ বছর কারাদণ্ড বা অনধিক ২ লাখ টাকা জরিমানা বা উভয় দণ্ড)।'
+            : 'Under Section 42 of the Consumers’ Right Protection Act 2009, mixing prohibited substances injurious to human life or health into food products is punishable with up to 3 years imprisonment or up to 200,000 BDT fine, or both.',
+          sourceIds: ['consumer-42'],
+        });
+      }
       explanation.push({
         text: isBn
-          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৪১ অনুযায়ী পণ্যে বা খাদ্যে স্বাস্থ্যের জন্য ক্ষতিকর রাসায়নিক বা ভেজাল মিশ্রণ করা দণ্ডনীয় অপরাধ (অনূর্ধ্ব ৩ বছর কারাদণ্ড বা ২ লাখ টাকা জরিমানা)।'
-          : 'Under Section 41 of the Consumers’ Right Protection Act 2009, mixing adulterants or prohibited chemicals is punishable with up to 3 years imprisonment or up to 200,000 BDT fine.',
+          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৪১ অনুযায়ী জ্ঞাতসারে কোনো ভেজাল মিশ্রিত পণ্য বা ঔষধ বিক্রয় করা বা বিক্রয়ের প্রস্তাব করা দণ্ডনীয় অপরাধ (অনূর্ধ্ব ৩ বছর কারাদণ্ড বা অনধিক ২ লাখ টাকা জরিমানা বা উভয় দণ্ড)।'
+          : 'Under Section 41 of the Consumers’ Right Protection Act 2009, knowingly selling or offering for sale adulterated goods or medicines is punishable with up to 3 years imprisonment or up to 200,000 BDT fine, or both.',
         sourceIds: ['consumer-41'],
       });
     } else if (isCounterfeit) {
       explanation.push({
         text: isBn
-          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৫০ অনুযায়ী নকল বা জাল পণ্য প্রস্তুত বা বিক্রয় করা শাস্তিযোগ্য অপরাধ (অনূর্ধ্ব ৩ বছর কারাদণ্ড বা ২ লাখ টাকা অর্থদণ্ড)।'
-          : 'Under Section 50 of the Consumers’ Right Protection Act 2009, producing or selling counterfeit goods is punishable with up to 3 years imprisonment or up to 200,000 BDT fine.',
+          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৫০ অনুযায়ী পণ্যের নকল প্রস্তুত বা উৎপাদন করা শাস্তিযোগ্য অপরাধ (অনূর্ধ্ব ৩ বছর কারাদণ্ড বা অনধিক ২ লাখ টাকা অর্থদণ্ড বা উভয় দণ্ড)। উল্লেখ্য, ধারা ৫০ নকল প্রস্তুত ও উৎপাদনে প্রযোজ্য; জাল ট্রেডমার্কযুক্ত পণ্য বিক্রয়ের ক্ষেত্রে দণ্ডবিধির ধারা ৪৮৬ এবং সেবা/পণ্য প্রতারণায় ভোক্তা আইনের ৪৫ ধারা প্রযোজ্য।'
+          : 'Under Section 50 of the Consumers’ Right Protection Act 2009, manufacturing or producing counterfeit goods is punishable with up to 3 years imprisonment or up to 200,000 BDT fine. Note that Section 50 strictly penalizes manufacture and production; the sale of counterfeit trademark goods is governed by Penal Code Section 486, alongside CRPA Section 45.',
         sourceIds: ['consumer-50'],
+      });
+    } else if (isShortMeasure) {
+      explanation.push({
+        text: isBn
+          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৪৮ অনুযায়ী প্রতিশ্রুত পরিমাপ অপেক্ষা কম পরিমাপে পণ্য বিক্রয় বা সরবরাহ করা এবং ধারা ৪৯ অনুযায়ী পরিমাপের ফিতায় কারচুপি করা দণ্ডনীয় অপরাধ (অনূর্ধ্ব ১ বছর কারাদণ্ড বা ৫০ হাজার টাকা জরিমানা)।'
+          : 'Under Section 48 of the Consumers’ Right Protection Act 2009, selling or delivering goods at less than the agreed measure/volume, and tampering with measuring tools under Section 49, carries up to 1 year imprisonment or up to 50,000 BDT fine.',
+        sourceIds: ['consumer-48', 'consumer-49'],
       });
     } else if (isShortWeight) {
       explanation.push({
         text: isBn
-          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৪৬ অনুযায়ী ওজনে কম দেওয়া এবং ধারা ৪৭ অনুযায়ী বাটখারা বা ওজনের যন্ত্রে কারচুপি দণ্ডনীয় অপরাধ (অনূর্ধ্ব ১ বছর কারাদণ্ড বা ৫০ হাজার টাকা জরিমানা)।'
-          : 'Under Sections 46 and 47 of the Consumers’ Right Protection Act 2009, delivering short weight or tampering with scales is punishable with up to 1 year imprisonment or fine.',
+          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৪৬ অনুযায়ী ওজনে কম দেওয়া এবং ধারা ৪৭ অনুযায়ী বাটখারা বা ওজন পরিমাপক যন্ত্রে কারচুপি দণ্ডনীয় অপরাধ (অনূর্ধ্ব ১ বছর কারাদণ্ড বা ৫০ হাজার টাকা জরিমানা)।'
+          : 'Under Section 46 of the Consumers’ Right Protection Act 2009, delivering short weight, and tampering with scales under Section 47, is punishable with up to 1 year imprisonment or up to 50,000 BDT fine.',
         sourceIds: ['consumer-46', 'consumer-47'],
       });
     } else {
       explanation.push({
         text: isBn
-          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৪৫ অনুযায়ী প্রতিশ্রুত পণ্য বা সেবা প্রদান না করা অথবা অর্থ গ্রহণ করে পণ্য ডেলিভারি না দেওয়া শাস্তিযোগ্য অপরাধ।'
-          : 'Under Section 45 of the Consumers’ Right Protection Act 2009, failing to deliver agreed goods or services after receiving payment is a statutory offense.',
+          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৪৫ অনুযায়ী প্রতিশ্রুত পণ্য বা সেবা যথাযথভাবে বিক্রয় বা সরবরাহ না করা শাস্তিযোগ্য অপরাধ (অনূর্ধ্ব ১ বছর কারাদণ্ড বা ৫০ হাজার টাকা অর্থদণ্ড)।'
+          : 'Under Section 45 of the Consumers’ Right Protection Act 2009, failing to deliver agreed goods or services after receiving payment is a statutory offense punishable with up to 1 year imprisonment or up to 50,000 BDT fine.',
         sourceIds: ['consumer-45'],
       });
     }
@@ -1065,21 +1091,57 @@ export function createLegalWorkflow(
     const headingText = isBn
       ? isExpired
         ? 'ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ (ধারা ৫১, ৬০ ও ৭৬(৪))'
+        : isMixingFoodHarmful
+        ? 'ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ (ধারা ৪২ ও ৬০)'
+        : isAdulteration
+        ? 'ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ (ধারা ৪১ ও ৬০)'
         : isCounterfeit
-        ? 'ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ (ধারা ৫০, ৬০ ও ৭৬(৪))'
+        ? 'ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ (ধারা ৫০ ও দণ্ডবিধি ৪৮৬)'
+        : isShortMeasure
+        ? 'ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ (ধারা ৪৮ ও ৪৯)'
+        : isShortWeight
+        ? 'ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ (ধারা ৪৬ ও ৪৭)'
         : 'ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ (ধারা ৪৫ ও ৬০)'
       : isExpired
       ? 'Consumers’ Right Protection Act 2009 (Sections 51, 60 & 76(4))'
+      : isMixingFoodHarmful
+      ? 'Consumers’ Right Protection Act 2009 (Sections 42 & 60)'
+      : isAdulteration
+      ? 'Consumers’ Right Protection Act 2009 (Sections 41 & 60)'
       : isCounterfeit
-      ? 'Consumers’ Right Protection Act 2009 (Sections 50, 60 & 76(4))'
+      ? 'Consumers’ Right Protection Act 2009 (Section 50 & Penal Code 486)'
+      : isShortMeasure
+      ? 'Consumers’ Right Protection Act 2009 (Sections 48 & 49)'
+      : isShortWeight
+      ? 'Consumers’ Right Protection Act 2009 (Sections 46 & 47)'
       : 'Consumers’ Right Protection Act 2009 (Sections 45 & 60)';
 
     const understandingText = isBn
       ? isExpired
         ? 'আমরা আপনার বিষয়টি পর্যালোচনা করেছি: ফার্মেসি থেকে মেয়াদোত্তীর্ণ ওষুধ বিক্রয় করা হয়েছে। ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ অনুযায়ী এটি সরাসরি শাস্তিযোগ্য অপরাধ এবং আপনি প্রতিকার পাওয়ার অধিকারী।'
+        : isMixingFoodHarmful
+        ? 'আমরা আপনার বিষয়টি পর্যালোচনা করেছি: খাদ্যপণ্যে নিষিদ্ধ ক্ষতিকর উপাদান মিশ্রণ করা হয়েছে। ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ধারা ৪২ অনুযায়ী এটি ৩ বছরের কারাদণ্ডযোগ্য অপরাধ।'
+        : isAdulteration
+        ? 'আমরা আপনার বিষয়টি পর্যালোচনা করেছি: জ্ঞাতসারে ভেজাল পণ্য বা ওষুধ বিক্রয় করা হয়েছে। ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ধারা ৪১ অনুযায়ী এটি সরাসরি শাস্তিযোগ্য অপরাধ।'
+        : isCounterfeit
+        ? 'আমরা আপনার বিষয়টি পর্যালোচনা করেছি: পণ্যের নকল প্রস্তুত/উৎপাদন বা বিক্রয়ের ঘটনা ঘটেছে। ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ধারা ৫০ এবং দণ্ডবিধির ধারা ৪৮৬ অনুযায়ী আপনি আইনগত ব্যবস্থা গ্রহণের অধিকারী।'
+        : isShortMeasure
+        ? 'আমরা আপনার বিষয়টি পর্যালোচনা করেছি: পেট্রোল পাম্প বা প্রতিষ্ঠানে পরিমাপে কম দেওয়া হয়েছে। ভোক্তা অধিকার সংরক্ষণ আইনের ধারা ৪৮ অনুযায়ী এটি শাস্তিযোগ্য অপরাধ।'
+        : isShortWeight
+        ? 'আমরা আপনার বিষয়টি পর্যালোচনা করেছি: পণ্যের ওজনে কম দেওয়া হয়েছে। ভোক্তা অধিকার সংরক্ষণ আইনের ধারা ৪৬ অনুযায়ী এটি শাস্তিযোগ্য অপরাধ।'
         : 'আমরা আপনার বিষয়টি যত্নসহকারে পর্যালোচনা করেছি: আপনি অর্থ পরিশোধের পরও প্রতিশ্রুত পণ্য পাননি অথবা প্রতারণার শিকার হয়েছেন। ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯ অনুযায়ী ক্রেতা হিসেবে আপনি সম্পূর্ণ সুরক্ষিত এবং ক্ষতিপূরণ পাওয়ার অধিকারী।'
       : isExpired
       ? 'We have reviewed your situation: the pharmacy sold expired medicine. Under the Consumers’ Right Protection Act 2009, this is a clear penal offense and you are entitled to statutory remedies.'
+      : isMixingFoodHarmful
+      ? 'We have reviewed your situation: prohibited harmful substances were mixed into food products. Under Section 42 of the Consumers’ Right Protection Act 2009, this is punishable with up to 3 years imprisonment.'
+      : isAdulteration
+      ? 'We have reviewed your situation: adulterated goods or medicines were knowingly sold. Under Section 41 of the Consumers’ Right Protection Act 2009, this is a penal offense.'
+      : isCounterfeit
+      ? 'We have reviewed your situation: counterfeit goods manufacture or sale has occurred. Under Section 50 of the Consumers’ Right Protection Act 2009 and Penal Code Section 486, you are entitled to statutory redress.'
+      : isShortMeasure
+      ? 'We have reviewed your situation: short measure in volume or liquids has occurred. Under Section 48 of the Consumers’ Right Protection Act 2009, this is a penal offense.'
+      : isShortWeight
+      ? 'We have reviewed your situation: short weight was delivered in goods. Under Section 46 of the Consumers’ Right Protection Act 2009, this is a penal offense.'
       : 'We have reviewed your situation: you have paid for goods that were not delivered as agreed. Under the Consumers’ Right Protection Act 2009, you are legally entitled to remedies and statutory compensation.';
 
     return {

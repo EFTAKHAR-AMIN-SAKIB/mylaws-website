@@ -32,10 +32,26 @@ export const DEFAULT_DAILY_LIMIT = parseInt(process.env.DAILY_QUERY_LIMIT || '30
  * Verifies a client-provided Firebase ID token using Google's Identity Toolkit REST API
  */
 export async function verifyFirebaseToken(idToken: string): Promise<VerifiedUser | null> {
-  const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true' || process.env.ALLOW_TEST_AUTH === 'true';
+  const isProduction =
+    process.env.NODE_ENV === 'production' ||
+    process.env.VERCEL === '1' ||
+    process.env.VERCEL_ENV === 'production';
 
-  // Support mock token strictly in designated test environments or local staging verification
-  if (isTestEnv) {
+  // CRITICAL PRODUCTION BOUNDARY:
+  // In any production or live Vercel environment, ALWAYS reject synthetic test tokens unconditionally.
+  // Even if someone accidentally configures ALLOW_TEST_AUTH=true, production security cannot be bypassed.
+  if (isProduction) {
+    if (process.env.ALLOW_TEST_AUTH === 'true') {
+      console.error('[SECURITY ALERT] ALLOW_TEST_AUTH is set in a production environment! Test auth bypass is strictly blocked.');
+    }
+    if (idToken.startsWith('test_')) {
+      return null;
+    }
+  }
+
+  // Support mock token strictly in designated offline test environments (Vitest unit tests)
+  const isLocalTest = (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true') && !isProduction;
+  if (isLocalTest) {
     if (idToken.startsWith('test_staging_token_')) {
       return {
         uid: 'test_uid_staging_123',
@@ -57,7 +73,7 @@ export async function verifyFirebaseToken(idToken: string): Promise<VerifiedUser
     }
   }
 
-  // Reject any synthetic test tokens in production environments
+  // Reject any synthetic test tokens in all other environments
   if (idToken.startsWith('test_')) {
     return null;
   }

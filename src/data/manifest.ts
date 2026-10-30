@@ -1,9 +1,9 @@
 import type { AndroidReleaseManifest, PackState } from '@/types/contracts';
 
 export const legalPackManifest: PackState = {
-  id: 'bd-release-2026-10-30.2',
+  id: 'bd-release-2026-10-30.3',
   modelVersion: 'deterministic-statutory-v2',
-  legalVersion: '2026.10.30-batch2.1',
+  legalVersion: '2026.10.30-batch2.2',
   indexVersion: 'fts-bm25-v2',
   templateVersion: 'templates-v2',
   status: 'ready',

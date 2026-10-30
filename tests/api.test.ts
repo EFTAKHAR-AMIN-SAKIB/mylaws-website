@@ -37,7 +37,7 @@ describe('Server & API Security Integrity', () => {
   });
 
   it('verifies legal pack manifest structure and coverage', () => {
-    expect(legalPackManifest.id).toBe('bd-release-2026-10-30.2');
+    expect(legalPackManifest.id).toBe('bd-release-2026-10-30.3');
     expect(legalPackManifest.compatible).toBe(true);
     expect(legalPackManifest.coverage.length).toBeGreaterThanOrEqual(6);
   });

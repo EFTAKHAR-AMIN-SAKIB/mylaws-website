@@ -48,7 +48,7 @@ for (const p of provisions) {
 const sorted = [...provisions].sort((a, b) => a.id.localeCompare(b.id));
 const releaseHash = sha256(sorted.map(p => `${p.id}:${p.contentHash}`).join('||'));
 
-const CORPUS_VERSION = '2026.10.30-batch2.1';
+const CORPUS_VERSION = '2026.10.30-batch2.2';
 const PUBLISHED_AT = new Date().toISOString();
 
 // 3. Update provisions.json

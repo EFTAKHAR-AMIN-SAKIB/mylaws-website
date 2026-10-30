@@ -82,8 +82,12 @@ export async function POST(req: NextRequest) {
 
     // 3. Fallback IP rate limiting (to avoid rapid accidental spam)
     const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
-    const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true' || process.env.ALLOW_TEST_AUTH === 'true';
-    const isStagingAudit = isTestEnv && authHeader.includes('test_staging_token');
+    const isProduction =
+      process.env.NODE_ENV === 'production' ||
+      process.env.VERCEL === '1' ||
+      process.env.VERCEL_ENV === 'production';
+    const isLocalTestRunner = (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true') && !isProduction;
+    const isStagingAudit = isLocalTestRunner && authHeader.includes('test_staging_token');
     if (!isStagingAudit && !checkRateLimit(ip)) {
       return NextResponse.json(
         { error: 'Too many requests. Please wait a minute before asking again.' },

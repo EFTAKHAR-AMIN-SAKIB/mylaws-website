@@ -1380,32 +1380,34 @@
       "consumer"
     ],
     "title": {
-      "bn": "পণ্যের মূল্য তালিকা প্রদর্শন না করার অপরাধ",
-      "en": "Failure to display price list of commodities"
+      "bn": "পণ্যের মোড়ক ও লেবেলিং না করিবার দণ্ড (ধারা ৩৭)",
+      "en": "Penalty for Failure to Comply with Packaging & Mandatory Labeling (Section 37)"
     },
-    "originalText": "কোন ব্যক্তি কোনো দোকান বা প্রতিষ্ঠানে পণ্যের মূল্য তালিকা প্রদর্শন না করিলে তিনি অনধিক এক বৎসর কারাদণ্ড, বা অনধিক পঞ্চাশ হাজার টাকা অর্থদণ্ড, বা উভয় দণ্ডে দণ্ডিত হইবেন।",
+    "originalText": "৩৭৷ কোন ব্যক্তি কোন আইন বা বিধি দ্বারা কোন পণ্য মোড়কাবদ্ধভাবে বিক্রয় করিবার এবং মোড়কের গায়ে সংশ্লিষ্ট পণ্যের ওজন, পরিমাণ, উপাদান, ব্যবহার-বিধি, সর্বোচ্চ খুচরা বিক্রয় মূল্য, উৎ‍পাদনের তারিখ, প্যাকেটজাতকরণের তারিখ এবং মেয়াদ উত্তীর্ণের তারিখ স্পষ্টভাবে লিপিবদ্ধ করিবার বাধ্যবাধকতা লঙ্ঘন করিয়া থাকিলে তিনি অনূর্ধ্ব এক বৎসর কারাদণ্ড, বা অনধিক পঞ্চাশ হাজার টাকা অর্থদণ্ড, বা উভয় দণ্ডে দণ্ডিত হইবেন।",
     "originalLanguage": "bn",
     "plainExplanation": {
-      "bn": "দোকান বা প্রতিষ্ঠানে পণ্যের মূল্য তালিকা ঝুলিয়ে না রাখা ভোক্তা অধিকার আইনের ৩৭ ধারায় শাস্তিযোগ্য অপরাধ। এতে সর্বোচ্চ ১ বছরের কারাদণ্ড বা ৫০,০০০ টাকা জরিমানা হতে পারে।",
-      "en": "Section 37 requires every shopkeeper and seller to display the price list of commodities in a conspicuous place. Failure to display is punishable with up to 1 year imprisonment or 50,000 taka fine."
+      "bn": "ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ধারা ৩৭ অনুযায়ী মোড়কাবদ্ধ পণ্যের প্যাকেটের গায়ে ওজন, পরিমাণ, উপাদান, ব্যবহার-বিধি, সর্বোচ্চ খুচরা বিক্রয় মূল্য (MRP), উৎপাদন ও মেয়াদ উত্তীর্ণের তারিখ স্পষ্টভাবে লিপিবদ্ধ না করলে অনূর্ধ্ব ১ বছর কারাদণ্ড বা অনধিক ৫০ হাজার টাকা অর্থদণ্ড হতে পারে।",
+      "en": "Under Section 37 of the Consumers' Right Protection Act 2009, selling packaged goods without clearly displaying the weight, measure, ingredients, directions, maximum retail price (MRP), date of manufacture, and expiry date carries up to 1 year imprisonment, up to 50,000 BDT fine, or both."
     },
     "caution": {
-      "bn": "মূল্য তালিকা না থাকার প্রমাণ হিসেবে দোকানের ছবি সংরক্ষণ করুন।",
-      "en": "Take a clear photograph of the storefront showing the absence of the mandatory price board."
+      "bn": "মোড়কের গায়ে এমআরপি বা উৎপাদন/মেয়াদ তারিখ না থাকার স্পষ্ট ছবি সংরক্ষণ করুন।",
+      "en": "Photograph the packaging clearly showing missing MRP, manufacture date, or expiry details."
     },
     "sourceUrl": "https://bdlaws.minlaw.gov.bd/act-1014/section-32519.html",
     "retrievalDate": "2026-10-30",
     "effectiveDate": "2009-01-01",
     "legalStatus": "active",
     "reviewStatus": "auto_checked",
-    "contentHash": "e131615ada02cdcb841cf087fb281ed598432202355ef46cba2bca116fcdd828",
+    "contentHash": "d358de4e2f6bdf3328bc1ca1eb582e04cff6789fe82bff0f80c11e4fa5a8d6ff",
     "keywords": [
-      "price list",
-      "mrp display",
-      "mullo talika",
-      "মূল্য তালিকা",
-      "দাম না লেখা",
-      "ভোক্তা অধিকার"
+      "packaging requirements",
+      "mandatory labeling",
+      "mrp on packet",
+      "missing expiry date on packet",
+      "মোড়ক ব্যবহার না করা",
+      "প্যাকেটে দাম না থাকা",
+      "তারিখ না থাকা",
+      "ধারা ৩৭"
     ],
     "relatedProvisions": []
   },
@@ -1455,36 +1457,33 @@
       "consumer"
     ],
     "title": {
-      "bn": "ভেজাল পণ্য বা ঔষধ বিক্রয়ের কঠোর দণ্ড (৩ বছর জেল)",
-      "en": "Penalty for Selling Adulterated Goods or Medicines (Up to 3 Years)"
+      "bn": "ভেজাল পণ্য বা ঔষধ বিক্রয়ের দণ্ড (ধারা ৪১)",
+      "en": "Penalty for Selling or Offering Adulterated Goods or Medicines (Section 41)"
     },
-    "originalText": "কোন ব্যক্তি জ্ঞাতসারে কোনো ভেজাল পণ্য বা মানবস্বাস্থ্যের জন্য ক্ষতিকর কোনো উপাদান মিশ্রিত পণ্য অথবা মেয়াদোত্তীর্ণ পণ্য বিক্রয় করিলে অনধিক তিন বৎসর কারাদণ্ড বা দুই লক্ষ টাকা অর্থদণ্ডে দণ্ডিত হইবেন।",
+    "originalText": "৪১৷ কোন ব্যক্তি জ্ঞাতসারে ভেজাল মিশ্রিত পণ্য বা ঔষধ বিক্রয় করিলে বা করিতে প্রস্তাব করিলে তিনি অনূর্ধ্ব তিন বৎসর কারাদণ্ড, বা অনধিক দুই লক্ষ টাকা অর্থদণ্ড, বা উভয় দণ্ডে দণ্ডিত হইবেন।",
     "originalLanguage": "bn",
     "plainExplanation": {
-      "bn": "ভোক্তা-অধিকার সংরক্ষণ আইন ২০০৯-এর ৪১ ধারা অনুযায়ী জ্ঞাতসারে কোনো ভেজাল মিশ্রিত পণ্য বা ওষুধ বিক্রয় বা বিক্রয়ের প্রস্তাব করলে সর্বোচ্চ ৩ বছর কারাদণ্ড বা অনধিক ২ লক্ষ টাকা অর্থদণ্ড অথবা উভয় দণ্ড হতে পারে।",
-      "en": "Under Section 41 of the Consumer Rights Protection Act 2009, knowingly selling or offering adulterated food, goods, or medicine is punishable with up to 3 years imprisonment or up to 200,000 Taka fine, or both."
+      "bn": "ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ধারা ৪১ অনুযায়ী জ্ঞাতসারে কোনো ভেজাল মিশ্রিত পণ্য বা ঔষধ বিক্রয় করা বা বিক্রয়ের প্রস্তাব করা দণ্ডনীয় অপরাধ (অনূর্ধ্ব ৩ বছর কারাদণ্ড বা অনধিক ২ লাখ টাকা জরিমানা বা উভয় দণ্ড)।",
+      "en": "Under Section 41 of the Consumers' Right Protection Act 2009, knowingly selling or offering for sale adulterated goods or medicines carries up to 3 years imprisonment, up to 200,000 BDT fine, or both."
     },
     "caution": {
-      "bn": "প্যাকেটের মেয়াদোত্তীর্ণ তারিখ ও ক্রয়ের ক্যাশ মেমো অক্ষত অবস্থায় প্রমাণ হিসেবে রাখুন।",
-      "en": "Preserve the expired item with the expiry date stamp intact, along with the purchase receipt."
+      "bn": "ভেজাল পণ্যের অবিকৃত নমুনা এবং বিক্রেতার ক্রয় রসিদ/ক্যাশ মেমো দালিলিক প্রমাণ হিসেবে নিরাপদ হেফাজতে সংরক্ষণ করুন।",
+      "en": "Preserve an intact sample of the adulterated product and the vendor purchase receipt as documentary evidence."
     },
     "sourceUrl": "https://bdlaws.minlaw.gov.bd/act-1014/section-32523.html",
     "retrievalDate": "2026-10-30",
     "effectiveDate": "2009-01-01",
     "legalStatus": "active",
     "reviewStatus": "auto_checked",
-    "contentHash": "04fe0c85c02f4176729bcf4d671f19dd6d8b829b9af95258c37abe6f47c0eec0",
+    "contentHash": "6742657682e815cc9acb9188cc20f74a8151665acb01078e1d081d9cd72b94ae",
     "keywords": [
-      "expired food",
-      "expired medicine",
-      "adulterated",
-      "meyaduttirno",
-      "ভেজাল পণ্য",
-      "মেয়াদোত্তীর্ণ ওষুধ",
-      "মেয়াদ শেষ পণ্য",
-      "adulterated food",
-      "fake medicine",
-      "ভেজাল খাদ্য"
+      "adulterated goods sale",
+      "selling adulterated medicine",
+      "bhejal oushodh bikri",
+      "ভেজাল পণ্য বিক্রয়",
+      "ভেজাল ওষুধ বিক্রি",
+      "জ্ঞাতসারে ভেজাল",
+      "ধারা ৪১"
     ],
     "relatedProvisions": []
   },
@@ -1496,31 +1495,32 @@
       "consumer"
     ],
     "title": {
-      "bn": "খাদ্য পণ্যে ক্ষতিকর নিষিদ্ধ দ্রব্যের মিশ্রণের দণ্ড (ধারা ৪২)",
-      "en": "Penalty for Mixing Prohibited Substances in Food Products (Section 42)"
+      "bn": "খাদ্য পণ্যে নিষিদ্ধ ক্ষতিকর দ্রব্যের মিশ্রণের দণ্ড (ধারা ৪২)",
+      "en": "Penalty for Mixing Prohibited Harmful Substances into Food Products (Section 42)"
     },
     "originalText": "৪২৷ মানুষের জীবন বা স্বাস্থ্যের জন্য ক্ষতিকারক কোন দ্রব্য, কোন খাদ্য পণ্যের সহিত যাহার মিশ্রণ কোন আইন বা বিধির অধীন নিষিদ্ধ করা হইয়াছে, কোন ব্যক্তি উক্তরূপ দ্রব্য কোন খাদ্য পণ্যের সহিত মিশ্রিত করিলে তিনি অনূর্ধ্ব তিন বৎসর কারাদণ্ড, বা অনধিক দুই লক্ষ টাকা অর্থদণ্ড, বা উভয় দণ্ডে দণ্ডিত হইবেন।",
     "originalLanguage": "bn",
     "plainExplanation": {
-      "bn": "ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ৪২ ধারা অনুযায়ী মানুষের জীবন বা স্বাস্থ্যের জন্য ক্ষতিকর এবং আইনত নিষিদ্ধ এমন কোনো দ্রব্য খাদ্য পণ্যের সাথে মিশ্রণ করলে অনূর্ধ্ব ৩ বছর কারাদণ্ড বা অনধিক ২ লাখ টাকা জরিমানা বা উভয় দণ্ড হতে পারে।",
-      "en": "Under Section 42 of the Consumers' Right Protection Act 2009, mixing any substance injurious to human life or health whose addition to food is prohibited under any law or rule carries up to 3 years imprisonment, up to 2,00,000 BDT fine, or both."
+      "bn": "ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ধারা ৪২ অনুযায়ী মানুষের জীবন বা স্বাস্থ্যের জন্য ক্ষতিকারক এবং আইন বা বিধির অধীন নিষিদ্ধ এমন কোনো দ্রব্য খাদ্য পণ্যের সহিত মিশ্রণ করা শাস্তিযোগ্য অপরাধ (অনূর্ধ্ব ৩ বছর কারাদণ্ড বা অনধিক ২ লাখ টাকা অর্থদণ্ড বা উভয় দণ্ড)।",
+      "en": "Under Section 42 of the Consumers' Right Protection Act 2009, mixing any prohibited substance injurious to human life or health into food products carries up to 3 years imprisonment, up to 200,000 BDT fine, or both."
     },
     "caution": {
-      "bn": "ওজনে কম দেওয়ার বিষয়টি অন্য নির্ভরযোগ্য দাঁড়িপাল্লায় মেপে পার্থক্য নিশ্চিত করুন।",
-      "en": "Weigh the purchased goods at an independent calibrated scale or BSTI verified counter to document the shortage."
+      "bn": "খাদ্যে বিষাক্ত রাসায়নিক বা ক্ষতিকর উপাদান মিশ্রণের প্রমাণে ল্যাবরেটরি টেস্ট রিপোর্ট অত্যন্ত কার্যকর প্রমাণ।",
+      "en": "Laboratory analysis reports serve as critical evidence for prohibited chemical mixing in foods."
     },
     "sourceUrl": "https://bdlaws.minlaw.gov.bd/act-1014/section-31411.html",
     "retrievalDate": "2026-10-30",
     "effectiveDate": "2009-01-01",
     "legalStatus": "active",
     "reviewStatus": "auto_checked",
-    "contentHash": "49f946fa7831154f4ad59bf8876119cfb16d55f60991de5603e346a19b274b1a",
+    "contentHash": "051f5b1527e6730cece43b5d6d6ef251cac7eed051d98b0a17d1c60b846c3ef0",
     "keywords": [
+      "food adulteration mixing",
+      "harmful chemical in food",
       "prohibited substance food",
-      "toxic chemical food",
-      "formalin",
-      "ভেজাল খাদ্য",
-      "নিষিদ্ধ দ্রব্য মিশ্রণ",
+      "খাদ্যে ক্ষতিকর দ্রব্য মিশ্রণ",
+      "নিষিদ্ধ উপাদান মেশানো",
+      "খাবারে রাসায়নিক",
       "ধারা ৪২"
     ],
     "relatedProvisions": []
@@ -4595,30 +4595,32 @@
     ],
     "title": {
       "bn": "পরিমাপে কারচুপির দণ্ড (ধারা ৪৮)",
-      "en": "Penalty for Short Measure in Liquids and Commodities (Section 48)"
+      "en": "Penalty for Short Measure in Liquids or Commodities (Section 48)"
     },
     "originalText": "৪৮৷ কোন ব্যক্তি কোন পণ্য সরবরাহ বা বিক্রয়ের সময় ভোক্তাকে প্রতিশ্রুত পরিমাপ অপেক্ষা কম পরিমাপে উক্ত পণ্য বিক্রয় বা সরবরাহ করিলে তিনি অনূর্ধ্ব এক বৎসর কারাদণ্ড, বা অনধিক পঞ্চাশ হাজার টাকা অর্থদণ্ড, বা উভয় দণ্ডে দণ্ডিত হইবেন।",
     "originalLanguage": "bn",
     "plainExplanation": {
-      "bn": "ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ৪৮ ধারা অনুযায়ী তরল পদার্থ (তেল, দুধ, পেট্রোল ইত্যাদি) বা অন্য কোনো পণ্য প্রতিশ্রুত পরিমাপের চেয়ে কম দিলে অনূর্ধ্ব ১ বছর কারাদণ্ড বা ৫০ হাজার টাকা অর্থদণ্ড হতে পারে।",
-      "en": "Under Section 48 of the Consumers' Right Protection Act 2009, delivering less liquid or commodity volume than agreed (e.g. short volume at petrol pumps) carries up to 1 year imprisonment, up to 50,000 BDT fine, or both."
+      "bn": "ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ধারা ৪৮ অনুযায়ী তরল পদার্থ (তেল, দুধ, পেট্রোল ইত্যাদি) বা অন্য কোনো পণ্য প্রতিশ্রুত পরিমাপের চেয়ে কম দিলে অনূর্ধ্ব ১ বছর কারাদণ্ড বা অনধিক ৫০ হাজার টাকা জরিমানা হতে পারে।",
+      "en": "Under Section 48 of the Consumers' Right Protection Act 2009, selling or delivering goods at less than the agreed measure/volume (e.g. short volume at petrol pumps) carries up to 1 year imprisonment, up to 50,000 BDT fine, or both."
     },
     "caution": {
-      "bn": "পেট্রোল পাম্প বা ফুয়েল স্টেশনে মিটার টেম্পারিংয়ের ক্ষেত্রে ভোক্তা আইন ও ওজন-পরিমাপ আইন উভয়ই প্রযোজ্য।",
-      "en": "Fuel dispenser meter tampering triggers both Consumer Protection and Standards of Weights Acts."
+      "bn": "পেট্রোল পাম্প বা তরল জ্বালানির পরিমাপে কম দেওয়ার ক্ষেত্রে ডিসপেনসার মিটারের রসিদ ও পরিমাপের প্রমাণ সংরক্ষণ করুন।",
+      "en": "Preserve fuel dispenser receipts and volume measurement records for petrol pump disputes."
     },
     "sourceUrl": "https://bdlaws.minlaw.gov.bd/act-1014/section-31417.html",
     "retrievalDate": "2026-10-30",
     "effectiveDate": "2009-04-06",
     "legalStatus": "active",
     "reviewStatus": "auto_checked",
-    "contentHash": "71aa9773dd366a003fc5d937cb1ff8d52422407843edf2a92c256d1310f22f35",
+    "contentHash": "a85c038b37bfdfb28c898c67d3f2b0122dab8497362dfa75497fe15a717fefc5",
     "keywords": [
       "short measure",
-      "petrol pump fraud",
       "porimepe kom",
-      "পরিমাপে কম",
+      "liquid measure fraud",
+      "petrol pump fraud",
+      "পরিমাপে কম দেওয়া",
       "তেল কম দেওয়া",
+      "পরিমাপে কারচুপি",
       "ধারা ৪৮"
     ]
   },
@@ -4678,25 +4680,27 @@
     "originalText": "৫০৷ কোন ব্যক্তি কোন পণ্যের নকল প্রস্তুত বা উৎপাদন করিলে তিনি অনূর্ধ্ব তিন বৎসর কারাদণ্ড, বা অনধিক দুই লক্ষ টাকা অর্থদণ্ড, বা উভয় দণ্ডে দণ্ডিত হইবেন।",
     "originalLanguage": "bn",
     "plainExplanation": {
-      "bn": "ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ৫০ ধারা অনুযায়ী কোনো ব্র্যান্ড বা আসল পণ্যের নকল তৈরি বা উৎপাদন করলে অনূর্ধ্ব ৩ বছর কারাদণ্ড বা অনধিক ২ লাখ টাকা অর্থদণ্ড বা উভয় দণ্ডে দণ্ডিত হবেন।",
-      "en": "Under Section 50 of the Consumers' Right Protection Act 2009, manufacturing or producing counterfeit goods carries up to 3 years imprisonment, up to 2,00,000 BDT fine, or both."
+      "bn": "ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ধারা ৫০ অনুযায়ী পণ্যের নকল প্রস্তুত বা উৎপাদন করা অপরাধ (অনূর্ধ্ব ৩ বছর কারাদণ্ড বা অনধিক ২ লাখ টাকা অর্থদণ্ড বা উভয় দণ্ড)। উল্লেখ্য, এই ধারাটি নকল প্রস্তুত ও উৎপাদনের জন্য সীমাবদ্ধ; জাল ট্রেডমার্কযুক্ত নকল পণ্য বিক্রয়ের ক্ষেত্রে দণ্ডবিধির ধারা ৪৮৬ এবং সেবা/পণ্য প্রতারণায় ভোক্তা আইনের ৪৫ ধারা প্রযোজ্য।",
+      "en": "Under Section 50 of the Consumers' Right Protection Act 2009, manufacturing or producing counterfeit goods is punishable with up to 3 years imprisonment or up to 200,000 BDT fine. Note that Section 50 strictly applies to manufacture and production; the sale of counterfeit trademark goods falls under Penal Code Section 486 and CRPA Section 45."
     },
     "caution": {
-      "en": "Executive Magistrates during mobile courts can impose immediate administrative fines and seize stock.",
-      "bn": "ভ্রাম্যমাণ আদালত তাৎক্ষণিকভাবে জরিমানা ও পণ্য বাজেয়াপ্ত করতে পারে।"
+      "bn": "নকল উৎপাদনের ক্ষেত্রে কারখানা বা গোডাউনের অবস্থান এবং নকল পণ্য প্রস্তুতের সরঞ্জামাদির প্রমাণ গুরুত্বপূর্ণ।",
+      "en": "Evidence of the manufacturing facility and production equipment is required for Section 50."
     },
     "sourceUrl": "https://bdlaws.minlaw.gov.bd/act-1014/section-31419.html",
     "retrievalDate": "2026-10-30",
     "effectiveDate": "2009-04-06",
     "legalStatus": "active",
     "reviewStatus": "auto_checked",
-    "contentHash": "fd3b71630666775478f217c9337ad8cbc1fbdb7a4890fa133cd293791703315b",
+    "contentHash": "155a3631af2477fc05c28c7020f67c2218e8fe43c80a1fa0138e4b0a75326e06",
     "keywords": [
+      "counterfeit manufacture",
       "counterfeit production",
-      "fake goods manufacture",
+      "fake product manufacturing",
       "nokol utpadon",
-      "নকল পণ্য তৈরি",
+      "নকল প্রস্তুত",
       "নকল উৎপাদন",
+      "নকল পণ্য তৈরি",
       "ধারা ৫০"
     ]
   },
@@ -6198,37 +6202,39 @@
     ]
   },
   {
-    "id": "consumer-49-process",
+    "id": "consumer-56",
     "actId": "act_consumer_2009",
-    "sectionNumber": "Section 49",
+    "sectionNumber": "Section 56",
     "categories": [
       "consumer"
     ],
     "title": {
-      "bn": "অবৈধ প্রক্রিয়ায় পণ্য উৎপাদন বা প্রক্রিয়াজাতকরণের দণ্ড",
-      "en": "Penalty for Manufacturing Goods through Prohibited/Harmful Processes"
+      "bn": "অবৈধ পণ্য বা প্রস্তুতের উপাদান রাষ্ট্রের অনুকূলে বাজেয়াপ্তকরণ (ধারা ৫৬)",
+      "en": "Forfeiture of Illegal Goods and Manufacturing Materials (Section 56)"
     },
-    "originalText": "কোন ব্যক্তি মানব স্বাস্থ্যের জন্য ক্ষতিকর হয় এমন কোন প্রক্রিয়ায় যাহা কোন আইন বা আপাততঃ বলবৎ অন্য কোন আইনের অধীন নিষিদ্ধ করা হইয়াছে, কোন পণ্য উৎপাদন বা প্রক্রিয়াজাত করিলে তিনি অনূর্ধ্ব দুই বৎসর কারাদণ্ড, বা অনধিক এক লক্ষ টাকা অর্থদণ্ড, বা উভয় দণ্ডে দণ্ডিত হইবেন।",
+    "originalText": "৫৬৷ এই অধ্যায়ে পূর্ববর্তী ধারাসমূহে বর্ণিত দণ্ডের অতিরিক্ত, আদালত যথাযথ মনে করিলে, অপরাধের সংশ্লিষ্ট অবৈধ পণ্য বা পণ্য প্রস্তুতের উপাদান, সামগ্রী, ইত্যাদি রাষ্ট্রের অনুকূলে বাজেয়াপ্তের আদেশ করিতে পারিবেন৷",
     "originalLanguage": "bn",
     "plainExplanation": {
-      "bn": "আইন দ্বারা নিষিদ্ধ বা মানবস্বাস্থ্যের জন্য মারাত্মক ক্ষতিকর এমন কোনো অবৈধ প্রক্রিয়ায় পণ্য উৎপাদন বা প্রক্রিয়াজাত করলে অনূর্ধ্ব ২ বছর কারাদণ্ড বা ১ লক্ষ টাকা অর্থদণ্ড হতে পারে।",
-      "en": "Manufacturing or processing goods through illegal processes dangerous to human health carries up to 2 years imprisonment or up to 100,000 Taka fine."
+      "bn": "ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ধারা ৫৬ অনুযায়ী দণ্ডের অতিরিক্ত হিসেবে আদালত অপরাধের সহিত সংশ্লিষ্ট অবৈধ পণ্য এবং পণ্য প্রস্তুতের উপাদান ও সামগ্রী রাষ্ট্রের অনুকূলে বাজেয়াপ্তের আদেশ দিতে পারেন।",
+      "en": "Under Section 56 of the Consumers' Right Protection Act 2009, in addition to prescribed penalties, the court may order the forfeiture of all illegal goods and manufacturing materials to the State."
     },
     "caution": {
-      "bn": "উৎপাদন কারখানা বা প্রক্রিয়াজাতকরণ স্থানের সঠিক ঠিকানা ও নমুনা সংরক্ষণ প্রয়োজন।",
-      "en": "Requires evidence of the manufacturing process and physical samples."
+      "bn": "ভ্রাম্যমাণ আদালত বা ম্যাজিস্ট্রেট অপরাধ প্রমাণের পর ঘটনাস্থলেই মালামাল বাজেয়াপ্ত ও ধ্বংসের আদেশ দিতে পারেন।",
+      "en": "Courts may order immediate seizure and destruction of contraband materials upon conviction."
     },
-    "sourceUrl": "https://bdlaws.minlaw.gov.bd/act-1014/section-32531.html",
+    "sourceUrl": "https://bdlaws.minlaw.gov.bd/act-1014/section-31425.html",
     "retrievalDate": "2026-10-30",
     "effectiveDate": "2009-04-06",
     "legalStatus": "active",
     "reviewStatus": "auto_checked",
-    "contentHash": "e9f8ed557bb778041a3b603253f14e9eb96ae3fc61734581ea50ed4150cba34e",
+    "contentHash": "2c5406c988f937af9c8c01f4cc9cd394e573fd44ff61bfd405ae77f18d25a1ef",
     "keywords": [
-      "illegal processing",
-      "prohibited manufacture",
-      "অসাধু প্রক্রিয়া",
-      "অবৈধ প্রক্রিয়ায় উৎপাদন"
+      "forfeiture of goods",
+      "seizure of stock",
+      "bajeyapto",
+      "পণ্য বাজেয়াপ্তকরণ",
+      "অবৈধ সামগ্রী বাজেয়াপ্ত",
+      "ধারা ৫৬"
     ],
     "relatedProvisions": [
       "consumer-41",
@@ -6330,17 +6336,17 @@
     ],
     "title": {
       "bn": "ওজনে কারচুপির দণ্ড (ধারা ৪৬)",
-      "en": "Penalty for Short Weight and Deceptive Weighing (Section 46)"
+      "en": "Penalty for Short Weight in Sale of Goods (Section 46)"
     },
     "originalText": "৪৬৷ কোন ব্যক্তি কোন পণ্য সরবরাহ বা বিক্রয়ের সময় ভোক্তাকে প্রতিশ্রুত ওজন অপেক্ষা কম ওজনে উক্ত পণ্য বিক্রয় বা সরবরাহ করিলে তিনি অনূর্ধ্ব এক বৎসর কারাদণ্ড, বা অনধিক পঞ্চাশ হাজার টাকা অর্থদণ্ড, বা উভয় দণ্ডে দণ্ডিত হইবেন।",
     "originalLanguage": "bn",
     "plainExplanation": {
-      "bn": "ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ৪৬ ধারা অনুযায়ী পণ্য সরবরাহ বা বিক্রির সময় ক্রেতাকে প্রতিশ্রুত ওজনের চেয়ে কম ওজনে বিক্রি করলে অনূর্ধ্ব ১ বছর কারাদণ্ড বা অনধিক ৫০ হাজার টাকা অর্থদণ্ড বা উভয় দণ্ড হতে পারে।",
-      "en": "Under Section 46 of the Consumers' Right Protection Act 2009, selling or supplying goods with weight less than what was promised to the consumer carries up to 1 year imprisonment, up to 50,000 BDT fine, or both."
+      "bn": "ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ধারা ৪৬ অনুযায়ী পণ্য বিক্রয় বা সরবরাহের সময় প্রতিশ্রুত ওজন অপেক্ষা কম ওজনে পণ্য দিলে অনূর্ধ্ব ১ বছর কারাদণ্ড বা অনধিক ৫০ হাজার টাকা অর্থদণ্ড বা উভয় দণ্ডে দণ্ডিত হবেন।",
+      "en": "Under Section 46 of the Consumers' Right Protection Act 2009, delivering or selling goods at less than the agreed weight carries up to 1 year imprisonment, up to 50,000 BDT fine, or both."
     },
     "caution": {
-      "bn": "বাটখারা বা স্কেলের কারচুপির ক্ষেত্রে ৪৭ ধারা এবং ফিতা বা দৈর্ঘ্যের কারচুপির ক্ষেত্রে ৪৯ ধারা প্রযোজ্য।",
-      "en": "For faulty weighing scales/weights see Section 47; for length/measuring tapes see Section 49."
+      "bn": "দোকানদার কর্তৃক ওজন কম দেওয়ার ক্ষেত্রে ওজনের ডিজিটাল স্কেলের ছবি ও মেমো সংরক্ষণ করুন।",
+      "en": "Preserve digital weight scale readings and transaction receipts."
     },
     "sourceUrl": "https://bdlaws.minlaw.gov.bd/act-1014/section-31415.html",
     "retrievalDate": "2026-10-30",
@@ -6349,13 +6355,12 @@
     "reviewStatus": "auto_checked",
     "keywords": [
       "short weight",
-      "deceptive weight",
-      "ojon kom",
-      "ওজনে কম",
-      "ওজন কারচুপি",
-      "কম ওজন দেওয়া",
-      "বাটখারা কারচুপি",
-      "underweight"
+      "ojone kom",
+      "weight fraud",
+      "ওজনে কম দেওয়া",
+      "ওজনে কারচুপি",
+      "কম ওজন",
+      "ধারা ৪৬"
     ],
     "relatedProvisions": [
       "consumer-47",
@@ -6363,7 +6368,7 @@
       "consumer-60",
       "consumer-76"
     ],
-    "contentHash": "dc39b9807758d3420ec798c968dd1cdc85b46490b149a2abf87de83873825eec"
+    "contentHash": "6e49a251be01711913d609c38fc3f5fadd88893c12ce00b88c08af5119142ae3"
   },
   {
     "id": "labour-104",
