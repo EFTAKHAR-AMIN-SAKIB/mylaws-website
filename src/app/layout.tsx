@@ -8,6 +8,15 @@ export const metadata: Metadata = {
   title: 'MyLaws — বাংলাদেশ আইনি তথ্য ও প্রস্তুতি সহকারী',
   description:
     'সহজ বাংলায় আপনার অধিকার বুঝুন, যাচাইকৃত আইনি বিধান দেখুন, পরবর্তী করণীয় পদক্ষেপের তালিকা নিন এবং অভিযোগ বা জিডির খসড়া প্রস্তুত করুন।',
+  icons: {
+    icon: [
+      { url: '/icon.png', sizes: '192x192', type: 'image/png' },
+      { url: '/favicon.ico', sizes: '32x32' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
 };
 
 export default function RootLayout({

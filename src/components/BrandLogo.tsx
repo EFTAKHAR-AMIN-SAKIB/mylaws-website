@@ -2,87 +2,85 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface BrandLogoProps {
   className?: string;
   showSubtitle?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  layout?: 'horizontal' | 'stacked';
 }
 
-export function BrandLogo({ className = '', showSubtitle = false }: BrandLogoProps) {
+export function BrandLogo({
+  className = '',
+  showSubtitle = false,
+  size = 'md',
+  layout = 'horizontal',
+}: BrandLogoProps) {
+  if (layout === 'stacked') {
+    return (
+      <Link
+        href="/"
+        className={`inline-flex flex-col items-center group transition-opacity hover:opacity-95 ${className}`}
+        aria-label="MyLaws Home"
+      >
+        <Image
+          src="/images/logo-stacked.png"
+          alt="MyLaws"
+          width={220}
+          height={208}
+          className="w-auto h-20 sm:h-24 object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+          priority
+        />
+        {showSubtitle && (
+          <span className="font-cinzel text-[9px] uppercase tracking-widest text-secondary-light font-medium mt-1">
+            Legal Assistant
+          </span>
+        )}
+      </Link>
+    );
+  }
+
+  const iconHeights = {
+    sm: 'h-7 sm:h-8',
+    md: 'h-8 sm:h-9',
+    lg: 'h-10 sm:h-12',
+  };
+
+  const textHeights = {
+    sm: 'h-4 sm:h-5',
+    md: 'h-5 sm:h-6',
+    lg: 'h-6 sm:h-7',
+  };
+
   return (
     <Link
       href="/"
-      className={`inline-flex items-center gap-2.5 group transition-opacity hover:opacity-95 ${className}`}
+      className={`inline-flex items-center gap-2.5 sm:gap-3 group transition-opacity hover:opacity-95 ${className}`}
       aria-label="MyLaws Home"
     >
-      {/* Precision Scaled Vector Balance of Justice Icon */}
-      <div className="relative flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 shrink-0 text-primary-light">
-        <svg
-          width="36"
-          height="36"
-          viewBox="0 0 36 36"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-8 h-8 sm:w-9 sm:h-9 max-w-[36px] max-h-[36px] transform transition-transform duration-300 group-hover:scale-105"
-          style={{ width: '36px', height: '36px', maxWidth: '36px', maxHeight: '36px', display: 'block' }}
-        >
-          {/* Top Finial Ring */}
-          <circle cx="18" cy="5" r="2.2" stroke="currentColor" strokeWidth="1.6" />
-          <circle cx="18" cy="5" r="0.8" fill="currentColor" />
-
-          {/* Central Vertical Spire */}
-          <line x1="18" y1="7.2" x2="18" y2="30" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-
-          {/* Horizontal Balance Beam */}
-          <line x1="5" y1="13" x2="31" y2="13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          <circle cx="18" cy="13" r="1.6" fill="currentColor" />
-
-          {/* Beam End Finials */}
-          <circle cx="6" cy="13" r="1.3" fill="currentColor" />
-          <circle cx="30" cy="13" r="1.3" fill="currentColor" />
-
-          {/* Center Indicator Needle */}
-          <line x1="18" y1="13" x2="18" y2="17.5" stroke="#9A6F32" strokeWidth="1.6" strokeLinecap="round" />
-
-          {/* Left Suspension Strings */}
-          <line x1="6" y1="13.5" x2="2.5" y2="23" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-          <line x1="6" y1="13.5" x2="9.5" y2="23" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-
-          {/* Left Pan */}
-          <path
-            d="M 1.5 23 Q 6 26.5 10.5 23 Z"
-            fill="currentColor"
-            fillOpacity="0.15"
-            stroke="currentColor"
-            strokeWidth="1.4"
-            strokeLinejoin="round"
-          />
-
-          {/* Right Suspension Strings */}
-          <line x1="30" y1="13.5" x2="26.5" y2="23" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-          <line x1="30" y1="13.5" x2="33.5" y2="23" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-
-          {/* Right Pan */}
-          <path
-            d="M 25.5 23 Q 30 26.5 34.5 23 Z"
-            fill="currentColor"
-            fillOpacity="0.15"
-            stroke="currentColor"
-            strokeWidth="1.4"
-            strokeLinejoin="round"
-          />
-
-          {/* Stepped Pedestal Base */}
-          <line x1="12" y1="30" x2="24" y2="30" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <line x1="9" y1="32.5" x2="27" y2="32.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-        </svg>
+      {/* Precision Official Balance Scale Icon */}
+      <div className="relative flex items-center justify-center shrink-0">
+        <Image
+          src="/images/logo-icon.png"
+          alt=""
+          width={49}
+          height={36}
+          className={`${iconHeights[size]} w-auto object-contain transform transition-transform duration-300 group-hover:scale-105`}
+          priority
+        />
       </div>
 
-      {/* Brand Name Typography */}
-      <div className="flex flex-col">
-        <span className="font-cinzel text-xl sm:text-2xl font-bold tracking-wider text-primary-light leading-none">
-          MyLaws
-        </span>
+      {/* Official MyLaws Custom Wordmark */}
+      <div className="flex flex-col justify-center">
+        <Image
+          src="/images/logo-text.png"
+          alt="MyLaws"
+          width={102}
+          height={24}
+          className={`${textHeights[size]} w-auto object-contain`}
+          priority
+        />
         {showSubtitle && (
           <span className="font-cinzel text-[9px] uppercase tracking-widest text-secondary-light font-medium mt-0.5">
             Legal Assistant
