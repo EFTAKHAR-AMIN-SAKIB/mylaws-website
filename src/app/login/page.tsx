@@ -74,6 +74,13 @@ function LoginContent() {
       console.error('Google sign in error:', err);
       if (err.code === 'auth/popup-closed-by-user') {
         setErrorMsg(t('লগইন উইন্ডো বন্ধ করা হয়েছে।', 'Sign-in popup was closed.'));
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setErrorMsg(
+          t(
+            'Firebase ডোমেন অনুমোদিত নয়: অনুগ্রহ করে Firebase Console > Authentication > Settings > Authorized domains-এ "mylaws-bd.vercel.app" যুক্ত করুন।',
+            'Unauthorized domain: Please add "mylaws-bd.vercel.app" to Authorized Domains in Firebase Console > Authentication > Settings.'
+          )
+        );
       } else {
         setErrorMsg(err.message || t('গুগল লগইন ব্যর্থ হয়েছে।', 'Google sign-in failed.'));
       }
@@ -136,6 +143,11 @@ function LoginContent() {
         msg = t('ভুল ইমেইল বা পাসওয়ার্ড।', 'Invalid email or password.');
       } else if (err.code === 'auth/user-not-found') {
         msg = t('কোনো অ্যাকাউন্ট পাওয়া যায়নি। দয়া করে নিবন্ধন করুন।', 'No account found. Please sign up.');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        msg = t(
+          'Firebase ডোমেন অনুমোদিত নয়: অনুগ্রহ করে Firebase Console > Authentication > Settings > Authorized domains-এ "mylaws-bd.vercel.app" যুক্ত করুন।',
+          'Unauthorized domain: Please add "mylaws-bd.vercel.app" to Authorized Domains in Firebase Console > Authentication > Settings.'
+        );
       }
       setErrorMsg(msg);
     } finally {
