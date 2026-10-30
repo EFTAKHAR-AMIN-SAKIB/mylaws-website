@@ -34,6 +34,8 @@ html, body {
   line-height: 1.65;
   position: relative;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 /* Scroll indicator bounce animation */
@@ -262,3 +264,60 @@ html, body {
     color: #000000 !important;
   }
 }
+
+/* ========================================================
+   MOBILE NATIVE WEB APP TACTILE TOUCH & PWA ENHANCEMENTS
+   ======================================================== */
+
+/* Prevent iOS Safari 16px auto-zoom glitch on mobile inputs */
+@media screen and (max-width: 640px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Hide scrollbars for smooth thumb horizontal swipe strips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Tactile press effect mimicking native iOS/Android buttons */
+.active-press:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+/* Native Mobile Bottom Sheet Slide Up Animation */
+@keyframes bottom-sheet-slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-bottom-sheet {
+  animation: bottom-sheet-slide-up 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Safe area insets utilities */
+.pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+}
+.pt-safe {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 8px);
+}
+

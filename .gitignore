@@ -31,3 +31,9 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# Temporary scrapes, test dumps & archives
+scripts/*.html
+*.zip
+scripts/batch2_*.json
+src/data/legal.legacy.bak.ts

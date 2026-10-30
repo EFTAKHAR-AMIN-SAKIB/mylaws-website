@@ -13,4 +13,23 @@ describe('Firebase Auth & Quota Logic', () => {
     const verified = await verifyFirebaseToken('');
     expect(verified).toBeNull();
   });
+
+  it('enforces private no-store cache headers and history deletion controls', async () => {
+    const { DELETE, GET } = await import('../src/app/api/user/history/route');
+    const { NextRequest } = await import('next/server');
+
+    // Test GET requires authorization header
+    const unauthReq = new NextRequest('http://localhost:3000/api/user/history');
+    const unauthRes = await GET(unauthReq);
+    expect(unauthRes.status).toBe(401);
+    expect(unauthRes.headers.get('cache-control')).toContain('private, no-store');
+
+    // Test DELETE requires authorization header
+    const deleteReq = new NextRequest('http://localhost:3000/api/user/history?id=test-query-id', {
+      method: 'DELETE',
+    });
+    const deleteRes = await DELETE(deleteReq);
+    expect(deleteRes.status).toBe(401);
+    expect(deleteRes.headers.get('cache-control')).toContain('private, no-store');
+  });
 });

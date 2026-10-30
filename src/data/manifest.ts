@@ -1,24 +1,26 @@
 import type { AndroidReleaseManifest, PackState } from '@/types/contracts';
 
 export const legalPackManifest: PackState = {
-  id: 'bd-pilot-2026-10-27.1',
-  modelVersion: 'muse-spark-1.3',
-  legalVersion: '2026-10-26-corpus-v1',
-  indexVersion: 'fts-bm25-v1',
-  templateVersion: 'templates-v1',
+  id: 'bd-release-2026-10-30.2',
+  modelVersion: 'deterministic-statutory-v2',
+  legalVersion: '2026.10.30-batch2.1',
+  indexVersion: 'fts-bm25-v2',
+  templateVersion: 'templates-v2',
   status: 'ready',
   compatible: true,
   coverage: [
-    'Bangladesh Labour Act, 2006 (Sections 5, 108, 123, 124A, 132)',
-    'Constitution of Bangladesh (Articles 27, 28, 31, 33, 35, 43, 44)',
-    'Consumers’ Right Protection Act, 2009 (Sections 40, 44, 45, 60)',
-    'Transfer of Property Act, 1882 (Sections 53C, 54, 54A)',
-    'Domestic Violence (Prevention and Protection) Act, 2010 (Sections 3, 11)',
-    'Penal Code, 1860 (Sections 503, 507)',
+    'Selected 255 statutory provisions across 7 core categories from 31 Bangladesh statutes',
+    'Labour Act, 2006 (Wages, weekly holidays, termination, maternity, compensation)',
+    'The Penal Code, 1860 & Police Act, 1861 (GD, threats, extortion, hurt, unlawful assembly)',
+    'Cyber Protection Act 2026 & Pornography Control Act 2012 (Intimate extortion, hacking, ID fraud)',
+    'Consumers’ Right Protection Act, 2009 (Adulteration, fake goods, expired goods, 30-day limit, 25% reward)',
+    'Land Crime Act 2023 & Specific Relief Act 1877 (Dispossession, topsoil cutting, bailable status, SRA 8/9)',
+    'Family Courts Act, 2023 (Act No. 26 of 2023) & MFLO 1961 (Dower, maintenance, custody, divorce)',
+    'Constitution of Bangladesh 1972 & Legal Aid Services Act 2000 (Art 33 24hr limit, 16699 legal aid)'
   ],
-  sizeBytes: 142000,
-  freeBytesRequired: 500000,
-  completedBytes: 142000,
+  sizeBytes: 450000,
+  freeBytesRequired: 1500000,
+  completedBytes: 450000,
   error: null,
 };
 

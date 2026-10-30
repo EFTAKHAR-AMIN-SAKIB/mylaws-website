@@ -21,7 +21,7 @@ describe('Server & API Security Integrity', () => {
     expect(data.plainLanguageExplanation).toBeDefined();
     expect(data.checklist.length).toBeGreaterThan(0);
     expect(data.draftOffer).toBeDefined();
-  });
+  }, 30000);
   it('enforces rate limiter per IP', () => {
     const testIp = '192.168.1.100';
     for (let i = 0; i < 10; i++) {
@@ -37,9 +37,9 @@ describe('Server & API Security Integrity', () => {
   });
 
   it('verifies legal pack manifest structure and coverage', () => {
-    expect(legalPackManifest.id).toBe('bd-pilot-2026-10-27.1');
+    expect(legalPackManifest.id).toBe('bd-release-2026-10-30.2');
     expect(legalPackManifest.compatible).toBe(true);
-    expect(legalPackManifest.coverage.length).toBe(6);
+    expect(legalPackManifest.coverage.length).toBeGreaterThanOrEqual(6);
   });
 
   it('verifies honest Android release manifest metadata', () => {

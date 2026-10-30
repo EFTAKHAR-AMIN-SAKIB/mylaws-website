@@ -69,9 +69,9 @@ export async function queryD1<T = any>(
 /**
  * Fetch all provisions directly from Cloudflare D1 with instant fallback to local dataset
  */
-export async function fetchProvisionsFromD1(limit = 200): Promise<Provision[]> {
+export async function fetchProvisionsFromD1(limit = 1000): Promise<Provision[]> {
   const rows = await queryD1<any>(
-    'SELECT * FROM provisions LIMIT ?',
+    'SELECT * FROM provisions ORDER BY id ASC LIMIT ?',
     [limit]
   );
 
@@ -82,20 +82,34 @@ export async function fetchProvisionsFromD1(limit = 200): Promise<Provision[]> {
   return rows.map((r) => {
     // Map D1 row back to Provision interface
     const localMatch = localProvisions.find((lp) => lp.id === r.id);
+    let parsedCategories: any[] = localMatch?.categories || [r.category || 'rights'];
+    if (r.categories) {
+      try {
+        parsedCategories = JSON.parse(r.categories);
+      } catch {
+        parsedCategories = [r.category || 'rights'];
+      }
+    }
+
     return {
       id: r.id,
       category: r.category || localMatch?.category || 'rights',
+      categories: parsedCategories,
+      actId: r.act_id || localMatch?.actId,
       act: localMatch?.act || { bn: r.act_id, en: r.act_id },
       section: r.section_number,
       title: { bn: r.title_bn, en: r.title_en },
       quote: r.verbatim_quote_bn,
       sourceLanguage: localMatch?.sourceLanguage || 'bn',
       sourceUrl: r.bdlaws_url,
-      checkedOn: localMatch?.checkedOn || '2026-10-29',
+      checkedOn: localMatch?.checkedOn || '2026-10-30',
       versionNote: localMatch?.versionNote || { bn: '', en: '' },
       explanation: { bn: r.plain_explanation_bn, en: r.plain_explanation_en },
       caution: { bn: r.caution_bn || '', en: r.caution_en || '' },
       keywords: localMatch?.keywords || [],
+      contentHash: r.content_hash || localMatch?.contentHash,
+      reviewStatus: r.review_status || localMatch?.reviewStatus || 'auto_checked',
+      legalStatus: r.legal_status || localMatch?.legalStatus || 'active',
     };
   });
 }

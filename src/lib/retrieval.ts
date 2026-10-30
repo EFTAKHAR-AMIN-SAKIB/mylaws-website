@@ -195,6 +195,16 @@ const categorySignals: Record<Category, string[]> = {
     'namjari',
     'eviction',
     'boundary',
+    'ancestral',
+    'house',
+    'homestead',
+    'dispossess',
+    'dispossession',
+    'possession',
+    'kicked out',
+    'ejectment',
+    'tenant',
+    'landlord',
     'জমি',
     'সম্পত্তি',
     'দলিল',
@@ -207,6 +217,10 @@ const categorySignals: Record<Category, string[]> = {
     'নামজারি',
     'উচ্ছেদ',
     'সীমানা',
+    'বাড়ি',
+    'বসতবাড়ি',
+    'পৈতৃক',
+    'পৈত্রিক',
   ],
   family: [
     'domestic',
@@ -250,6 +264,10 @@ const categorySignals: Record<Category, string[]> = {
     'intimate',
     'video viral',
     'cyber',
+    'scam',
+    'scammer',
+    'forgery',
+    'fraud',
     'অনলাইন',
     'গোপনীয়তা',
     'ব্ল্যাকমেইল',
@@ -304,19 +322,72 @@ function intentCategories(query: string): Category[] {
 export function searchVariant(text: string): string {
   let res = text;
   const isUnpaidClaim =
-    /\b(unpaid|arrears?|due|withheld|not\s+paid|pending)\b/i.test(text) ||
-    /বকেয়া|বকেয়া|দেয়নি|দেয়নাই|আটক|পায়নি|পাইনি/u.test(text) ||
+    /\b(unpaid|arrears?|due|withheld|not\s+paid|pending|salary|wages|chakri|service)\b/i.test(text) ||
+    /বকেয়া|বকেয়া|দেয়নি|দেয়নাই|আটক|পায়নি|পাইনি|চাকরি|ছাঁটাই/u.test(text) ||
     /\b(deynai|painai|paisi\s+na)\b/i.test(text);
 
-  if (isUnpaidClaim && (/\b(beton|betan|betn|mojuri)\b|বেতন|মজুরি/i.test(text))) {
-    res += ' wages salary unpaid employment arrears';
-  } else if (/\b(beton|betan|mojuri)\b|বেতন|মজুরি/i.test(text)) {
+  if (isUnpaidClaim && (/\b(beton|betan|betn|mojuri|salary|wages|allowance)\b|বেতন|মজুরি/i.test(text))) {
+    res += ' wages salary unpaid employment arrears labour act 123 132';
+  } else if (/\b(beton|betan|mojuri|salary|wages)\b|বেতন|মজুরি/i.test(text)) {
     res += ' wages salary employment';
   }
 
-  if (/\b(thana|police|gd|threat|stolen|theft|churi|steal|mobile|phone|snatch|snatched)\b|জিডি|থানা|হুমকি|চুরি|ছিনতাই|পকেটমার|হারিয়ে/i.test(text)) {
-    res += ' intimidation threat general diary theft stolen penal code 379 police';
+  // Theft & Loss
+  if (/\b(stolen|theft|thief|churi|cori|steal|lost|mobile|phone|bike|motorcycle|snatch|snatched|burglary)\b|চুরি|ছিনতাই|পকেটমার|হারিয়ে|হারানো|হারাইছে/i.test(text)) {
+    res += ' theft stolen penal code 379 380 police';
   }
+
+  // Threats & Intimidation
+  if (/\b(threat|threatened|intimidation|extortion|chandabaji|humki|voy|marbe|murder|kill|assault|beating|mob|gang|riot)\b|হুমকি|ভীতি|চাঁদাবাজি|মেরে ফেলা|মারধর|দাঙ্গা|বেআইনি সমাবেশ/i.test(text)) {
+    res += ' intimidation threat extortion penal code 506 384 383 141 143';
+  }
+
+  // Police General Diary
+  if (/\b(gd|general diary)\b|জিডি|সাধারণ ডায়েরি/i.test(text)) {
+    res += ' general diary police act 44 crpc 155';
+  }
+
+  // Land & Property Expansions
+  if (/\b(jomi|jami|dalil|namjari|khatian|porcha|kharid|bayna|utched|dokhol|bedokhol|dag|eviction|evict|evicted|kicked\s*out|ancestral|house|homestead|property|land|dispossess|dispossessed|possession|boundary|tenant|landlord)\b|জমি|দলিল|নামজারি|খতিয়ান|পর্চা|বায়না|উচ্ছেদ|দখল|বেদখল|বাড়িওয়ালা|ভাড়াটিয়া|বাড়ি|বাড়ি|বসতবাড়ি|বসতবাড়ি|পৈত্রিক|পৈতৃক|সম্পত্তি/i.test(text)) {
+    res += ' land property title deed specific relief 8 9 39 registration 17 rent control 18 land crime 2023 land crime 8 executive magistrate';
+  }
+
+  // Land Soil Cutting & Topsoil
+  if (/\b(soil|mati|dredger|topsoil)\b|মাটি|ড্রেজার|টপ\s*সয়েল|টপ\s*সয়েল|মাটি\s*কাটা/i.test(text)) {
+    res += ' land crime 13 topsoil cutting dredger';
+  }
+
+  // Consumer Rights Specific Expansions
+  if (/\b(expired|expiry|meyadottirno|date)\b|মেয়াদোত্তীর্ণ|মেয়াদোত্তীর্ণ|তারিখ\s*শেষ/i.test(text)) {
+    res += ' consumer act 51 expired goods medicine';
+  }
+  if (/\b(adulterat|bhezal|vezal)\b|ভেজাল|ভেজালযুক্ত/i.test(text)) {
+    res += ' consumer act 41 adulterated food medicine';
+  }
+  if (/\b(limitation|deadline|30\s*days)\b|সময়সীমা|সময়সীমা|৩০\s*দিন|৩০\s*দিনের\s*মধ্যে/i.test(text)) {
+    res += ' consumer act 60 complaint limitation 30 days';
+  }
+
+  // Family, Marriage & Domestic Abuse Expansions
+  if (/\b(talaq|talak|denmohor|mohorana|dower|khorposh|bhoronposhon|maintenance|joutuk|dowry|shami|bou|boubhat|shontan|hefazot|custody|child)\b|তালাক|দেনমোহর|মোহরানা|খোরপোশ|ভরণপোষণ|যৌতুক|সন্তান|হেফাজত|অভিভাবকত্ব/i.test(text)) {
+    res += ' family court muslim family domestic violence dowry 2018 maintenance dower custody guardians';
+  }
+
+  // Cyber & Digital Harassment Expansions
+  if (/\b(fb|facebook|id\s*hack|hacked|viral|porn|bad\s*photo|leaked|intimate|cyber|blackmail|server|deleted\s*database)\b|ফেসবুক|আইডি\s*হ্যাক|ভাইরাল|ব্ল্যাকমেইল|ছবি\s*ফাঁস|সাইবার|সার্ভার/i.test(text)) {
+    res += ' cyber protection act 2026 digital harassment pornography control 8 impersonation 419';
+  }
+
+  // Fraud, Scams, Cheating & Forged Documents
+  if (/\b(scam|scammer|fraud|fraudulent|forgery|forged|fake\s*(stamp|letter|doc|appointment)|cheating|extort)\b|জাল|প্রতারণা|আত্মসাৎ|ভুয়া\s*নিয়োগপত্র|জালিয়াতি/i.test(text)) {
+    res += ' forgery cheating penal code 468 465 420 419';
+  }
+
+  // Fundamental Rights, Custodial Torture & Bail Expansions
+  if (/\b(arrest|arrested|jail|police\s*dhorse|hajat|bail|jamindari|jamin|remand|reman|torture|electric\s*shock|custody|confession|16699|legal\s*aid|habeas|writ|abducted)\b|গ্রেপ্তার|গ্রেফতার|আটক|হাজত|জামিন|রিমান্ড|নির্যাতন|হেফাজতে মৃত্যু|লিগ্যাল\s*এইড|রিট/i.test(text)) {
+    res += ' fundamental rights crpc 54 crpc 61 constitution 33 35 torture prevention 15 legal aid 16 102 crpc 498 497 496';
+  }
+
   return res;
 }
 
@@ -328,7 +399,11 @@ export function retrieve(query: string, limit = 3): Match[] {
   const intents = intentCategories(expanded);
 
   const results = docs
-    .filter((d) => !intents.length || intents.includes(d.p.category))
+    .filter((d) => {
+      if (!intents.length) return true;
+      const cats = d.p.categories && d.p.categories.length > 0 ? d.p.categories : [d.p.category];
+      return cats.some((c) => intents.includes(c));
+    })
     .map(({ p, terms }) => {
       let score = 0;
       for (const t of ts) {
@@ -354,13 +429,13 @@ export function retrieve(query: string, limit = 3): Match[] {
 export function searchLibrary(query: string, category?: Category | null): Provision[] {
   let pool = provisions;
   if (category) {
-    pool = pool.filter((p) => p.category === category);
+    pool = pool.filter((p) => (p.categories && p.categories.length > 0 ? p.categories.includes(category) : p.category === category));
   }
   if (!query.trim()) return pool;
   const q = normalize(query);
   const scored = retrieve(query, provisions.length)
     .map((x) => x.provision)
-    .filter((p) => !category || p.category === category);
+    .filter((p) => !category || (p.categories && p.categories.length > 0 ? p.categories.includes(category) : p.category === category));
   const extra = pool.filter((p) =>
     normalize(`${p.act.en} ${p.act.bn} ${p.section} ${p.title.en} ${p.title.bn} ${p.quote}`).includes(q)
   );

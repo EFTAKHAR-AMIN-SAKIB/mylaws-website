@@ -466,4 +466,79 @@ describe('Action Checklist & Legal Workflow Engine', () => {
     expect(res.checklist[0].id).toBe('step-vehicle-1');
     expect(res.draftOffer?.documentTitle).toContain('মোটরসাইকেল / বাইক চুরি');
   });
+
+  it('correctly handles context-dependent follow-up "গতকাল" preserving original dispute context', () => {
+    const history = [
+      { role: 'user' as const, content: 'ফার্মেসি থেকে আমাকে ভেজাল ওষুধ দিয়েছে, আমি অভিযোগ করতে চাই।' },
+      { role: 'assistant' as const, content: 'আপনি ওষুধটি কবে ক্রয় করেছিলেন? (ধারা ৬০ অনুযায়ী ৩০ দিনের মধ্যে অভিযোগ করতে হয়)' },
+    ];
+
+    const req: AnswerRequest = {
+      requestId: 'test-context-followup-yesterday',
+      originalMessage: 'গতকাল',
+      language: 'bn',
+      facts: [],
+      conversationHistory: history,
+    };
+
+    const res = createLegalWorkflow(req);
+    expect(res.status).toBe('completed');
+    expect(res.problemSummary?.identifiedIssue).toContain('ভোক্তা অধিকার');
+    
+    // Must record the timeline fact
+    const dateFact = res.userFacts.find(f => f.fieldId === 'occurrence_date');
+    expect(dateFact).toBeDefined();
+    expect(dateFact?.value).toContain('গতকাল');
+
+    // Must cite Consumer Act Sections 41/51, 60, and 76(4)
+    const allSourceIds = [
+      ...res.checklist.flatMap(s => s.sourceIds || []),
+      ...res.explanation.flatMap(e => e.sourceIds || [])
+    ];
+    expect(allSourceIds).toContain('consumer-60');
+    expect(allSourceIds).toContain('consumer-76');
+  });
+
+  it('preserves all 3 cumulative conditions of Land Crime Act Section 13 exception', () => {
+    const req: AnswerRequest = {
+      requestId: 'test-land-section-13-conditions',
+      originalMessage: 'আমাদের আবাদি জমির উপরিভাগের মাটি জোর করে কেটে নিয়ে যাচ্ছে ড্রেজার দিয়ে',
+      language: 'bn',
+      facts: [],
+    };
+
+    const res = createLegalWorkflow(req);
+    expect(res.status).toBe('completed');
+
+    const explText = res.explanation.map(e => e.text).join(' ');
+    // Proviso cumulative conditions must be stated
+    expect(explText).toContain('নিজের মালিকানাধীন জমি');
+    expect(explText).toContain('সীমিত পরিসরে');
+    expect(explText).toContain('উর্বরতার ক্ষতি না করে');
+
+    // Section 19(1) bailable status must be affirmed
+    expect(explText).toContain('জামিনযোগ্য');
+    expect(explText).toContain('১৯(১)');
+
+    // Blanket exemption must NOT be present
+    expect(explText).not.toContain('homestead construction is strictly exempted');
+    expect(explText).not.toContain('বসতবাড়ি নির্মাণের ক্ষেত্রে এই বিধিনিষেধ প্রযোজ্য নয়');
+  });
+
+  it('correctly identifies Family Courts Act 2023 as Act No. 26 of 2023 and Section 5 jurisdiction', () => {
+    const req: AnswerRequest = {
+      requestId: 'test-family-courts-act-26',
+      originalMessage: 'স্বামী ৩ মাস ধরে ভরণপোষণ দিচ্ছে না এবং দেনমোহর অস্বীকার করছে',
+      language: 'bn',
+      facts: [],
+    };
+
+    const res = createLegalWorkflow(req);
+    expect(res.status).toBe('completed');
+
+    const explText = res.explanation.map(e => e.text).join(' ');
+    expect(explText).toContain('২০২৩ সনের ২৬ নং আইন');
+    expect(explText).toContain('ধারা ৫');
+    expect(explText).toContain('একচ্ছত্র এখতিয়ার');
+  });
 });

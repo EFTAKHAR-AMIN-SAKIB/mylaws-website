@@ -24,7 +24,9 @@ export function TurntableScales({ containerRef }: TurntableScalesProps) {
   // Pointer drag state for tangible interactive turntable
   const isDraggingRef = useRef<boolean>(false);
   const dragStartXRef = useRef<number>(0);
+  const dragStartYRef = useRef<number>(0);
   const dragStartOffsetRef = useRef<number>(0);
+  const isHorizontalGestureRef = useRef<boolean | null>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -206,25 +208,48 @@ export function TurntableScales({ containerRef }: TurntableScalesProps) {
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     isDraggingRef.current = true;
     dragStartXRef.current = e.clientX;
+    dragStartYRef.current = e.clientY;
     dragStartOffsetRef.current = dragOffsetRef.current;
-    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    isHorizontalGestureRef.current = null;
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isDraggingRef.current) return;
     const deltaX = e.clientX - dragStartXRef.current;
-    // 300px drag = 1 full 360 degree rotation (faster, responsive drag)
-    dragOffsetRef.current = (dragStartOffsetRef.current + deltaX / 300) % 1.0;
+    const deltaY = e.clientY - dragStartYRef.current;
+
+    // Detect gesture direction on touch
+    if (isHorizontalGestureRef.current === null) {
+      if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          isHorizontalGestureRef.current = true;
+          (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+        } else {
+          // Primarily vertical scroll: release drag so browser can scroll smoothly
+          isHorizontalGestureRef.current = false;
+          isDraggingRef.current = false;
+          return;
+        }
+      } else {
+        return;
+      }
+    }
+
+    if (isHorizontalGestureRef.current) {
+      // 300px drag = 1 full 360 degree rotation (faster, responsive drag)
+      dragOffsetRef.current = (dragStartOffsetRef.current + deltaX / 300) % 1.0;
+    }
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     isDraggingRef.current = false;
+    isHorizontalGestureRef.current = null;
     (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
   };
 
   return (
     <div
-      className="relative w-full flex items-center justify-center select-none cursor-grab active:cursor-grabbing touch-none"
+      className="relative w-full flex items-center justify-center select-none cursor-grab active:cursor-grabbing touch-pan-y"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -232,7 +257,7 @@ export function TurntableScales({ containerRef }: TurntableScalesProps) {
       title="Click and drag horizontally to spin the Scales of Justice"
     >
       {/* Prominently sized with clean transparent backdrop and soft elevation shadow */}
-      <div className="relative w-full aspect-square max-w-[560px] sm:max-w-[620px] lg:max-w-[700px] xl:max-w-[760px] max-h-[82vh] flex items-center justify-center">
+      <div className="relative w-full aspect-square max-w-[320px] sm:max-w-[480px] lg:max-w-[700px] xl:max-w-[760px] max-h-[52vh] sm:max-h-[82vh] flex items-center justify-center">
         <canvas
           ref={canvasRef}
           className="w-full h-full object-contain pointer-events-none drop-shadow-[0_16px_32px_rgba(35,31,28,0.12)]"

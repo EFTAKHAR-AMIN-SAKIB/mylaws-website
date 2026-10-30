@@ -1,0 +1,577 @@
+[
+  {
+    "id": "act_constitution_1972",
+    "name": {
+      "en": "Constitution of the People's Republic of Bangladesh",
+      "bn": "গণপ্রজাতন্ত্রী বাংলাদেশের সংবিধান"
+    },
+    "actNumber": "1972",
+    "year": 1972,
+    "categories": [
+      "rights",
+      "digital",
+      "work"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-367.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Supreme law of the Republic; Part III enshrines Fundamental Rights enforceable via High Court Writ Jurisdiction under Article 102.",
+      "bn": "প্রজাতন্ত্রের সর্বোচ্চ আইন; তৃতীয় ভাগে মৌলিক অধিকারসমূহ সংরক্ষিত এবং অনুচ্ছেদ ১০২ এর অধীন রিট এখতিয়ার দ্বারা বলবৎযোগ্য।"
+    }
+  },
+  {
+    "id": "act_labour_2006",
+    "name": {
+      "en": "Bangladesh Labour Act, 2006",
+      "bn": "বাংলাদেশ শ্রম আইন, ২০০৬"
+    },
+    "actNumber": "Act XLII of 2006",
+    "year": 2006,
+    "categories": [
+      "work"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-957.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Primary statute governing employment, wage calculation and recovery, termination benefits, maternity protection, and workplace safety.",
+      "bn": "শ্রমিক নিয়োগ, মজুরি হিসাব ও বকেয়া আদায়, ছাঁটাই/অবসায়ন ক্ষতিপূরণ, মাতৃত্ব কল্যাণ ও কর্মপরিবেশ নিয়ন্ত্রণকারী মূল আইন।"
+    }
+  },
+  {
+    "id": "act_epz_labour_2019",
+    "name": {
+      "en": "Bangladesh EPZ Labour Act, 2019",
+      "bn": "বাংলাদেশ ইপিজেড শ্রম আইন, ২০১৯"
+    },
+    "actNumber": "Act I of 2019",
+    "year": 2019,
+    "categories": [
+      "work"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-1288.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Specialized statute for workers and employers in Export Processing Zones (BEPZA); designates EPZ Labour Tribunals.",
+      "bn": "রপ্তানি প্রক্রিয়াকরণ এলাকা (ইপিজেড)-র শ্রমিক ও মালিকদের জন্য বিশেষায়িত আইন; ইপিজেড শ্রম ট্রাইব্যুনাল এখতিয়ারভুক্ত।"
+    }
+  },
+  {
+    "id": "act_penal_code_1860",
+    "name": {
+      "en": "The Penal Code, 1860",
+      "bn": "দণ্ডবিধি, ১৮৬০"
+    },
+    "actNumber": "Act XLV of 1860",
+    "year": 1860,
+    "categories": [
+      "threats",
+      "consumer",
+      "digital",
+      "land"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-11.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Substantive penal code defining criminal offenses: criminal intimidation, hurt, theft, fraud, forgery, cheating, and public nuisance.",
+      "bn": "ফৌজদারি অপরাধ সংজ্ঞায়ন ও শাস্তির মূল আইন: হুমকি, শারীরিক আঘাত, চুরি, প্রতারণা, জালিয়াতি ও সামাজিক উৎপাত।"
+    }
+  },
+  {
+    "id": "act_crpc_1898",
+    "name": {
+      "en": "Code of Criminal Procedure, 1898",
+      "bn": "ফৌজদারী কার্যবিধি, ১৮৯৮"
+    },
+    "actNumber": "Act V of 1898",
+    "year": 1898,
+    "categories": [
+      "threats",
+      "rights"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-75.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Procedural law governing police investigations, First Information Reports (FIR Sec 154), General Diary (GD Sec 155), arrest safeguards, and bail.",
+      "bn": "তদন্ত, এজাহার (ধারা ১৫৪), সাধারণ ডায়েরি (জিডি ধারা ১৫৫), গ্রেপ্তার সুরক্ষা ও জামিন সংক্রান্ত ফৌজদারি কার্যপদ্ধতি।"
+    }
+  },
+  {
+    "id": "act_police_1861",
+    "name": {
+      "en": "The Police Act, 1861",
+      "bn": "পুলিশ আইন, ১৮৬১"
+    },
+    "actNumber": "Act V of 1861",
+    "year": 1861,
+    "categories": [
+      "threats"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-12.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Governs police maintenance of public order and Section 44 General Diary records at police stations.",
+      "bn": "পুলিশ বাহিনীর শৃঙ্খলা, দায়িত্ব এবং ধারা ৪৪ অনুযায়ী থানায় সাধারণ ডায়েরি (জিডি) সংরক্ষণের বিধান।"
+    }
+  },
+  {
+    "id": "act_cyber_security_2023",
+    "name": {
+      "en": "Cyber Security Act, 2023",
+      "bn": "সাইবার নিরাপত্তা আইন, ২০২৩"
+    },
+    "actNumber": "Act XL of 2023",
+    "year": 2023,
+    "categories": [
+      "digital",
+      "threats"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-1449.html",
+    "legalStatus": "repealed",
+    "notes": {
+      "en": "REPEALED statute. Formally replaced by the Cyber Protection Ordinance 2025 and Cyber Protection Act 2026. Prior proceedings governed by statutory savings clauses, while speech-related offenses (Sec 21, 25, 28, 32) are abolished/withdrawn. Preserved solely for historical reference.",
+      "bn": "রহিত/বাতিলকৃত আইন। সাইবার সুরক্ষা অধ্যাদেশ ২০২৫ ও সাইবার সুরক্ষা আইন ২০২৬ দ্বারা আনুষ্ঠানিকভাবে রহিত। বিচারাধীন পূর্বের মামলাসমূহ সেভিংস ক্লজ অনুযায়ী পরিচালিত, তবে বাকস্বাধীনতা ও মানহানি সংক্রান্ত ধারাগুলো (২১, ২৫, ২৮, ৩২) বিলুপ্ত ও প্রত্যাহারকৃত।"
+    }
+  },
+  {
+    "id": "act_pornography_2012",
+    "name": {
+      "en": "Pornography Control Act, 2012",
+      "bn": "পর্নোগ্রাফি নিয়ন্ত্রণ আইন, ২০১২"
+    },
+    "actNumber": "Act IX of 2012",
+    "year": 2012,
+    "categories": [
+      "digital",
+      "threats",
+      "family"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-1089.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Penalizes non-consensual image distribution, online sexual harassment, and digital blackmail using intimate media (Sec 8).",
+      "bn": "অসম্মতিমূলক ছবি/ভিডিও প্রচার, ডিজিটাল ব্ল্যাকমেইল ও ইন্টারনেটে হয়রানি প্রতিরোধে কঠোর শাস্তির আইন।"
+    }
+  },
+  {
+    "id": "act_telecom_2001",
+    "name": {
+      "en": "Bangladesh Telecommunication Regulation Act, 2001",
+      "bn": "বাংলাদেশ টেলিযোগাযোগ নিয়ন্ত্রণ আইন, ২০০১"
+    },
+    "actNumber": "Act XVIII of 2001",
+    "year": 2001,
+    "categories": [
+      "digital",
+      "threats"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-859.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Regulates telecom services and penalizes nuisance calls, harassing SMS, and illegal wiretapping under Section 66.",
+      "bn": "টেলিযোগাযোগ সেবা নিয়ন্ত্রণ এবং ধারা ৬৬ এর অধীনে হয়রানিমূলক কল, বার্তা ও অবৈধ আড়িপাতার শাস্তি।"
+    }
+  },
+  {
+    "id": "act_consumer_2009",
+    "name": {
+      "en": "Consumers' Right Protection Act, 2009",
+      "bn": "ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯"
+    },
+    "actNumber": "Act XXVI of 2009",
+    "year": 2009,
+    "categories": [
+      "consumer"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-1011.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Protects consumers from adulteration, false pricing (MRP overcharging), expired products, and false advertising; Sec 76 awards 25% of imposed fines to the complainant.",
+      "bn": "অতিরিক্ত মূল্য, ভেজাল, মেয়াদোত্তীর্ণ পণ্য ও মিথ্যা বিজ্ঞাপনের বিরুদ্ধে প্রতিকার; ধারা ৭৬ মতে আদায়কৃত জরিমানার ২৫% অভিযোগকারীকে প্রদান করা হয়।"
+    }
+  },
+  {
+    "id": "act_food_safety_2013",
+    "name": {
+      "en": "Food Safety Act, 2013",
+      "bn": "নিরাপদ খাদ্য আইন, ২০১৩"
+    },
+    "actNumber": "Act XLIII of 2013",
+    "year": 2013,
+    "categories": [
+      "consumer"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-1125.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Regulates food adulteration, poisonous chemical additives, and established Food Safety Courts.",
+      "bn": "খাদ্যে বিষাক্ত রাসায়নিক ও ভেজাল রোধ এবং বিশুদ্ধ খাদ্য আদালতের বিচারিক এখতিয়ার।"
+    }
+  },
+  {
+    "id": "act_land_crime_2023",
+    "name": {
+      "en": "Land Crime Prevention and Redress Act, 2023",
+      "bn": "ভূমি অপরাধ প্রতিরোধ ও প্রতিকার আইন, ২০২৩"
+    },
+    "actNumber": "Act XXXI of 2023",
+    "year": 2023,
+    "categories": [
+      "land",
+      "threats"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-1440.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Criminalizes land grabbing, forged deeds (dalil), deceptive co-ownership sales, and unlawful soil excavation with up to 7 years imprisonment.",
+      "bn": "জাল দলিল তৈরি, অবৈধ দখল, অন্য জনের জমি প্রতারণামূলক বিক্রি ও অবৈধ মাটি কাটার বিরুদ্ধে ফৌজদারি শাস্তি।"
+    }
+  },
+  {
+    "id": "act_property_transfer_1882",
+    "name": {
+      "en": "Transfer of Property Act, 1882",
+      "bn": "সম্পত্তি হস্তান্তর আইন, ১৮৮২"
+    },
+    "actNumber": "Act IV of 1882",
+    "year": 1882,
+    "categories": [
+      "land"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-48.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Core civil law regulating transfer of immovable property by sale, mortgage, lease, exchange, and gift.",
+      "bn": "স্থাবর সম্পত্তি বিক্রয়, বন্ধক, ইজারা, বিনিময় ও দান সংক্রান্ত মূল দেওয়ানি আইন।"
+    }
+  },
+  {
+    "id": "act_specific_relief_1877",
+    "name": {
+      "en": "Specific Relief Act, 1877",
+      "bn": "সুনির্দিষ্ট প্রতিকার আইন, ১৮৭৭"
+    },
+    "actNumber": "Act I of 1877",
+    "year": 1877,
+    "categories": [
+      "land",
+      "rights"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-32.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Civil remedies for recovery of immovable property possession (Sec 8, 9), contract enforcement, deed cancellation (Sec 39), declaratory decrees (Sec 42), and permanent/temporary injunctions (Sec 54).",
+      "bn": "জমির দখল পুনরুদ্ধার (ধারা ৮ ও ৯), দলিল বাতিল (ধারা ৩৯), স্বত্ব ঘোষণা (ধারা ৪২) ও নিষেধাজ্ঞার (ধারা ৫৪) সুনির্দিষ্ট প্রতিকার।"
+    }
+  },
+  {
+    "id": "act_registration_1908",
+    "name": {
+      "en": "Registration Act, 1908",
+      "bn": "রেজিস্ট্রেশন আইন, ১৯০৮"
+    },
+    "actNumber": "Act XVI of 1908",
+    "year": 1908,
+    "categories": [
+      "land"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-93.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Section 17 makes deed registration mandatory for land sale, gift, and mortgage; unregistered land contracts are invalid in court.",
+      "bn": "ধারা ১৭ অনুযায়ী জমি বিক্রয়, দান ও বন্ধকী দলিল বাধ্যতামূলক নিবন্ধনযোগ্য; অনিবন্ধিত চুক্তি আদালতে প্রমাণ হিসেবে গ্রাহ্য নয়।"
+    }
+  },
+  {
+    "id": "act_sat_1950",
+    "name": {
+      "en": "State Acquisition and Tenancy Act, 1950",
+      "bn": "রাষ্ট্রীয় অধিগ্রহণ ও প্রজাস্বত্ব আইন, ১৯৫০"
+    },
+    "actNumber": "Act XXVIII of 1951",
+    "year": 1950,
+    "categories": [
+      "land"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-241.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Governs land records (Khatian / Porcha), mutation (namjari), landholding ceilings, and rights of agricultural tenants.",
+      "bn": "খতিয়ান, নামজারি, জমাভাগ, জমির সর্বোচ্চ সীমা ও রায়তি প্রজাস্বত্ব নিয়ন্ত্রণকারী আইন।"
+    }
+  },
+  {
+    "id": "act_premises_rent_1991",
+    "name": {
+      "en": "Premises Rent Control Act, 1991",
+      "bn": "বাড়িভাড়া নিয়ন্ত্রণ আইন, ১৯৯১"
+    },
+    "actNumber": "Act III of 1991",
+    "year": 1991,
+    "categories": [
+      "land"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-754.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Regulates residential and commercial tenancies, fair rent determination by Rent Controller, standard rent receipts, and protects tenants from arbitrary eviction.",
+      "bn": "বাড়িভাড়া নির্ধারণ, ভাড়ার রসিদ প্রদান ও অন্যায়ভাবে উচ্ছেদ রোধে ভাড়াটিয়ার অধিকার সুরক্ষা আইন।"
+    }
+  },
+  {
+    "id": "act_domestic_violence_2010",
+    "name": {
+      "en": "Domestic Violence (Prevention and Protection) Act, 2010",
+      "bn": "পারিবারিক সহিংসতা (প্রতিরোধ ও সুরক্ষা) আইন, ২০১০"
+    },
+    "actNumber": "Act LIII of 2010",
+    "year": 2010,
+    "categories": [
+      "family",
+      "threats"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-1057.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Protects women and children from physical, psychological, sexual, and economic abuse within family households; authorizes court protection orders, residence orders, and emergency monetary relief without requiring divorce.",
+      "bn": "পরিবারে নারী ও শিশুদের শারীরিক, মানসিক ও আর্থিক নির্যাতন থেকে সুরক্ষা; বিবাহবিচ্ছেদ ছাড়াই আদালতে সুরক্ষা আদেশ ও খোরপোশের বিধান।"
+    }
+  },
+  {
+    "id": "act_mflo_1961",
+    "name": {
+      "en": "Muslim Family Laws Ordinance, 1961",
+      "bn": "মুসলিম পারিবারিক আইন অধ্যাদেশ, ১৯৬১"
+    },
+    "actNumber": "Ordinance VIII of 1961",
+    "year": 1961,
+    "categories": [
+      "family"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-305.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Regulates Talaq procedure (Sec 7: 90 days notice to Chairman), wife's maintenance (Sec 9), prompt/deferred dower (Sec 10), and polygamy permission (Sec 6).",
+      "bn": "তালাকের কার্যকারিতা (ধারা ৭: ৯০ দিনের নোটিশ), স্ত্রীর ভরণপোষণ (ধারা ৯), মোহরানা আদায় (ধারা ১০) ও বহুবিবাহের শর্তাদি।"
+    }
+  },
+  {
+    "id": "act_family_courts_2023",
+    "name": {
+      "en": "Family Courts Act, 2023",
+      "bn": "পারিবারিক আদালত আইন, ২০২৩"
+    },
+    "actNumber": "Act No. 26 of 2023",
+    "year": 2023,
+    "categories": [
+      "family"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-1444.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Act No. 26 of 2023 (২০২৩ সনের ২৬ নং আইন); repealed and modernized the Family Courts Ordinance 1985; exclusive jurisdiction over 5 matters: dissolution of marriage, dower, maintenance, custody/guardianship of children, and restitution of conjugal rights.",
+      "bn": "২০২৩ সনের ২৬ নং আইন; বিবাহবিচ্ছেদ, দেনমোহর, ভরণপোষণ, সন্তানের অভিভাবকত্ব ও দাম্পত্য অধিকার পুনরুদ্ধার সংক্রান্ত মামলার বিশেষ এখতিয়ারসম্পন্ন আদালত।"
+    }
+  },
+  {
+    "id": "act_dowry_2018",
+    "name": {
+      "en": "Dowry Prohibition Act, 2018",
+      "bn": "যৌতুক নিরোধ আইন, ২০১৮"
+    },
+    "actNumber": "Act XXV of 2018",
+    "year": 2018,
+    "categories": [
+      "family",
+      "threats"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-1249.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Penalizes demanding, giving, or taking dowry with up to 5 years imprisonment and fine (Sec 3, 4).",
+      "bn": "যৌতুক দাবি, গ্রহণ বা প্রদানকে সর্বোচ্চ ৫ বছরের কারাদণ্ডযোগ্য অপরাধ হিসেবে ঘোষণা।"
+    }
+  },
+  {
+    "id": "act_child_marriage_2017",
+    "name": {
+      "en": "Child Marriage Restraint Act, 2017",
+      "bn": "বাল্যবিয়ে নিরোধ আইন, ২০১৭"
+    },
+    "actNumber": "Act VI of 2017",
+    "year": 2017,
+    "categories": [
+      "family"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-1200.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Prohibits marriage of females under 18 and males under 21; penalizes parents, officiants, and adult partners.",
+      "bn": "১৮ বছরের কম বয়সী নারী ও ২১ বছরের কম বয়সী পুরুষের বিবাহ নিষিদ্ধকরণ ও সংশ্লিষ্টদের শাস্তি।"
+    }
+  },
+  {
+    "id": "act_nari_o_shishu_2000",
+    "name": {
+      "en": "Prevention of Women and Children Repression Act, 2000",
+      "bn": "নারী ও শিশু নির্যাতন দমন আইন, ২০০০"
+    },
+    "actNumber": "Act VIII of 2000",
+    "year": 2000,
+    "categories": [
+      "family",
+      "threats"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-835.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Specialized penal statute for severe crimes against women and children, including physical torture for dowry (Sec 11) and sexual assault.",
+      "bn": "যৌতুকের জন্য মারধর/মৃত্যু (ধারা ১১), ধর্ষণ ও নারী-শিশু নির্যাতনের বিরুদ্ধে কঠোর বিশেষ আইন।"
+    }
+  },
+  {
+    "id": "act_guardians_1890",
+    "name": {
+      "en": "The Guardians and Wards Act, 1890",
+      "bn": "অভিভাবক ও প্রতিপাল্য আইন, ১৮৯০"
+    },
+    "actNumber": "Act VIII of 1890",
+    "year": 1890,
+    "categories": [
+      "family"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-65.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Applies paramount welfare test for appointing legal guardians and determining custody (Hizanat) of minor children.",
+      "bn": "নাবালক সন্তানের কল্যাণ (Welfare of the Child) বিবেচনা করে অভিভাবক ও জিম্মাদারী নির্ধারণের আইন।"
+    }
+  },
+  {
+    "id": "act_legal_aid_2000",
+    "name": {
+      "en": "Legal Aid Services Act, 2000",
+      "bn": "আইনগত সহায়তা প্রদান আইন, ২০০০"
+    },
+    "actNumber": "Act VI of 2000",
+    "year": 2000,
+    "categories": [
+      "rights"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-833.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Provides state-funded free legal aid, court fees, and panel lawyers to indigent citizens via District Legal Aid Committees and hotline 16699.",
+      "bn": "অসচ্ছল নাগরিকদের সরকারি খরচে আইনজীবী নিয়োগ ও মামলা পরিচালনায় ১৬৬৯৯ হটলাইনের মাধ্যমে বিনামূল্যে আইনি সহায়তা।"
+    }
+  },
+  {
+    "id": "act_torture_prevention_2013",
+    "name": {
+      "en": "Torture and Custodial Death (Prevention) Act, 2013",
+      "bn": "নির্যাতন এবং হেফাজতে মৃত্যু (নিবারণ) আইন, ২০১৩"
+    },
+    "actNumber": "Act L of 2013",
+    "year": 2013,
+    "categories": [
+      "rights",
+      "threats"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-1132.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Criminalizes physical and psychological torture by law enforcement personnel during arrest, interrogation, or custody.",
+      "bn": "আইনশৃঙ্খলা রক্ষাকারী বাহিনী কর্তৃক গ্রেপ্তার, জিজ্ঞাসাবাদ বা হেফাজতে শারীরিক ও মানসিক নির্যাতনকে জামিন-অযোগ্য অপরাধ ঘোষণা।"
+    }
+  },
+  {
+    "id": "act_rti_2009",
+    "name": {
+      "en": "Right to Information Act, 2009",
+      "bn": "তথ্য অধিকার আইন, ২০০৯"
+    },
+    "actNumber": "Act XX of 2009",
+    "year": 2009,
+    "categories": [
+      "rights"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-1005.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Empowers citizens to request and obtain public information from government and designated non-government organizations within 20 working days.",
+      "bn": "সরকারি ও বেসরকারি প্রতিষ্ঠান থেকে ২০ কার্যদিবসের মধ্যে নাগরিকদের তথ্য প্রাপ্তির আইনি অধিকার প্রতিষ্ঠা।"
+    }
+  },
+  {
+    "id": "act_cyber_protection_2026",
+    "name": {
+      "en": "Cyber Protection Act, 2026",
+      "bn": "সাইবার সুরক্ষা আইন, ২০২৬"
+    },
+    "actNumber": "Act of 2026",
+    "year": 2026,
+    "categories": [
+      "digital",
+      "threats"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-cyber-protection-2026.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Primary active statute governing critical information infrastructure, cyber intrusion, computer data damage, and digital financial fraud. Replaced Cyber Security Act 2023 following the Cyber Protection Ordinance 2025; abolishes criminalization of online speech and defamation.",
+      "bn": "সাইবার অপরাধ, হ্যাকিং, আর্থিক সাইবার প্রতারণা ও তথ্য পরিকাঠামো সুরক্ষার প্রধান সক্রিয় আইন। ২০২৫ সালের অধ্যাদেশ ও ২০২৬ সালের আইনের মাধ্যমে পূর্বের সাইবার নিরাপত্তা আইন ২০২৩ রহিত করা হয় এবং মানহানি ও মুক্তচিন্তা সম্পর্কিত নিপীড়নমূলক ধারা বাতিল করা হয়।"
+    }
+  },
+  {
+    "id": "act_bsti_2018",
+    "name": {
+      "en": "Bangladesh Standards and Testing Institution Act, 2018",
+      "bn": "বাংলাদেশ স্ট্যান্ডার্ডস অ্যান্ড টেস্টিং ইনস্টিটিউশন আইন, ২০১৮"
+    },
+    "actNumber": "Act LXVII of 2018",
+    "year": 2018,
+    "categories": [
+      "consumer"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-1272.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Regulates quality standards, compulsory certification marks, and penalizes unauthorized use of BSTI quality seal on commercial products.",
+      "bn": "পণ্যের মান নিয়ন্ত্রণ, বাধ্যতামূলক বিএসটিআই সনদ এবং অননুমোদিত মানচিহ্ন ব্যবহারের বিরুদ্ধে ব্যবস্থা গ্রহণকারী আইন।"
+    }
+  },
+  {
+    "id": "act_dmma_1939",
+    "name": {
+      "bn": "মুসলিম বিবাহ বিচ্ছেদ আইন, ১৯৩৯",
+      "en": "Dissolution of Muslim Marriages Act, 1939"
+    },
+    "actNumber": "Act VIII of 1939",
+    "year": 1939,
+    "categories": [
+      "family"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-184.html",
+    "legalStatus": "active",
+    "notes": {
+      "en": "Enables Muslim wives to obtain judicial divorce on specified legal grounds.",
+      "bn": "মুসলিম নারীদের আদালতে বিবাহ বিচ্ছেদের নির্দিষ্ট অধিকার প্রদানকারী আইন।"
+    }
+  },
+  {
+    "id": "act_ict_2006",
+    "name": {
+      "bn": "তথ্য ও যোগাযোগ প্রযুক্তি আইন, ২০০৬",
+      "en": "Information and Communication Technology Act, 2006"
+    },
+    "actNumber": "Act XXXIX of 2006",
+    "year": 2006,
+    "categories": [
+      "digital"
+    ],
+    "officialUrl": "https://bdlaws.minlaw.gov.bd/act-957.html",
+    "legalStatus": "amended",
+    "notes": {
+      "en": "Governs digital signatures, electronic documents, and cyber offenses.",
+      "bn": "ডিজিটাল স্বাক্ষর, ইলেকট্রনিক দলিল ও সাইবার অপরাধ সংক্রান্ত আইন।"
+    }
+  }
+]

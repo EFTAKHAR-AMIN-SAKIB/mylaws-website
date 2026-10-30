@@ -49,6 +49,8 @@ import {
   ChevronDown,
   Plus,
   Scale,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 function getSourceLabel(sid: string, currentLang: 'en' | 'bn'): string {
@@ -93,6 +95,15 @@ function AskContent() {
   // Clarification answers keyed by fieldId
   const [clarificationAnswers, setClarificationAnswers] = useState<Record<string, string>>({});
   const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const [copiedTurnId, setCopiedTurnId] = useState<string | null>(null);
+
+  const handleCopyTurn = async (turnId: string, content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedTurnId(turnId);
+      setTimeout(() => setCopiedTurnId(null), 2000);
+    } catch {}
+  };
 
   const topInputRef = useRef<HTMLTextAreaElement>(null);
   const bottomInputRef = useRef<HTMLTextAreaElement>(null);
@@ -565,7 +576,7 @@ function AskContent() {
                 onInput={handleTextareaInput}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
+                  if (e.key === 'Enter' && !e.shiftKey && (typeof window === 'undefined' || window.innerWidth > 768)) {
                     e.preventDefault();
                     if (status !== 'submitted' && status !== 'finding_sources' && input.trim()) {
                       handleAsk();
@@ -576,7 +587,7 @@ function AskContent() {
                   'আপনার পরিস্থিতি বা আইনি প্রশ্নটি বিস্তারিত লিখুন... (যেমন: আমার দোকান থেকে মালামাল চুরি হয়েছে, এখন কী করব?)',
                   'Describe your situation or legal question... (e.g. Goods were stolen from my shop, what should I do?)'
                 )}
-                className="w-full resize-none border-none bg-transparent p-1.5 text-sm sm:text-base text-primary-light placeholder-secondary-light/60 focus:outline-none min-h-[88px]"
+                className="w-full resize-none border-none bg-transparent p-1.5 text-base text-primary-light placeholder-secondary-light/60 focus:outline-none min-h-[88px]"
               />
 
               {/* Bottom Controls Bar Inside Asking Box */}
@@ -600,7 +611,7 @@ function AskContent() {
                     type="button"
                     disabled={status === 'submitted' || status === 'finding_sources' || !input.trim()}
                     onClick={() => handleAsk()}
-                    className="h-9 w-9 sm:h-10 sm:w-10 rounded-full flex items-center justify-center bg-accent-light text-white shadow hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                    className="h-9 w-9 sm:h-10 sm:w-10 rounded-full flex items-center justify-center bg-accent-light text-white shadow hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed active-press transition-all cursor-pointer"
                     title={t('অনুসন্ধান চালান', 'Submit Inquiry')}
                   >
                     {status === 'submitted' || status === 'finding_sources' ? (
@@ -613,8 +624,8 @@ function AskContent() {
               </div>
             </div>
 
-            {/* Quick Example Chips */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-6 max-w-2xl">
+            {/* Quick Example Chips - Smooth horizontal thumb swipe on mobile */}
+            <div className="flex sm:flex-wrap items-center sm:justify-center overflow-x-auto no-scrollbar gap-2 mt-6 w-full max-w-2xl px-1 py-1">
               {exampleChips.map((chip, idx) => (
                 <button
                   key={idx}
@@ -626,7 +637,7 @@ function AskContent() {
                       topInputRef.current.style.height = 'auto';
                     }
                   }}
-                  className="text-xs px-3.5 py-1.5 rounded-full border border-border-light bg-surface-light text-secondary-light hover:border-accent-light hover:text-accent-light hover:bg-surface-cardLight transition-all cursor-pointer shadow-2xs font-hind flex items-center gap-1.5"
+                  className="shrink-0 text-xs px-3.5 py-2 sm:py-1.5 rounded-full border border-border-light bg-surface-light text-secondary-light hover:border-accent-light hover:text-accent-light hover:bg-surface-cardLight transition-all cursor-pointer shadow-2xs font-hind flex items-center gap-1.5 active-press whitespace-nowrap"
                 >
                   <Sparkles className="h-3 w-3 text-accent-light/70" />
                   <span>{chip.label}</span>
@@ -679,19 +690,47 @@ function AskContent() {
                     ------------------------------------------------------ */}
                 {turn.role === 'assistant' && (
                   <div className="space-y-6 animate-in slide-in-from-left-2 duration-200">
-                    {/* Top Assistant Persona Banner */}
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-8 w-8 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-2xs font-cinzel font-bold text-xs">
-                        ML
+                    {/* Top Assistant Persona Banner & Quick Copy Action */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="h-8 w-8 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-2xs font-cinzel font-bold text-xs">
+                          ML
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-cinzel text-xs font-bold text-primary-light tracking-wide">
+                            {t('MyLaws আইনি সহকারী', 'MyLaws Legal Assistant')}
+                          </span>
+                          <span className="text-[10px] text-secondary-light font-hind">
+                            {new Date(turn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-cinzel text-xs font-bold text-primary-light tracking-wide">
-                          {t('MyLaws আইনি সহকারী', 'MyLaws Legal Assistant')}
-                        </span>
-                        <span className="text-[10px] text-secondary-light font-hind">
-                          {new Date(turn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </div>
+
+                      {turn.result && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const copyText =
+                              turn.result?.followUpResponse?.directAnswer ||
+                              `${turn.result?.problemSummary?.understanding || ''}\n\n${turn.result?.plainLanguageExplanation?.meaning || ''}`;
+                            handleCopyTurn(turn.id, copyText.trim());
+                          }}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-hind border border-border-light bg-surface-light text-secondary-light hover:text-primary-light active-press shadow-2xs transition-all"
+                          title={t('উত্তর কপি করুন', 'Copy response')}
+                        >
+                          {copiedTurnId === turn.id ? (
+                            <>
+                              <Check className="h-3 w-3 text-emerald-600" />
+                              <span className="text-emerald-700 font-semibold">{t('কপি হয়েছে', 'Copied')}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-3 w-3 text-accent-light" />
+                              <span>{t('কপি', 'Copy')}</span>
+                            </>
+                          )}
+                        </button>
+                      )}
                     </div>
 
                     {/* Error Turn Message if failed */}
@@ -747,7 +786,7 @@ function AskContent() {
                           </div>
 
                           {/* Main Focused Conversational Response Box */}
-                          <div className="p-6 sm:p-7 rounded-3xl border border-border-light bg-surface-cardLight shadow-sm space-y-5">
+                          <div className="p-4 sm:p-7 rounded-2xl sm:rounded-3xl border border-border-light bg-surface-cardLight shadow-sm space-y-4 sm:space-y-5">
                             {/* Direct Conversational Answer */}
                             <div className="space-y-2">
                               <p className="font-hind text-sm sm:text-base text-primary-light font-medium leading-relaxed whitespace-pre-line">
@@ -827,7 +866,7 @@ function AskContent() {
                           </div>
                         </div>
                       ) : (
-                        <div className="p-6 sm:p-8 rounded-3xl border border-border-light bg-surface-cardLight shadow-sm space-y-6 text-primary-light">
+                        <div className="p-4 sm:p-7 rounded-2xl sm:rounded-3xl border border-border-light bg-surface-cardLight shadow-sm space-y-5 sm:space-y-6 text-primary-light">
                           {/* Top Meta Bar: Issue & Provenance */}
                           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-light/60 pb-3.5">
                             <div className="flex items-center gap-2.5">
@@ -1076,14 +1115,14 @@ function AskContent() {
       </main>
 
       {/* ============================================================
-          FIXED BOTTOM CHAT DOCK (Claude Style)
-          Shrunk & docked at bottom in fixed aspect, without suggestion pills!
+          FIXED BOTTOM CHAT DOCK (Claude & ChatGPT Mobile App Style)
+          Shrunk & docked at bottom with safe-area spacing
           ============================================================ */}
       {isChatMode && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 pointer-events-none pb-3 sm:pb-4 pt-6 bg-gradient-to-t from-bg-light via-bg-light/95 to-transparent">
-          <div className="max-w-3xl mx-auto px-4 w-full pointer-events-auto">
+        <div className="fixed bottom-0 left-0 right-0 z-30 pointer-events-none pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-6 bg-gradient-to-t from-bg-light via-bg-light/95 to-transparent">
+          <div className="max-w-3xl mx-auto px-3 sm:px-4 w-full pointer-events-auto">
             {/* Docked Asking Card */}
-            <div className="rounded-2xl sm:rounded-3xl border border-border-light bg-surface-cardLight/95 backdrop-blur-md shadow-xl transition-all focus-within:border-accent-light/60 focus-within:ring-2 focus-within:ring-accent-light/10 p-3 sm:p-3.5 space-y-2">
+            <div className="rounded-2xl sm:rounded-3xl border border-border-light bg-surface-cardLight/95 backdrop-blur-md shadow-xl transition-all focus-within:border-accent-light/60 focus-within:ring-2 focus-within:ring-accent-light/10 p-2.5 sm:p-3.5 space-y-2">
               <textarea
                 ref={bottomInputRef}
                 rows={1}
@@ -1091,7 +1130,7 @@ function AskContent() {
                 onInput={handleTextareaInput}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
+                  if (e.key === 'Enter' && !e.shiftKey && (typeof window === 'undefined' || window.innerWidth > 768)) {
                     e.preventDefault();
                     if (status !== 'submitted' && status !== 'finding_sources' && input.trim()) {
                       handleAsk();
@@ -1099,31 +1138,40 @@ function AskContent() {
                   }
                 }}
                 placeholder={t(
-                  'অনুসরণমূলক প্রশ্ন লিখুন... (যেমন: পুলিশ যদি মামলা না নেয় তখন কী করব?)',
+                  'অনুসরণমূলক প্রশ্ন লিখুন...',
                   'Write a message...'
                 )}
-                className="w-full resize-none border-none bg-transparent px-2 py-1 text-xs sm:text-sm text-primary-light placeholder-secondary-light/60 focus:outline-none min-h-[44px] max-h-[140px]"
+                className="w-full resize-none border-none bg-transparent px-2 py-1 text-base sm:text-sm text-primary-light placeholder-secondary-light/60 focus:outline-none min-h-[44px] max-h-[140px]"
               />
 
               {/* Bottom Dock Action Row */}
               <div className="flex items-center justify-between pt-1 border-t border-border-light/40">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <button
                     type="button"
                     onClick={handleClearCase}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium text-secondary-light hover:text-primary-light hover:bg-bg-light transition-all cursor-pointer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium text-secondary-light hover:text-primary-light hover:bg-bg-light active-press transition-all cursor-pointer border border-border-light/40 bg-surface-light"
                     title={t('নতুন আলোচনা শুরু করুন', 'Start new chat')}
                   >
                     <Plus className="h-3 w-3 text-accent-light" />
-                    <span className="hidden sm:inline">{t('নতুন প্রশ্ন', 'New')}</span>
+                    <span className="font-hind">{t('নতুন', 'New')}</span>
                   </button>
 
-                  <span className="text-[11px] font-hind text-secondary-light/80 px-2 py-0.5 rounded-full bg-bg-light/80 border border-border-light/60">
-                    {t(`বাকি: ${formattedRemaining}/${formattedDailyLimit}টি`, `${formattedRemaining}/${formattedDailyLimit} queries left`)}
+                  <button
+                    type="button"
+                    onClick={fetchHistory}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium text-secondary-light hover:text-primary-light hover:bg-bg-light active-press transition-all cursor-pointer border border-border-light/40 bg-surface-light sm:hidden"
+                    title={t('ইতিহাস', 'History')}
+                  >
+                    <History className="h-3 w-3 text-accent-light" />
+                  </button>
+
+                  <span className="text-[10px] sm:text-[11px] font-hind text-secondary-light/80 px-2 py-0.5 rounded-full bg-bg-light/80 border border-border-light/60">
+                    {t(`বাকি: ${formattedRemaining}/${formattedDailyLimit}`, `${formattedRemaining}/${formattedDailyLimit} left`)}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2">
                   <span className="hidden md:inline text-[10px] text-secondary-light/60 font-hind">
                     {t('Shift+Enter নতুন লাইনের জন্য', 'Shift+Enter for newline')}
                   </span>
@@ -1131,7 +1179,7 @@ function AskContent() {
                     type="button"
                     disabled={status === 'submitted' || status === 'finding_sources' || !input.trim()}
                     onClick={() => handleAsk()}
-                    className="h-8 w-8 sm:h-9 sm:w-9 rounded-full flex items-center justify-center bg-accent-light text-white shadow hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                    className="h-8 w-8 sm:h-9 sm:w-9 rounded-full flex items-center justify-center bg-accent-light text-white shadow hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed active-press transition-all cursor-pointer"
                     title={t('পাঠান', 'Send')}
                   >
                     {status === 'submitted' || status === 'finding_sources' ? (
@@ -1145,7 +1193,7 @@ function AskContent() {
             </div>
 
             {/* Discreet Disclaimer below dock */}
-            <p className="text-center text-[10px] text-secondary-light/60 font-hind mt-2">
+            <p className="text-center text-[9px] sm:text-[10px] text-secondary-light/60 font-hind mt-1.5 hidden sm:block">
               {t(
                 'MyLaws সরকারি গেজেট ও সংবিধিবদ্ধ আইন বিশ্লেষণ করে। আদালত বা আনুষ্ঠানিক ওকালতির জন্য মূল গেজেট যাচাই করুন।',
                 'MyLaws analyzes official statutory gazettes. Verify official legal gazettes for formal court proceedings.'
@@ -1160,14 +1208,15 @@ function AskContent() {
         <button
           type="button"
           onClick={scrollToBottom}
-          className="fixed bottom-32 sm:bottom-36 left-1/2 -translate-x-1/2 z-40 p-2.5 rounded-full bg-surface-cardLight/95 backdrop-blur-md border border-border-light shadow-lg hover:bg-surface-light hover:border-accent-light text-primary-light transition-all cursor-pointer animate-in fade-in zoom-in-95 duration-150"
+          className="fixed bottom-28 sm:bottom-36 left-1/2 -translate-x-1/2 z-40 p-2.5 rounded-full bg-surface-cardLight/95 backdrop-blur-md border border-border-light shadow-lg hover:bg-surface-light hover:border-accent-light text-primary-light active-press transition-all cursor-pointer animate-in fade-in zoom-in-95 duration-150"
           title={t('নিচে যান', 'Scroll to bottom')}
         >
           <ChevronDown className="h-4 w-4 text-accent-light" />
         </button>
       )}
 
-      <Footer />
+      {/* Desktop footer shown only before conversation starts */}
+      {!isChatMode && <Footer />}
 
       {/* Cloudflare D1 User History Drawer */}
       {historyOpen && (

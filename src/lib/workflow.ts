@@ -1,4 +1,4 @@
-import { provisions, type Lang } from '../data/legal';
+import { provisions, CORPUS_VERSION, type Lang, type Provision } from '../data/legal';
 import { nationalLegalAid, difeOffice, policeGdOffice, dncrpOffice } from '../data/offices';
 import {
   isGreetingQuery,
@@ -17,7 +17,7 @@ import type {
   ClarificationQuestion,
 } from '@/types/contracts';
 
-export const SOURCE_VERSION = 'bd-pilot-2026-10-27.1';
+export const SOURCE_VERSION = CORPUS_VERSION;
 
 export type EmploymentType = 'unknown' | 'private' | 'epz' | 'public' | 'other';
 
@@ -75,12 +75,86 @@ export function isConsumerQuestion(text: string): boolean {
   );
 }
 
+export function isAmbiguousOrVagueQuery(text: string): boolean {
+  const clean = text.trim().toLowerCase().replace(/[!?.,।\-]+/g, ' ').trim();
+  const words = clean.split(/\s+/).filter(Boolean);
+
+  const vaguePhrases = [
+    'আমার সাথে খুব বড় অন্যায় হয়েছে',
+    'আমার সাথে খুব বড় অন্যায় হয়েছে',
+    'আমি এর বিচার চাই',
+    'আমি বিচার চাই',
+    'একটি অবিচার হয়েছে',
+    'অন্যায় হয়েছে',
+    'আইনি প্রতিকার চাই',
+    'আইনি পরামর্শ চাই',
+    'সহায়তা চাই',
+    'আমাকে সাহায্য করুন',
+    'বিচার চাই',
+    'একটি সমস্যা হয়েছে',
+    'something bad happened',
+    'i want justice',
+    'justice needed',
+    'i need legal help',
+    'there has been injustice',
+    'i was wronged',
+    'help me please'
+  ];
+
+  const specificTerms = /জমি|বেতন|চাকরি|ভাড়া|বাড়ি|দখল|মারধর|চুরি|ছিনতাই|পণ্য|ওষুধ|টাকা|চেক|ডিভোর্স|দেনমোহর|ভরণপোষণ|পুলিশ|জিডি|সাইবার|হ্যাক|দোকান|ক্যাশ|মেমো|blackmail|theft|salary|rent|land|evict|assault|cheating|fraud|wage|stolen|arrest|bail/u;
+
+  if (vaguePhrases.some((p) => clean.includes(p.toLowerCase()))) {
+    return !specificTerms.test(clean);
+  }
+
+  if (words.length <= 6 && !specificTerms.test(clean)) {
+    if (!isGreetingQuery(text) && !isCapabilityQuery(text)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export function createLegalWorkflow(
   request: AnswerRequest,
-  mode: ExecutionMode = 'online'
+  mode: ExecutionMode = 'online',
+  candidateProvisions: Provision[] = []
 ): AnswerResult {
-  const { originalMessage, language } = request;
+  const { originalMessage, language, conversationHistory = [] } = request;
   const isBn = language === 'bn';
+
+  // Build accumulated context from history if this is a follow-up or answer to a clarification question
+  const hasHistory = Array.isArray(conversationHistory) && conversationHistory.length > 0;
+  const previousUserMessages = hasHistory
+    ? conversationHistory
+        .filter((m) => m.role === 'user')
+        .map((m) => m.content)
+        .join(' ')
+    : '';
+  const effectiveQuery = previousUserMessages
+    ? `${previousUserMessages} ${originalMessage}`.trim()
+    : originalMessage.trim();
+
+  // If user is answering a clarification prompt with a timeline indicator like "গতকাল"
+  const isYesterday = /গতকাল|yesterday/i.test(originalMessage);
+  const isToday = /আজকে|আজ|today/i.test(originalMessage);
+  const accumulatedFacts = [...(request.facts || [])];
+  if (isYesterday && !accumulatedFacts.some(f => f.fieldId === 'occurrence_date')) {
+    accumulatedFacts.push({
+      fieldId: 'occurrence_date',
+      value: isBn ? 'গতকাল (ঘটনার ১ দিন অতিক্রম; ৩০ দিনের সংবিধিবদ্ধ মেয়াদের মধ্যে)' : 'Yesterday (1 day elapsed; well within 30-day statutory limitation)',
+      status: 'user_reported',
+      provenance: 'user_input'
+    });
+  } else if (isToday && !accumulatedFacts.some(f => f.fieldId === 'occurrence_date')) {
+    accumulatedFacts.push({
+      fieldId: 'occurrence_date',
+      value: isBn ? 'আজকে (ঘটনার দিন; ৩০ দিনের সংবিধিবদ্ধ মেয়াদের মধ্যে)' : 'Today (incident day; well within 30-day statutory limitation)',
+      status: 'user_reported',
+      provenance: 'user_input'
+    });
+  }
 
   // 0. Greeting & Salutation Intent Handling
   if (isGreetingQuery(originalMessage)) {
@@ -91,7 +165,7 @@ export function createLegalWorkflow(
       mode,
       status: 'completed',
       questions: [],
-      userFacts: request.facts || [],
+      userFacts: accumulatedFacts,
       checklist: [],
       explanation: [],
       limitations: [],
@@ -116,7 +190,7 @@ export function createLegalWorkflow(
       mode,
       status: 'completed',
       questions: [],
-      userFacts: request.facts || [],
+      userFacts: accumulatedFacts,
       checklist: [],
       explanation: [],
       limitations: [],
@@ -129,6 +203,79 @@ export function createLegalWorkflow(
         identifiedIssue: isBn ? 'MyLaws-এর সেবাসমূহ ও সক্ষমতা' : 'MyLaws Capabilities & Services',
         understanding: capRes.directAnswer,
       },
+    };
+  }
+
+  // 0.7 Vague / Ambiguous Legal Inquiries requiring factual clarification (only for initial turn without history)
+  if (!hasHistory && isAmbiguousOrVagueQuery(originalMessage) && accumulatedFacts.length === 0) {
+    return {
+      schemaVersion: 1,
+      answerId: request.requestId,
+      mode,
+      status: 'clarifying',
+      followUpQuestion: isBn
+        ? 'আপনার সাথে ঠিক কী ঘটেছে তা সংক্ষেপে জানান (যেমন: চাকরি বা বকেয়া বেতন, জমিজমা দখল, কেনাকাটায় ক্ষতি বা ভেজাল, সাইবার ব্ল্যাকমেইল, মারধর বা হুমকি, নাকি পারিবারিক বিরোধ)?'
+        : 'Please briefly describe what happened (for example: workplace wage issue, land dispute, consumer purchase fraud, cyber blackmail, physical threat/assault, or matrimonial/family matter)?',
+      questions: [
+        isBn
+          ? 'আপনার সাথে ঠিক কী ঘটেছে তা সংক্ষেপে জানান (যেমন: চাকরি বা বকেয়া বেতন, জমিজমা দখল, কেনাকাটায় ক্ষতি বা ভেজাল, সাইবার ব্ল্যাকমেইল, মারধর বা হুমকি, নাকি পারিবারিক বিরোধ)?'
+          : 'Please briefly describe what happened (for example: workplace wage issue, land dispute, consumer purchase fraud, cyber blackmail, physical threat/assault, or matrimonial/family matter)?',
+      ],
+      clarificationQuestions: [
+        {
+          id: 'clarify-dispute-nature',
+          fieldId: 'dispute_nature',
+          question: {
+            bn: 'আপনার সাথে ঠিক কী ঘটেছে তা সংক্ষেপে জানান (যেমন: চাকরি বা বকেয়া বেতন, জমিজমা দখল, কেনাকাটায় ক্ষতি বা ভেজাল, সাইবার ব্ল্যাকমেইল, মারধর বা হুমকি, নাকি পারিবারিক বিরোধ)?',
+            en: 'Please briefly describe what happened (for example: workplace wage issue, land dispute, consumer purchase fraud, cyber blackmail, physical threat/assault, or matrimonial/family matter)?',
+          },
+          importance: {
+            bn: 'সঠিক সরকারি কর্তৃপক্ষ ও সংবিধিবদ্ধ আইন নির্ধারণের জন্য বিরোধের প্রকৃতি জানা প্রয়োজন।',
+            en: 'The nature of the dispute is needed to determine the correct authority and statutory framework.',
+          },
+        },
+      ],
+      userFacts: [
+        {
+          fieldId: 'query',
+          value: originalMessage,
+          status: 'user_reported',
+          provenance: 'user_input',
+        },
+      ],
+      checklist: [],
+      explanation: [],
+      limitations: [
+        isBn
+          ? 'ঘটনার সুনির্দিষ্ট বিষয় ও বিবরণ ছাড়া নির্দিষ্ট আইন বা ধারা নির্ধারণ করা সম্ভব নয়।'
+          : 'Specific statutory provisions and remedies cannot be determined without concrete facts regarding the dispute.',
+      ],
+      sourcePackVersion: SOURCE_VERSION,
+      allowedDraftOptions: [],
+      problemSummary: {
+        identifiedIssue: isBn ? 'ঘটনার বিস্তারিত তথ্য প্রয়োজন' : 'Factual Details Needed',
+        understanding: isBn
+          ? 'আপনার আইনি সমস্যাটি বুঝতে পেরেছি। তবে সঠিক আইন ও প্রতিকার জানাতে ঘটনাটি কোন বিষয়ের সাথে সম্পর্কিত তা সংক্ষেপে জানা প্রয়োজন।'
+          : 'We understand you are seeking legal redress. However, to pinpoint the relevant statutory provisions and immediate next steps, we need to know the basic context of what happened.',
+      },
+      plainLanguageExplanation: {
+        heading: isBn ? 'ঘটনার বিবরণ প্রয়োজন' : 'Incident Details Required',
+        meaning: isBn
+          ? 'বাংলাদেশের আইন বিভিন্ন বিষয়ের জন্য ভিন্ন ভিন্ন কর্তৃপক্ষ বা আদালতে প্রতিকার দেয় (যেমন: ফৌজদারি অপরাধে থানা/ম্যাজিস্ট্রেট আদালত, জমিজমায় দেওয়ানি আদালত, ভোক্তা অধিকার অধিদপ্তরে অভিযোগ, অথবা শ্রম আদালত)। আপনার সমস্যাটি কোন বিষয়ের তা সংক্ষেপে জানালে সুনির্দিষ্ট নির্দেশনা দেওয়া সম্ভব হবে।'
+          : 'Bangladesh law provides remedies across distinct legal forums (police station and Magistrates for crimes, civil courts for property, consumer directorate for purchasing fraud, or labour courts for employment). Briefly sharing the context will allow us to guide you accurately.',
+        userRightsAndOptions: isBn
+          ? [
+              'আইনের সঠিক আশ্রয় লাভ করার সাংবিধানিক অধিকার (অনুচ্ছেদ ৩১)।',
+              'ঘটনার ধরন অনুযায়ী বিনামূল্যে সরকারি আইনি সহায়তা (১৬৬৯৯) বা সংশ্লিষ্ট দপ্তরে প্রতিকার চাওয়ার সুযোগ।'
+            ]
+          : [
+              'Constitutional entitlement to protection of law (Article 31).',
+              'Access to free government legal aid (16699) or relevant regulatory authorities once facts are specified.'
+            ],
+        whatToDoNext: isBn
+          ? 'অনুগ্রহ করে নিচে সংক্ষেপে লিখুন কী ঘটেছে (যেমন: কতদিন আগের ঘটনা এবং কার বিরুদ্ধে অভিযোগ)।'
+          : 'Please reply below with a short description of what happened (e.g. what occurred, approximate timeframe, and opposing party).'
+      }
     };
   }
 
@@ -187,12 +334,16 @@ export function createLegalWorkflow(
     /আমদানি|রপ্তানি|সাপ্লায়ার|পণ্য|মাল|কিনি|বিক্রি/u.test(originalMessage);
 
   const isExplicitForeignWorkplace =
-    /\b(worked\s+in|working\s+in|company\s+in|office\s+in|employed\s+in|job\s+in)\s+(india|kolkata|delhi|mumbai|pakistan|london|dubai|usa|uk)\b/i.test(originalMessage) ||
-    /(ভারতে|কলকাতায়|দিল্লিতে|পাকিস্তানে|লন্ডনে|দুবাইয়ে)\s*(চাকরি|কাজ|কর্মস্থল)/u.test(originalMessage);
+    /\b(worked\s+in|working\s+in|company\s+in|office\s+in|employed\s+in|job\s+in)\s+(india|kolkata|delhi|mumbai|pakistan|london|dubai|usa|us|uk|california|singapore|america|canada)\b/i.test(originalMessage) ||
+    /(ভারতে|কলকাতায়|দিল্লিতে|পাকিস্তানে|লন্ডনে|দুবাইয়ে|আমেরিকায়)\s*(চাকরি|কাজ|কর্মস্থল)/u.test(originalMessage);
 
-  const foreignMention = /\b(india|kolkata|delhi|mumbai|pakistan|london|dubai|usa|uk)\b|ভারত|কলকাতা|দিল্লি/i.test(originalMessage);
+  const isAdmiraltyOrMaritime =
+    /\b(admiralty|maritime|vessel|collision|collided|container\s+vessel|high\s+seas|international\s+waters)\b/i.test(originalMessage);
 
-  const outside = isExplicitForeignWorkplace || (foreignMention && !mentionsBangladeshLoc && !mentionsTradeContext);
+  const foreignMention =
+    /\b(india|kolkata|delhi|mumbai|pakistan|london|dubai|usa|us|uk|california|singapore|america|canada|foreign|international)\b|ভারত|কলকাতা|দিল্লি|আমেরিকা|বিদেশ/i.test(originalMessage);
+
+  const outside = isExplicitForeignWorkplace || isAdmiraltyOrMaritime || (foreignMention && !mentionsBangladeshLoc && !mentionsTradeContext);
 
   if (outside) {
     return {
@@ -200,11 +351,15 @@ export function createLegalWorkflow(
       answerId: request.requestId,
       mode,
       status: 'unsupported',
+      isOutOfScope: true,
+      disclaimer: isBn
+        ? 'এই বিষয়টি বাংলাদেশের সাধারণ আইন ও ফোরামের আঞ্চলিক এখতিয়ারের বহির্ভূত বা বিশেষ আন্তর্জাতিক/অ্যাডমিরালটি আদালতের অধীন।'
+        : 'This matter falls outside territorial municipal jurisdiction or is governed by specialized maritime admiralty jurisdiction.',
       questions: [],
       userFacts: [
         {
           fieldId: 'jurisdiction',
-          value: 'Outside Bangladesh',
+          value: isAdmiraltyOrMaritime ? 'Admiralty / International Waters' : 'Outside Bangladesh',
           status: 'user_reported',
           provenance: 'user_input',
         },
@@ -213,14 +368,18 @@ export function createLegalWorkflow(
       explanation: [
         {
           text: isBn
-            ? 'MyLaws শুধুমাত্র বাংলাদেশের ভৌগোলিক এলাকার মধ্যে সংঘটিত ঘটনার জন্য প্রযোজ্য আইনের তথ্য প্রদান করে। বিদেশের কর্মস্থল বা ঘটনার ক্ষেত্রে সংশ্লিষ্ট দেশের আইন প্রযোজ্য।'
-            : 'MyLaws only covers Bangladesh legal information. For incidents occurring outside Bangladesh, foreign jurisdictions apply.',
+            ? isAdmiraltyOrMaritime
+              ? 'আন্তর্জাতিক জলসীমায় সংঘর্ষ বা জাহাজের বিরোধ বাংলাদেশের প্রচলিত দেওয়ানি ফোরামের এখতিয়ারাধীন নয়। এ জাতীয় বিরোধ হাইকোর্ট বিভাগের অ্যাডমিরালটি বেঞ্চ (Admiralty Court Act 2000) অথবা আন্তর্জাতিক ট্রাইব্যুনাল দ্বারা নিষ্পত্তিযোগ্য।'
+              : 'MyLaws শুধুমাত্র বাংলাদেশের ভৌগোলিক এলাকার মধ্যে সংঘটিত ঘটনার জন্য প্রযোজ্য আইনের তথ্য প্রদান করে। বিদেশের কর্মস্থল বা ঘটনার ক্ষেত্রে সংশ্লিষ্ট দেশের আইন প্রযোজ্য।'
+            : isAdmiraltyOrMaritime
+              ? 'Vessel collisions in international waters fall under specialized admiralty law (The Admiralty Court Act, 2000) and the original jurisdiction of the High Court Division, requiring licensed admiralty counsel.'
+              : 'MyLaws only covers Bangladesh legal information. For incidents occurring outside Bangladesh, foreign jurisdictions apply.',
           sourceIds: [],
         },
       ],
       limitations: [
         isBn
-          ? 'এই সিস্টেমে শুধুমাত্র বাংলাদেশের ৬টি প্রধান আইন ও বিধির নির্বাচিত অংশ অন্তর্ভুক্ত রয়েছে।'
+          ? 'এই সিস্টেমে শুধুমাত্র বাংলাদেশের ভেরিফাইড আইন ও বিধির প্রামাণ্য বিধান অন্তর্ভুক্ত রয়েছে।'
           : 'This system is restricted to verified Bangladesh statutory instruments.',
       ],
       sourcePackVersion: SOURCE_VERSION,
@@ -229,17 +388,41 @@ export function createLegalWorkflow(
   }
 
   // Detect specific topics
-  const hasWorkFacts = request.facts.some((f) => f.fieldId === 'employment' || f.fieldId === 'workplace');
-  const isWork = isWorkQuestion(originalMessage) || hasWorkFacts;
-  const isGd = isGdQuestion(originalMessage);
-  const isConsumer = isConsumerQuestion(originalMessage);
+  const hasWorkFacts = accumulatedFacts.some((f) => f.fieldId === 'employment' || f.fieldId === 'workplace');
+  const isWork = isWorkQuestion(effectiveQuery) || hasWorkFacts;
+  const isConsumer = isConsumerQuestion(effectiveQuery);
+
+  const isRights =
+    candidateProvisions.some((p) => p.category === 'rights' || p.categories?.includes('rights')) ||
+    /\b(arrest|without\s+warrant|lockup|24\s+hours|48\s+hours|magistrate|remand|bail|custody|habeas|illegal\s+detention)\b/i.test(effectiveQuery) ||
+    /গ্রেফতার|ওয়ারেন্ট|ওয়ারেন্ট ছাড়া|লকআপ|২৪ ঘণ্টা|৪৮ ঘণ্টা|ম্যাজিস্ট্রেট|রিমান্ড|জামিন|হেবিয়াস করপাস|আটক/u.test(effectiveQuery);
+
+  const isFamily =
+    !isRights &&
+    (/\b(family|marriage|dower|mahr|maintenance|divorce|talaq|domestic\s+violence|dowry|custody|minor)\b/i.test(effectiveQuery) ||
+      /দেনমোহর|ভরণপোষণ|ডিভোর্স|তালাক|পারিবারিক সহিংসতা|যৌতুক|বাবার বাড়ি|অপ্রাপ্তবয়স্ক|হেফাজত|স্ত্রী|স্বামী/u.test(effectiveQuery) ||
+      candidateProvisions.some((p) => p.category === 'family' || p.categories?.includes('family')));
+
+  const isLand =
+    !isRights && !isFamily &&
+    (/\b(land|property|topsoil|dredg|dispossess|evict|evicted|kicked\s*out|ancestral\s+house|homestead|deed|khotian|tenant|rent|demolition|possession)\b/i.test(effectiveQuery) ||
+      /কৃষিজমি|মাটি কাটা|ড্রেজার|টপসয়েল|ভরাট|দখল|বেদখল|উচ্ছেদ|খতিয়ান|দলিল|বাস্তুচ্যুত|বাড়িভাড়া|ভাড়াটিয়া|বসতবাড়ি|পৈতৃক/u.test(effectiveQuery) ||
+      (!/বাবার বাড়ি/u.test(effectiveQuery) && candidateProvisions.some((p) => p.category === 'land' || (p.categories?.includes('land') && p.actId?.includes('land')))));
+
+  const isDigital =
+    !isRights && !isFamily && !isLand &&
+    (/\b(cyber|hack|fb|facebook|viral|intimate|blackmail|phishing|whatsapp|leaked|pornography)\b/i.test(effectiveQuery) ||
+      /সাইবার|হ্যাক|ফেসবুক|ইন্টারনেট|ভাইরাল|ব্ল্যাকমেইল|পর্নোগ্রাফি|নগ্ন ছবি|অন্তরঙ্গ|ডিজিটাল প্রতারণা/u.test(effectiveQuery) ||
+      candidateProvisions.some((p) => (p.category === 'digital' || p.categories?.includes('digital')) && (p.actId?.includes('cyber') || p.actId?.includes('ict') || p.actId?.includes('pornography'))));
+
+  const isGd = !isRights && !isDigital && !isLand && !isFamily && isGdQuestion(effectiveQuery);
 
   // -------------------------------------------------------------
   // DOMAIN 1: WORKPLACE & UNPAID WAGES
   // -------------------------------------------------------------
   if (isWork) {
-    const workplaceFact = request.facts.find((f) => f.fieldId === 'workplace' && f.value.trim().length > 0);
-    const employmentFact = request.facts.find(
+    const workplaceFact = accumulatedFacts.find((f) => f.fieldId === 'workplace' && f.value.trim().length > 0);
+    const employmentFact = accumulatedFacts.find(
       (f) => f.fieldId === 'employment' && ['private', 'epz', 'public'].includes(f.value.toLowerCase())
     );
 
@@ -296,7 +479,23 @@ export function createLegalWorkflow(
         });
       }
 
-      const safeChecklist: ChecklistStep[] = [
+      const mentionsHolidayOrHours =
+        /সাপ্তাহিক ছুটি|ছুটি|day off|weekly holiday|overtime|ওভারটাইম|১২ ঘণ্টা/i.test(originalMessage);
+
+      const safeChecklist: ChecklistStep[] = [];
+
+      if (mentionsHolidayOrHours) {
+        safeChecklist.push({
+          id: 'step-wage-holiday',
+          text: isBn
+            ? 'শ্রম আইন ২০০৬-এর ১০৩ ধারা অনুযায়ী কারখানায় সপ্তাহে ১ দিন এবং দোকান ও প্রতিষ্ঠানে সপ্তাহে দেড় দিন (১.৫ দিন) অবৈতনিক নয় বরং পূর্ণ মজুরিসহ সাপ্তাহিক ছুটি শ্রমিকের সংবিধিবদ্ধ অধিকার।'
+            : 'Under Section 103 of the Labour Act 2006, workers are entitled to 1 full weekly holiday in factories, and 1.5 consecutive days in shops and commercial establishments with full wages.',
+          sourceIds: ['labour-103'],
+          condition: isBn ? 'ধারা ১০৩ সাপ্তাহিক ছুটি' : 'Section 103 weekly holiday entitlement',
+        });
+      }
+
+      safeChecklist.push(
         {
           id: 'step-wage-preserve-1',
           text: isBn
@@ -321,8 +520,33 @@ export function createLegalWorkflow(
             : 'Contact the DIFE inspectorate or National Legal Aid (16699) to verify regional jurisdiction.',
           sourceIds: ['labour-124a', 'constitution-27'],
           officeId: difeOffice.id,
+        }
+      );
+
+      const safeExplanation: Claim[] = [];
+      if (mentionsHolidayOrHours) {
+        safeExplanation.push({
+          text: isBn
+            ? 'বাংলাদেশ শ্রম আইন ২০০৬-এর ১০৩ ধারা অনুযায়ী শ্রমিককে প্রতি সপ্তাহে সাপ্তাহিক ছুটি প্রদান বাধ্যতামূলক (কারখানায় ১ দিন, দোকানে ১.৫ দিন)। এছাড়া ১২১ ধারা অনুযায়ী মালিক সময়মতো মজুরি প্রদানে সরাসরি দায়ী এবং ১২২ ধারা অনুযায়ী মজুরির মেয়াদ ১ মাসের বেশি হতে পারে না।'
+            : 'Under Section 103 of the Labour Act 2006, mandatory weekly holidays (1 day for factories, 1.5 days for shops) must be granted with wages. Under Section 121, employers bear direct responsibility for wages, and Section 122 restricts wage periods to at most one month.',
+          sourceIds: ['labour-103', 'labour-121', 'labour-122'],
+        });
+      }
+
+      safeExplanation.push(
+        {
+          text: isBn
+            ? 'বাংলাদেশ শ্রম আইন, ২০০৬-এর ধারা ১২৩ অনুযায়ী নিয়মিত মজুরি মজুরিকাল শেষ হওয়ার পরবর্তী ৭ কার্যদিবসের মধ্যে পরিশোধ বাধ্যতামূলক।'
+            : 'Under Section 123 of the Bangladesh Labour Act 2006, wages must be paid within 7 working days following the end of the wage period.',
+          sourceIds: ['labour-123'],
         },
-      ];
+        {
+          text: isBn
+            ? 'বকেয়া বা কর্তিত মজুরির জন্য ধারা ১২৪ক অনুযায়ী শ্রম পরিদর্শকের নিকট আপসের আবেদন করা যায়, অথবা ধারা ১৩২ অনুযায়ী শ্রম আদালতে ১২ মাসের মধ্যে আবেদন করা যায়।'
+            : 'For unpaid wages, a worker may seek conciliation via the Chief Inspector under Section 124A, or apply to the Labour Court within 12 months under Section 132.',
+          sourceIds: ['labour-124a', 'labour-132'],
+        }
+      );
 
       return {
         schemaVersion: 1,
@@ -332,7 +556,7 @@ export function createLegalWorkflow(
         questions,
         clarificationQuestions,
         userFacts: [
-          ...request.facts,
+          ...accumulatedFacts,
           {
             fieldId: 'issue_type',
             value: 'unpaid_wages',
@@ -341,20 +565,7 @@ export function createLegalWorkflow(
           },
         ],
         checklist: safeChecklist,
-        explanation: [
-          {
-            text: isBn
-              ? 'বাংলাদেশ শ্রম আইন, ২০০৬-এর ধারা ১২৩ অনুযায়ী নিয়মিত মজুরি মজুরিকাল শেষ হওয়ার পরবর্তী ৭ কার্যদিবসের মধ্যে পরিশোধ বাধ্যতামূলক।'
-              : 'Under Section 123 of the Bangladesh Labour Act 2006, wages must be paid within 7 working days following the end of the wage period.',
-            sourceIds: ['labour-123'],
-          },
-          {
-            text: isBn
-              ? 'বকেয়া বা কর্তিত মজুরির জন্য ধারা ১২৪ক অনুযায়ী শ্রম পরিদর্শকের নিকট আপসের আবেদন করা যায়, অথবা ধারা ১৩২ অনুযায়ী শ্রম আদালতে ১২ মাসের মধ্যে আবেদন করা যায়।'
-              : 'For unpaid wages, a worker may seek conciliation via the Chief Inspector under Section 124A, or apply to the Labour Court within 12 months under Section 132.',
-            sourceIds: ['labour-124a', 'labour-132'],
-          },
-        ],
+        explanation: safeExplanation,
         limitations: [
           isBn
             ? 'কর্মস্থলের ধরন ও এলাকা নিশ্চিত না হওয়া পর্যন্ত নির্দিষ্ট আঞ্চলিক দপ্তর বা প্রমিত খসড়া চূড়ান্ত করা সম্ভব নয়।'
@@ -416,7 +627,7 @@ export function createLegalWorkflow(
         status: 'completed',
         questions: [],
         userFacts: [
-          ...request.facts,
+          ...accumulatedFacts,
           {
             fieldId: 'jurisdiction_framework',
             value: 'BEPZA_EPZ_Labour_Act_2019',
@@ -502,7 +713,7 @@ export function createLegalWorkflow(
         status: 'completed',
         questions: [],
         userFacts: [
-          ...request.facts,
+          ...accumulatedFacts,
           {
             fieldId: 'jurisdiction_framework',
             value: 'Public_Service_Rules',
@@ -645,7 +856,7 @@ export function createLegalWorkflow(
       status: 'completed',
       questions: [],
       userFacts: [
-        ...request.facts,
+        ...accumulatedFacts,
         {
           fieldId: 'issue_type',
           value: 'unpaid_wages',
@@ -713,14 +924,54 @@ export function createLegalWorkflow(
   }
 
   // -------------------------------------------------------------
-  // DOMAIN 2: CONSUMER FRAUD & DELIVERY DISPUTES (DNCRP Act 2009)
+  // DOMAIN 2: CONSUMER FRAUD, EXPIRED MEDICINE & STATUTORY REMEDIES
   // -------------------------------------------------------------
   if (isConsumer) {
-    const hasOrderDate = request.facts.some((f) => f.fieldId === 'order_date' && f.value.trim().length > 0);
-    const hasVendor = request.facts.some((f) => f.fieldId === 'vendor' && f.value.trim().length > 0);
+    const isExpired = /মেয়াদোত্তীর্ণ|মেয়াদ উত্তীর্ণ|তারিখ পার|date\s*over|expired|ঔষধ|ওষুধ|medicine|ফার্মেসি/i.test(originalMessage);
+    const isAdulteration = /ভেজাল|রাসায়নিক|ফরমালিন|বিষাক্ত|ক্ষতিকর|adulterat/i.test(originalMessage);
+    const isCounterfeit = /নকল|জাল|fake|duplicate|counterfeit/i.test(originalMessage);
+    const isShortWeight = /ওজনে কম|কম ওজন|পরিমাপ|বাটখারা|স্কেল|short\s*weight/i.test(originalMessage);
 
-    const checklist: ChecklistStep[] = [
-      {
+    const checklist: ChecklistStep[] = [];
+    if (isExpired) {
+      checklist.push({
+        id: 'step-consumer-1',
+        text: isBn
+          ? 'ফার্মেসির ক্রয় রশিদ/ক্যাশ মেমো এবং মেয়াদোত্তীর্ণ ওষুধের মোড়ক/স্ট্রিপ (যাতে ব্যাচ নম্বর ও মেয়াদ স্পষ্ট থাকে) নিরাপদ হেফাজতে সংরক্ষণ করুন।'
+          : 'Preserve the pharmacy invoice/cash memo and the expired medicine strip or packaging showing the expired batch number and date.',
+        sourceIds: ['consumer-51'],
+        condition: isBn ? 'মেয়াদোত্তীর্ণ ওষুধের নমুনা ও ক্যাশ মেমো সংরক্ষণ' : 'Preserve expired medicine sample and purchase receipt',
+        requiredDocuments: isBn ? ['ক্রয় রসিদ/ক্যাশ মেমো', 'ওষুধের মোড়কের ছবি'] : ['Purchase memo', 'Photo of expired packaging'],
+      });
+    } else if (isAdulteration) {
+      checklist.push({
+        id: 'step-consumer-1',
+        text: isBn
+          ? 'ভেজাল বা ক্ষতিকর রাসায়নিকযুক্ত পণ্যের ক্রয় রশিদ এবং পণ্যের অবিকৃত নমুনা নিরাপদ হেফাজতে সংরক্ষণ করুন।'
+          : 'Preserve the purchase receipt and an unadulterated sample of the contaminated product.',
+        sourceIds: ['consumer-41'],
+        condition: isBn ? 'দালিলিক প্রমাণ ও পণ্যের নমুনা সংরক্ষণ আবশ্যক' : 'Documentary evidence and product sample required',
+      });
+    } else if (isCounterfeit) {
+      checklist.push({
+        id: 'step-consumer-1',
+        text: isBn
+          ? 'নকল বা জাল পণ্যের ক্রয় রশিদ, আসল পণ্যের সাথে তুলনামূলক ছবি ও বিক্রেতার মেমো সংরক্ষণ করুন।'
+          : 'Gather the purchase memo, comparison photos against the genuine product, and vendor receipts.',
+        sourceIds: ['consumer-50'],
+        condition: isBn ? 'নকল পণ্যের নমুনা ও মেমো সংরক্ষণ' : 'Preserve sample of counterfeit product and memo',
+      });
+    } else if (isShortWeight) {
+      checklist.push({
+        id: 'step-consumer-1',
+        text: isBn
+          ? 'কম ওজনে সরবরাহকৃত পণ্যের ডিজিটাল ওজন স্কেলের ছবি, ক্যাশ মেমো ও বিক্রেতার দোকানের তথ্য সংরক্ষণ করুন।'
+          : 'Preserve digital weight scale evidence, cash memo, and shop identification.',
+        sourceIds: ['consumer-46', 'consumer-47'],
+        condition: isBn ? 'ওজন পরিমাপের প্রমাণ সংরক্ষণ' : 'Preserve weight measurement proof',
+      });
+    } else {
+      checklist.push({
         id: 'step-consumer-1',
         text: isBn
           ? 'ক্রয় সংক্রান্ত সকল রসিদ, অনলাইন অর্ডারের স্ক্রিনশট, পেমেন্ট ট্রানজ্যাকশন আইডি ও চ্যাট লগ নিরাপদ হেফাজতে সংরক্ষণ করুন।'
@@ -729,11 +980,14 @@ export function createLegalWorkflow(
         condition: isBn ? 'দালিলিক প্রমাণ সংরক্ষণ আবশ্যক' : 'Documentary evidence required',
         requiredDocuments: isBn ? ['পেমেন্ট বা অর্ডারের রসিদ', 'বিজ্ঞাপন বা চ্যাট হিস্ট্রি'] : ['Payment receipt or order copy', 'Advertisement or chat history'],
         helpfulEvidence: isBn ? ['বিকাশ/নগদ/ব্যাংক স্টেটমেন্ট', 'ডেলিভারি ট্র্যাকিং স্ট্যাটাস'] : ['bKash/Nagad/Bank statement', 'Delivery tracking status'],
-      },
+      });
+    }
+
+    checklist.push(
       {
         id: 'step-consumer-2',
         text: isBn
-          ? 'ঘটনা ঘটার ৩০ কার্যদিবসের মধ্যে প্রতিকার চাওয়ার আইনি সময়সীমা নিশ্চিত করুন।'
+          ? 'ভোক্তা অধিকার সংরক্ষণ আইনের ধারা ৬০ অনুযায়ী কারণ উদ্ভব হওয়ার ৩০ কার্যদিবসের মধ্যে প্রতিকার চাওয়ার আইনি সময়সীমা নিশ্চিত করুন।'
           : 'Confirm that the 30-day statutory limitation period under Section 60 has not lapsed.',
         sourceIds: ['consumer-60'],
         condition: isBn ? 'ধারা ৬০ অনুযায়ী ৩০ দিনের সময়সীমা' : 'Section 60 statutory limit of 30 days',
@@ -741,97 +995,106 @@ export function createLegalWorkflow(
       {
         id: 'step-consumer-3',
         text: isBn
-          ? 'জাতীয় ভোক্তা অধিকার সংরক্ষণ অধিদপ্তর (DNCRP হটলাইন ১৬১২১) বরাবর লিখিত অভিযোগ বা ইমেইল দাখিল করুন।'
+          ? 'জাতীয় ভোক্তা অধিকার সংরক্ষণ অধিদপ্তর (DNCRP হটলাইন ১৬১২১) বা মহাপরিচালক বরাবর লিখিত অভিযোগ দাখিল করুন।'
           : 'Lodge a formal written complaint before the Directorate of National Consumer Rights Protection (DNCRP 16121).',
-        sourceIds: ['consumer-40', 'consumer-44', 'consumer-45'],
+        sourceIds: isExpired ? ['consumer-51', 'consumer-60'] : ['consumer-40', 'consumer-44', 'consumer-45'],
         officeId: dncrpOffice.id,
       },
       {
         id: 'step-consumer-4',
         text: isBn
-          ? 'প্রতারণা প্রমাণিত হলে আরোপিত জরিমানার ২৫ শতাংশ অর্থ নগদ ক্ষতিপূরণ হিসেবে পাওয়ার দাবি রাখুন।'
-          : 'Claim your statutory right to receive 25% of the total administrative penalty imposed on the vendor.',
-        sourceIds: ['consumer-40'],
-      },
-    ];
+          ? 'ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯-এর ধারা ৭৬(৪) অনুযায়ী বিক্রেতার ওপর আরোপিত ও আদায়কৃত প্রশাসনিক জরিমানার ২৫ শতাংশ অর্থ অভিযোগকারী হিসেবে পাওয়ার দাবি রাখুন।'
+          : 'Under Section 76(4) of the Consumers’ Right Protection Act 2009, claim your statutory right to receive 25% of any administrative fine realized from the vendor.',
+        sourceIds: ['consumer-76'],
+      }
+    );
 
-    const explanation: Claim[] = [
-      {
+    const explanation: Claim[] = [];
+    if (isExpired) {
+      explanation.push({
+        text: isBn
+          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৫১ অনুযায়ী কোনো মেয়াদোত্তীর্ণ ওষুধ বা পণ্য বিক্রয় করা বা বিক্রয়ের প্রস্তাব করা দণ্ডনীয় অপরাধ (অনূর্ধ্ব ১ বছর কারাদণ্ড বা ৫০,০০০ টাকা অর্থদণ্ড)।'
+          : 'Under Section 51 of the Consumers’ Right Protection Act 2009, selling or offering for sale expired goods or medicines is a statutory offense punishable with up to 1 year imprisonment or up to 50,000 BDT fine.',
+        sourceIds: ['consumer-51'],
+      });
+    } else if (isAdulteration) {
+      explanation.push({
+        text: isBn
+          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৪১ অনুযায়ী পণ্যে বা খাদ্যে স্বাস্থ্যের জন্য ক্ষতিকর রাসায়নিক বা ভেজাল মিশ্রণ করা দণ্ডনীয় অপরাধ (অনূর্ধ্ব ৩ বছর কারাদণ্ড বা ২ লাখ টাকা জরিমানা)।'
+          : 'Under Section 41 of the Consumers’ Right Protection Act 2009, mixing adulterants or prohibited chemicals is punishable with up to 3 years imprisonment or up to 200,000 BDT fine.',
+        sourceIds: ['consumer-41'],
+      });
+    } else if (isCounterfeit) {
+      explanation.push({
+        text: isBn
+          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৫০ অনুযায়ী নকল বা জাল পণ্য প্রস্তুত বা বিক্রয় করা শাস্তিযোগ্য অপরাধ (অনূর্ধ্ব ৩ বছর কারাদণ্ড বা ২ লাখ টাকা অর্থদণ্ড)।'
+          : 'Under Section 50 of the Consumers’ Right Protection Act 2009, producing or selling counterfeit goods is punishable with up to 3 years imprisonment or up to 200,000 BDT fine.',
+        sourceIds: ['consumer-50'],
+      });
+    } else if (isShortWeight) {
+      explanation.push({
+        text: isBn
+          ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৪৬ অনুযায়ী ওজনে কম দেওয়া এবং ধারা ৪৭ অনুযায়ী বাটখারা বা ওজনের যন্ত্রে কারচুপি দণ্ডনীয় অপরাধ (অনূর্ধ্ব ১ বছর কারাদণ্ড বা ৫০ হাজার টাকা জরিমানা)।'
+          : 'Under Sections 46 and 47 of the Consumers’ Right Protection Act 2009, delivering short weight or tampering with scales is punishable with up to 1 year imprisonment or fine.',
+        sourceIds: ['consumer-46', 'consumer-47'],
+      });
+    } else {
+      explanation.push({
         text: isBn
           ? 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯-এর ধারা ৪৫ অনুযায়ী প্রতিশ্রুত পণ্য বা সেবা প্রদান না করা অথবা অর্থ গ্রহণ করে পণ্য ডেলিভারি না দেওয়া শাস্তিযোগ্য অপরাধ।'
           : 'Under Section 45 of the Consumers’ Right Protection Act 2009, failing to deliver agreed goods or services after receiving payment is a statutory offense.',
         sourceIds: ['consumer-45'],
-      },
+      });
+    }
+
+    explanation.push(
       {
         text: isBn
-          ? 'ধারা ৬০ অনুযায়ী কারণ উদ্ভব হওয়ার ৩০ দিনের মধ্যে জাতীয় ভোক্তা অধিকার সংরক্ষণ অধিদপ্তরে লিখিত অভিযোগ দাখিল করতে হয়।'
+          ? 'ভোক্তা অধিকার সংরক্ষণ আইনের ধারা ৬০ অনুযায়ী কারণ উদ্ভব হওয়ার ৩০ দিনের মধ্যে জাতীয় ভোক্তা অধিকার সংরক্ষণ অধিদপ্তরে লিখিত অভিযোগ দাখিল করতে হয়।'
           : 'Under Section 60, written complaints must be submitted to the Directorate within 30 days of the cause of action arising.',
         sourceIds: ['consumer-60'],
       },
       {
         text: isBn
-          ? 'ধারা ৪০ অনুযায়ী ধার্যকৃত সর্বোচ্চ মূল্যের চেয়ে বেশি দাবি করা অথবা ধারা ৪৪ অনুযায়ী মিথ্যা বিজ্ঞাপনে প্রতারিত করা দণ্ডনীয়।'
-          : 'Under Section 40, overcharging beyond marked price, or Section 44 for misleading advertisements, penal sanctions apply.',
-        sourceIds: ['consumer-40', 'consumer-44'],
-      },
-    ];
+          ? 'ধারা ৭৬(৪) অনুযায়ী বিক্রেতার ওপর আরোপিত ও আদায়কৃত প্রশাসনিক জরিমানার ২৫ শতাংশ অর্থ অভিযোগকারী সরকারি পুরস্কার হিসেবে পাওয়ার অধিকারী (দোকানদার কর্তৃক অন-দ্য-স্পট তাৎক্ষণিক নগদ ক্ষতিপূরণ নয়)।'
+          : 'Under Section 76(4), complainants are entitled by statute to receive 25% of any administrative fine realized from the wrongdoer (not instant private damages).',
+        sourceIds: ['consumer-76'],
+      }
+    );
 
-    const clarificationQuestions: ClarificationQuestion[] = [];
-    const questions: string[] = [];
+    const headingText = isBn
+      ? isExpired
+        ? 'ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ (ধারা ৫১, ৬০ ও ৭৬(৪))'
+        : isCounterfeit
+        ? 'ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ (ধারা ৫০, ৬০ ও ৭৬(৪))'
+        : 'ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ (ধারা ৪৫ ও ৬০)'
+      : isExpired
+      ? 'Consumers’ Right Protection Act 2009 (Sections 51, 60 & 76(4))'
+      : isCounterfeit
+      ? 'Consumers’ Right Protection Act 2009 (Sections 50, 60 & 76(4))'
+      : 'Consumers’ Right Protection Act 2009 (Sections 45 & 60)';
 
-    if (!hasOrderDate) {
-      const qText = isBn
-        ? 'লেনদেন বা পণ্য অর্ডারের তারিখটি কবে ছিল? (ভোক্তা অধিকার সংরক্ষণ আইনের ধারা ৬০ অনুযায়ী ৩০ দিনের সময়সীমা রয়েছে)'
-        : 'When did the transaction take place? (A 30-day statutory limitation period applies under Section 60)';
-      questions.push(qText);
-      clarificationQuestions.push({
-        id: 'clarify-consumer-date',
-        fieldId: 'order_date',
-        question: {
-          bn: 'লেনদেন বা পণ্য অর্ডারের তারিখটি কবে ছিল?',
-          en: 'When did the transaction take place?',
-        },
-        importance: {
-          bn: 'ভোক্তা অধিকার সংরক্ষণ আইনের ধারা ৬০ অনুযায়ী কারণ উদ্ভব হওয়ার ৩০ কার্যদিবসের মধ্যে অভিযোগ দায়ের বাধ্যতামূলক।',
-          en: 'Under Section 60, consumer complaints must be lodged within 30 days of the cause of action.',
-        },
-        answerType: 'date',
-      });
-    }
-
-    if (!hasVendor) {
-      const qText = isBn
-        ? 'বিক্রেতা বা অনলাইন শপটির নাম ও যোগাযোগের মাধ্যম জানা আছে কি?'
-        : 'Is the name and contact details of the vendor or online shop available?';
-      questions.push(qText);
-      clarificationQuestions.push({
-        id: 'clarify-consumer-vendor',
-        fieldId: 'vendor',
-        question: {
-          bn: 'বিক্রেতা বা অনলাইন শপটির নাম ও যোগাযোগের মাধ্যম জানা আছে কি?',
-          en: 'Is the name and contact details of the vendor or online shop available?',
-        },
-        importance: {
-          bn: 'অভিযোগের নোটিশ ও শুনানির সমন জারির জন্য বিক্রেতার তথ্য প্রয়োজন।',
-          en: 'Vendor details are required for issuing statutory notices and hearings.',
-        },
-        answerType: 'text',
-      });
-    }
+    const understandingText = isBn
+      ? isExpired
+        ? 'আমরা আপনার বিষয়টি পর্যালোচনা করেছি: ফার্মেসি থেকে মেয়াদোত্তীর্ণ ওষুধ বিক্রয় করা হয়েছে। ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ অনুযায়ী এটি সরাসরি শাস্তিযোগ্য অপরাধ এবং আপনি প্রতিকার পাওয়ার অধিকারী।'
+        : 'আমরা আপনার বিষয়টি যত্নসহকারে পর্যালোচনা করেছি: আপনি অর্থ পরিশোধের পরও প্রতিশ্রুত পণ্য পাননি অথবা প্রতারণার শিকার হয়েছেন। ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯ অনুযায়ী ক্রেতা হিসেবে আপনি সম্পূর্ণ সুরক্ষিত এবং ক্ষতিপূরণ পাওয়ার অধিকারী।'
+      : isExpired
+      ? 'We have reviewed your situation: the pharmacy sold expired medicine. Under the Consumers’ Right Protection Act 2009, this is a clear penal offense and you are entitled to statutory remedies.'
+      : 'We have reviewed your situation: you have paid for goods that were not delivered as agreed. Under the Consumers’ Right Protection Act 2009, you are legally entitled to remedies and statutory compensation.';
 
     return {
       schemaVersion: 1,
       answerId: request.requestId,
       mode,
-      status: questions.length > 0 ? 'clarifying' : 'completed',
-      questions,
-      clarificationQuestions,
+      status: 'completed',
+      questions: [],
+      clarificationQuestions: [],
       userFacts: [
-        ...request.facts,
+        ...accumulatedFacts,
         {
           fieldId: 'issue_type',
-          value: 'consumer_fraud',
-          status: questions.length > 0 ? 'inferred' : 'user_confirmed',
+          value: isExpired ? 'consumer_expired_medicine' : 'consumer_fraud',
+          status: 'user_confirmed',
           provenance: 'intent_classification',
         },
       ],
@@ -845,33 +1108,43 @@ export function createLegalWorkflow(
       sourcePackVersion: SOURCE_VERSION,
       allowedDraftOptions: ['dncrp'],
       problemSummary: {
-        identifiedIssue: isBn ? 'ভোক্তা অধিকার লঙ্ঘন ও অনলাইন ডেলিভারি প্রতারণা' : 'Consumer Rights Violation & Commercial Deception',
-        understanding: isBn
-          ? 'আমরা আপনার বিষয়টি যত্নসহকারে পর্যালোচনা করেছি: আপনি অর্থ পরিশোধের পরও প্রতিশ্রুত পণ্য পাননি অথবা প্রতারণার শিকার হয়েছেন। ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯ অনুযায়ী ক্রেতা হিসেবে আপনি সম্পূর্ণ সুরক্ষিত এবং ক্ষতিপূরণ পাওয়ার অধিকারী।'
-          : 'We have reviewed your situation: you have paid for goods that were not delivered as agreed. Under the Consumers’ Right Protection Act 2009, you are legally entitled to remedies and statutory compensation.',
-        additionalInfoNeeded: questions,
+        identifiedIssue: isBn
+          ? isExpired
+            ? 'মেয়াদোত্তীর্ণ ওষুধ বিক্রয় ও ভোক্তা অধিকার লঙ্ঘন'
+            : 'ভোক্তা অধিকার লঙ্ঘন ও অনলাইন ডেলিভারি প্রতারণা'
+          : isExpired
+          ? 'Sale of Expired Medicine & Consumer Rights Violation'
+          : 'Consumer Rights Violation & Commercial Deception',
+        understanding: understandingText,
+        additionalInfoNeeded: [],
       },
       plainLanguageExplanation: {
-        heading: isBn
-          ? 'ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ (ধারা ৪৫ ও ৬০)'
-          : 'Consumers’ Right Protection Act 2009 (Sections 45 & 60)',
+        heading: headingText,
         meaning: isBn
-          ? 'সহজ কথায়, অগ্রিম টাকা নিয়ে পণ্য না দেওয়া বা ক্রেতাকে মিথ্যা তথ্য দিয়ে প্রলুব্ধ করা বাংলাদেশে আইনত দণ্ডনীয় অপরাধ। ঘটনার ৩০ দিনের মধ্যে ভোক্তা অধিকার অধিদপ্তরে অভিযোগ দাখিল করলে সরকার তদন্ত করে বিক্রেতাকে জরিমানা করবে এবং সেই জরিমানার ২৫% অর্থ সরাসরি আপনাকে নগদ ক্ষতিপূরণ দেওয়া হবে।'
-          : 'In plain language, taking payment without delivering goods is unlawful. When filed within 30 days, the authorities investigate, penalize the seller, and pay 25% of the fine directly to you as statutory compensation.',
+          ? isExpired
+            ? 'সহজ কথায়, মেয়াদোত্তীর্ণ ওষুধ বিক্রয় ভোক্তা অধিকার সংরক্ষণ আইনের ৫১ ধারা অনুযায়ী দণ্ডনীয় অপরাধ (১ বছর পর্যন্ত কারাদণ্ড বা ৫০ হাজার টাকা অর্থদণ্ড)। ঘটনার ৩০ দিনের মধ্যে ভোক্তা অধিকার অধিদপ্তরে অভিযোগ দিলে অধিদপ্তর বিক্রেতাকে জরিমানা করতে পারে এবং ধারা ৭৬(৪) অনুযায়ী আদায়কৃত জরিমানার ২৫% অর্থ অভিযোগকারীকে প্রদান করা হয়।'
+            : 'সহজ কথায়, অগ্রিম টাকা নিয়ে পণ্য না দেওয়া বা ক্রেতাকে মিথ্যা তথ্য দিয়ে প্রলুব্ধ করা বাংলাদেশে আইনত দণ্ডনীয় অপরাধ (ভোক্তা অধিকার সংরক্ষণ আইন ধারা ৪৫)। ঘটনার ৩০ দিনের মধ্যে ভোক্তা অধিকার অধিদপ্তরে অভিযোগ দাখিল করলে অধিদপ্তর তদন্ত করে বিক্রেতাকে জরিমানা করতে পারে এবং ধারা ৭৬(৪) অনুযায়ী সেই আদায়কৃত জরিমানার ২৫% অর্থ সরাসরি অভিযোগকারীকে প্রদান করা হয়।'
+          : isExpired
+          ? 'In plain language, selling expired medicine is a statutory offense under Section 51 punishable by up to 1 year imprisonment or 50,000 BDT fine. Lodging a complaint with DNCRP within 30 days under Section 60 can result in administrative fines, 25% of which is disbursed to you under Section 76(4).'
+          : 'In plain language, taking payment without delivering goods is unlawful under Section 45. When filed within 30 days under Section 60, the Directorate investigates and penalizes the seller, awarding 25% of the realized fine directly to you as statutory reward under Section 76(4).',
         userRightsAndOptions: isBn
           ? [
-              'প্রদত্ত অর্থ শতভাগ ফেরত ও প্রতারণার ক্ষতিপূরণ পাওয়ার আইনি অধিকার।',
-              'জাতীয় ভোক্তা অধিকার সংরক্ষণ অধিদপ্তরে (হটলাইন ১৬১২১) লিখিত অভিযোগ বা ইমেইল দাখিল।',
-              'প্রতারক ব্যবসায়ীর ওপর আরোপিত প্রশাসনিক জরিমানার ২৫ শতাংশ অর্থ নগদ ক্ষতিপূরণ হিসেবে পাওয়া।'
+              isExpired
+                ? 'ধারা ৫১ অনুযায়ী মেয়াদোত্তীর্ণ ওষুধ বিক্রয়কারীর বিরুদ্ধে শাস্তিমূলক পদক্ষেপের দাবি।'
+                : 'ধারা ৪৫ অনুযায়ী প্রতিশ্রুত পণ্য বা অর্থ প্রাপ্তির আইনগত দাবি।',
+              'জাতীয় ভোক্তা অধিকার সংরক্ষণ অধিদপ্তরে (হটলাইন ১৬১২১) ধারা ৬০ অনুযায়ী ৩০ কার্যদিবসের মধ্যে লিখিত অভিযোগ দাখিল।',
+              'ধারা ৭৬(৪) অনুযায়ী বিক্রেতার ওপর আরোপিত ও আদায়কৃত প্রশাসনিক জরিমানার ২৫ শতাংশ অর্থ পাওয়ার আইনগত অধিকার।'
             ]
           : [
-              'Right to demand a 100% refund and appropriate statutory compensation.',
-              'Submit a written complaint to the Directorate of National Consumer Rights Protection (hotline 16121).',
-              'Statutory entitlement to 25% of the financial penalty imposed on the offending vendor.'
+              isExpired
+                ? 'Statutory claim against seller of expired medicine under Section 51.'
+                : 'Statutory claim for delivery of agreed goods or remedy under Section 45.',
+              'Submit a written complaint to DNCRP (hotline 16121) within 30 days under Section 60.',
+              'Statutory entitlement to 25% of any realized administrative fine under Section 76(4).'
             ],
         whatToDoNext: isBn
-          ? 'অনলাইন অর্ডারের স্ক্রিনশট, ইনভয়েস ও মেসেজগুলো নিরাপদে রাখুন এবং ৩০ দিনের সময়সীমার মধ্যে ভোক্তা অধিকার সংরক্ষণ অধিদপ্তর বরাবর অভিযোগ প্রস্তুত করুন।'
-          : 'Safeguard your transaction receipts and invoices, and prepare your complaint within the 30-day statutory window.'
+          ? 'ক্রয় রসিদ/ক্যাশ মেমো ও ওষুধের ছবি নিরাপদে রাখুন এবং ৩০ দিনের সময়সীমার মধ্যে ভোক্তা অধিকার সংরক্ষণ অধিদপ্তর বরাবর অভিযোগ দাখিল করুন।'
+          : 'Safeguard your purchase receipts and product photos, and file your complaint with DNCRP within the 30-day statutory window.'
       },
       draftOffer: {
         prompt: isBn
@@ -895,7 +1168,7 @@ export function createLegalWorkflow(
   // DOMAIN 3: THREATS, HARASSMENT, ASSAULT, THEFT & POLICE GD/FIR
   // -------------------------------------------------------------
   if (isGd) {
-    const priorIssue = request.facts.find((f) => f.fieldId === 'issue_type')?.value;
+    const priorIssue = accumulatedFacts.find((f) => f.fieldId === 'issue_type')?.value;
     const historyText = request.conversationHistory?.map((m) => m.content).join(' ') || '';
     const combinedMsg = `${historyText} ${originalMessage}`;
 
@@ -941,8 +1214,8 @@ export function createLegalWorkflow(
           priorIssue === 'police_gd_theft'
         )));
 
-    let placeFact = request.facts.find((f) => f.fieldId === 'place' && f.value.trim().length > 0);
-    let dateFact = request.facts.find((f) => f.fieldId === 'incident_date' && f.value.trim().length > 0);
+    let placeFact = accumulatedFacts.find((f) => f.fieldId === 'place' && f.value.trim().length > 0);
+    let dateFact = accumulatedFacts.find((f) => f.fieldId === 'incident_date' && f.value.trim().length > 0);
 
     // Check request.location / request.date if not already in facts
     if (!placeFact && request.location && request.location.trim().length > 0) {
@@ -952,7 +1225,7 @@ export function createLegalWorkflow(
         status: 'user_reported',
         provenance: 'request_location',
       };
-      request.facts.push(placeFact);
+      accumulatedFacts.push(placeFact);
     }
 
     if (!dateFact && request.date && request.date.trim().length > 0) {
@@ -962,7 +1235,7 @@ export function createLegalWorkflow(
         status: 'user_reported',
         provenance: 'request_date',
       };
-      request.facts.push(dateFact);
+      accumulatedFacts.push(dateFact);
     }
 
     // Auto-extract common date/time mentions from text if still missing
@@ -977,7 +1250,7 @@ export function createLegalWorkflow(
           status: 'inferred',
           provenance: 'text_extraction',
         };
-        request.facts.push(dateFact);
+        accumulatedFacts.push(dateFact);
       }
     }
 
@@ -1353,7 +1626,7 @@ export function createLegalWorkflow(
       questions,
       clarificationQuestions,
       userFacts: [
-        ...request.facts,
+        ...accumulatedFacts,
         {
           fieldId: 'issue_type',
           value: isAssault
@@ -1673,7 +1946,635 @@ export function createLegalWorkflow(
   }
 
   // -------------------------------------------------------------
-  // DOMAIN 4: GENERIC / OTHER LEGAL INQUIRY FALLBACK (NO FAKE DRAFTS)
+  // DOMAIN 4: LAND & PROPERTY (Land Crime Prevention Act 2023, SRA 1877)
+  // -------------------------------------------------------------
+  if (isLand) {
+    const isSoilCutting = /মাটি কাটা|ড্রেজার|টপসয়েল|মাটি ভরাট|বালু ভরাট|soil\s*cutting|dredg|topsoil/i.test(originalMessage);
+
+    if (isSoilCutting) {
+      return {
+        schemaVersion: 1,
+        answerId: request.requestId,
+        mode,
+        status: 'completed',
+        questions: [],
+        userFacts: [
+          ...accumulatedFacts,
+          { fieldId: 'issue_type', value: 'land_crime_topsoil_cutting', status: 'user_confirmed', provenance: 'intent_classification' },
+        ],
+        checklist: [
+          {
+            id: 'step-land-1',
+            text: isBn
+              ? 'জমির খতিয়ান, পর্চা, খাজনার দাখিলা এবং অবৈধ ড্রেজিং বা মাটি কাটার ছবি/ভিডিও প্রমাণ সংগ্রহ ও নিরাপদ সংরক্ষণ করুন।'
+              : 'Safeguard land records (khatiyan, revenue receipts) and gather photographic/video evidence of unauthorized soil dredging.',
+            sourceIds: ['land-crime-13'],
+            condition: isBn ? 'দালিলিক ও চাক্ষুষ প্রমাণ সংরক্ষণ' : 'Preserve documentary and visual evidence',
+          },
+          {
+            id: 'step-land-2',
+            text: isBn
+              ? 'অবিলম্বে স্থানীয় উপজেলা নির্বাহী অফিসার (UNO) বা সহকারী কমিশনার (ভূমি) / AC Land বরাবর লিখিত দরখাস্ত দাখিল করুন।'
+              : 'Lodge an immediate written petition before the Upazila Nirbahi Officer (UNO) or Assistant Commissioner (Land).',
+            sourceIds: ['land-crime-13'],
+          },
+          {
+            id: 'step-land-3',
+            text: isBn
+              ? 'জমির ক্ষতিকর রূপান্তর ও শান্তিভঙ্গ রোধে সংশ্লিষ্ট নির্বাহী ম্যাজিস্ট্রেট আদালতে ফৌজদারি কার্যবিধির ১৪৪/১৪৫ ধারায় নিষেধাজ্ঞার দরখাস্ত করুন।'
+              : 'File an urgent petition before the Executive Magistrate Court under Section 144/145 CrPC to restrain further excavation.',
+            sourceIds: ['crpc-145'],
+          },
+          {
+            id: 'step-land-4',
+            text: isBn
+              ? 'ভূমি অপরাধ প্রতিরোধ ও প্রতিকার আইন ২০২৩-এর ১৯(১) ধারা অনুযায়ী বিষয়টি আমলযোগ্য, জামিনযোগ্য ও আপোষযোগ্য বিধায় দ্রুত আইনানুগ প্রতিকার দাবি করুন।'
+              : 'Pursue legal redress knowing that under Section 19(1), offenses under Section 13 are cognizable, bailable, and compoundable.',
+            sourceIds: ['land-crime-19-1'],
+          },
+        ],
+        explanation: [
+          {
+            text: isBn
+              ? 'ভূমি অপরাধ প্রতিরোধ ও প্রতিকার আইন, ২০২৩-এর ধারা ১৩ অনুযায়ী জেলা প্রশাসকের (DC) লিখিত অনুমতি ছাড়া কৃষিজমির উপরিভাগের উর্বর মাটি (টপসয়েল) কাটা অথবা রেকর্ডীয় মালিকের অনুমতি ছাড়া বালু বা মাটি দ্বারা কৃষিজমি ভরাট করা দণ্ডনীয় অপরাধ (অনধিক ২ বছর কারাদণ্ড ও অর্থদণ্ড)। তবে ধারা ১৩-এর শর্তানুযায়ী: কোনো ব্যক্তি যদি (১) নিজের মালিকানাধীন জমি থেকে, (২) বসতবাড়ি নির্মাণ বা ব্যক্তিগত প্রয়োজনে সীমিত পরিসরে, এবং (৩) জমির সামগ্রিক উর্বরতার ক্ষতি না করে মাটি কাটেন বা উত্তোলন করেন—কেবলমাত্র সেই শর্তগুলো একসঙ্গে পূরণ হলেই এটি অপরাধ হিসেবে গণ্য হবে না (কোনো শর্ত ভঙ্গ হলে বা বাণিজ্যিক বিক্রি হলে তা দণ্ডনীয়)।'
+              : 'Under Section 13 of the Land Crime Prevention and Redress Act 2023, cutting the topsoil of agricultural land without written permission from the Deputy Commissioner (DC), or filling agricultural land without owner permission, is punishable by up to 2 years imprisonment and fine. Under the statutory proviso, an exception applies only if all conditions are cumulatively met: (1) conducted on one\'s own land, (2) limited in scale strictly for personal homestead construction or personal necessity, and (3) without causing damage to the soil fertility.',
+            sourceIds: ['land-crime-13'],
+          },
+          {
+            text: isBn
+              ? 'ধারা ১৯(১) অনুযায়ী ধারা ৪ ও ৫ এর অপরাধ ছাড়া এই আইনের অধীন অন্যান্য অপরাধ—যার মধ্যে ধারা ১৩ অন্তর্ভুক্ত—আমলযোগ্য (cognizable), জামিনযোগ্য (bailable) এবং আপোষযোগ্য (compoundable)। এটি কোনো অ-জামিনযোগ্য অপরাধ নয়।'
+              : 'Under Section 19(1), with the exception of Sections 4 and 5, all offenses under this Act—including Section 13—are cognizable, bailable, and compoundable. It is strictly not a non-bailable offense.',
+            sourceIds: ['land-crime-19-1'],
+          },
+          {
+            text: isBn
+              ? 'জরুরি শান্তিভঙ্গ রোধ এবং জমিতে খনন কাজ তাৎক্ষণিক স্থগিত করতে ফৌজদারি কার্যবিধির ১৪৫ ধারা অনুযায়ী নির্বাহী ম্যাজিস্ট্রেট আদালতের কর্তৃত্ব রয়েছে।'
+              : 'Under Section 145 of the Code of Criminal Procedure, Executive Magistrates possess authority to issue urgent protective orders restraining unlawful interference.',
+            sourceIds: ['crpc-145'],
+          },
+        ],
+        limitations: [
+          isBn
+            ? 'নিজস্ব বসতবাড়ি নির্মাণের আইনি ব্যতিক্রম ও ক্ষতিপূরণের বিষয়সমূহ সহকারী কমিশনার (ভূমি) বা আদালতের আনুষ্ঠানিক তদন্ত সাপেক্ষে নির্ধারিত হবে।'
+            : 'Homestead construction exceptions and compensation assessments require formal local inquiry by the Assistant Commissioner (Land) or court.',
+        ],
+        sourcePackVersion: SOURCE_VERSION,
+        allowedDraftOptions: [],
+        problemSummary: {
+          identifiedIssue: isBn ? 'কৃষিজমির টপসয়েল কাটা ও ভূমি অপরাধ প্রতিরোধ আইন' : 'Agricultural Topsoil Cutting & Land Crime Redress',
+          understanding: isBn
+            ? 'আমরা আপনার বিষয়টি পর্যালোচনা করেছি: প্রভাবশালীদের ড্রেজার দিয়ে কৃষিজমির উপরিভাগের উর্বর মাটি কেটে নেওয়া হচ্ছে। ভূমি অপরাধ প্রতিরোধ ও প্রতিকার আইন ২০২৩ অনুযায়ী এটি সরাসরি দণ্ডনীয় অপরাধ।'
+            : 'We have reviewed your inquiry: agricultural topsoil is being excavated using dredgers. Under the Land Crime Prevention and Redress Act 2023, this is a clear statutory offense.',
+          additionalInfoNeeded: [],
+        },
+        plainLanguageExplanation: {
+          heading: isBn
+            ? 'ভূমি অপরাধ প্রতিরোধ ও প্রতিকার আইন, ২০২৩ (ধারা ১৩ ও ১৯)'
+            : 'Land Crime Prevention and Redress Act 2023 (Sections 13 & 19)',
+          meaning: isBn
+            ? 'সহজ কথায়, জেলা প্রশাসকের পূর্বানুমতি ছাড়া কৃষিজমির উপরিভাগের উর্বর মাটি কাটা বা বিক্রি করা সম্পূর্ণ বেআইনি (ধারা ১৩)। তবে আইনের শর্তানুযায়ী: নিজস্ব জমিতে নিজের বসতবাড়ি বা প্রয়োজনে সীমিত পরিসরে এবং জমির উর্বরতা নষ্ট না করে মাটি কাটার ক্ষেত্রে এটি অপরাধ গণ্য হবে না। একইসাথে ধারা ১৯(১) অনুযায়ী এই অপরাধটি আমলযোগ্য হলেও জামিনযোগ্য ও আপোষযোগ্য। আপনি উপজেলা প্রশাসন (UNO / AC Land) ও নির্বাহী ম্যাজিস্ট্রেট আদালতে আবেদন করে বেআইনি ড্রেজিং তাৎক্ষণিক বন্ধ করাতে পারেন।'
+            : 'In plain language, cutting topsoil from agricultural land without DC permission is illegal under Section 13, punishable by up to 2 years imprisonment. An exception applies only if conducted on one\'s own land on a limited scale for personal dwelling without damaging soil fertility. Crucially, under Section 19(1), this offense is bailable and compoundable. You can petition the Upazila Administration (UNO / AC Land) or Executive Magistrate to halt unauthorized dredging immediately.',
+          userRightsAndOptions: isBn
+            ? [
+                'কৃষিজমির উর্বরতা রক্ষা ও অনুমতিহীন ড্রেজিং বন্ধের আইনি অধিকার।',
+                'উপজেলা প্রশাসন (UNO/AC Land) ও নির্বাহী ম্যাজিস্ট্রেটের নিকট তাৎক্ষণিক হস্তক্ষেপ প্রার্থনা।',
+                'ধারা ১৯(১) অনুযায়ী জামিনযোগ্য ও আপোষযোগ্য কাঠামোর আওতায় ক্ষতিপূরণ ও প্রতিকার দাবি।'
+              ]
+            : [
+                'Statutory right to protect agricultural land fertility against unauthorized dredging.',
+                'Immediate administrative petition before the UNO / Assistant Commissioner (Land).',
+                'Pursuing compensation and remediation under Section 13 & 19(1).'
+              ],
+          whatToDoNext: isBn
+            ? 'জমির খতিয়ান ও ড্রেজিংয়ের ছবি সংগ্রহ করুন এবং দ্রুত উপজেলা নির্বাহী অফিসার (UNO) বা সহকারী কমিশনার (ভূমি) বরাবর লিখিত অভিযোগ দাখিল করুন।'
+            : 'Gather your land documents and photographic evidence, and submit a written petition to the Upazila Nirbahi Officer (UNO) or Assistant Commissioner (Land).'
+        }
+      };
+    }
+
+    // Dispossession / General Land
+    return {
+      schemaVersion: 1,
+      answerId: request.requestId,
+      mode,
+      status: 'completed',
+      questions: [],
+      userFacts: [
+        ...accumulatedFacts,
+        { fieldId: 'issue_type', value: 'land_dispossession_recovery', status: 'user_confirmed', provenance: 'intent_classification' },
+      ],
+      checklist: [
+        {
+          id: 'step-land-disp-1',
+          text: isBn
+            ? 'পূর্ববর্তী বৈধ দখলের প্রমাণ (বিদ্যুৎ/গ্যাস বিল, হোল্ডিং ট্যাক্স রসিদ, খাজনা দাখিলা, ছবি) নিরাপদ রাখুন।'
+            : 'Safeguard documentary proof of prior peaceful possession (utility bills, tax receipts, rent rolls, photos).',
+          sourceIds: ['sra-9'],
+          condition: isBn ? 'পূর্ববর্তী দখলের প্রমাণ সংরক্ষণ' : 'Proof of prior possession required',
+        },
+        {
+          id: 'step-land-disp-2',
+          text: isBn
+            ? 'শান্তিভঙ্গ রোধে নিকটস্থ নির্বাহী ম্যাজিস্ট্রেট আদালতে ফৌজদারি কার্যবিধির ১৪৫ ধারায় পিটিশন দাখিল করুন।'
+            : 'Lodge an urgent petition before the Executive Magistrate Court under Section 145 CrPC to maintain public peace.',
+          sourceIds: ['crpc-145', 'land-crime-8'],
+        },
+        {
+          id: 'step-land-disp-3',
+          text: isBn
+            ? 'দখলচ্যুতির ৬ মাসের মধ্যে দেওয়ানি আদালতে সুনির্দিষ্ট প্রতিকার আইনের ৯ ধারায় সংক্ষিপ্ত মোকদ্দমা দায়ের করুন।'
+            : 'Institute a summary suit for recovery of possession under Section 9 of the Specific Relief Act 1877 within 6 months.',
+          sourceIds: ['sra-9', 'sra-8'],
+          condition: isBn ? 'ধারা ৯ অনুযায়ী ৬ মাসের সময়সীমা' : '6-month statutory limit under Section 9',
+        },
+        {
+          id: 'step-land-disp-4',
+          text: isBn
+            ? 'বিনামূল্যে সরকারি আইনি সহায়তার জন্য জাতীয় লিগ্যাল এইড সংস্থায় (১৬৬৯৯) যোগাযোগ করুন।'
+            : 'Contact National Legal Aid (16699) to obtain free legal assistance and panel counsel.',
+          sourceIds: ['legalaid-16'],
+          officeId: nationalLegalAid.id,
+        },
+      ],
+      explanation: [
+        {
+          text: isBn
+            ? 'সুনির্দিষ্ট প্রতিকার আইন, ১৮৭৭-এর ধারা ৯ অনুযায়ী আদালতের বৈধ ডিক্রি ছাড়া কোনো ব্যক্তিকে তার সম্মতি ব্যতিরেকে স্থাবর সম্পত্তি থেকে উচ্ছেদ করা হলে তিনি স্বত্ব বা মালিকানা প্রমাণ ছাড়াই পূর্ববর্তী দখলের ভিত্তিতে ৬ মাসের মধ্যে দখল পুনরুদ্ধারের মোকদ্দমা করতে পারেন।'
+            : 'Under Section 9 of the Specific Relief Act 1877, any person dispossessed of immovable property without consent and otherwise than in due course of law may recover possession within 6 months based purely on prior peaceful possession, without needing to establish title.',
+          sourceIds: ['sra-9', 'sra-8'],
+        },
+        {
+          text: isBn
+            ? 'ভূমি অপরাধ প্রতিরোধ ও প্রতিকার আইন ২০২৩-এর ধারা ৮ অনুযায়ী উপযুক্ত আদালতের আদেশ বা আইনের বৈধ প্রক্রিয়া ব্যতীত বলপ্রয়োগ করে কাউকে তার বাড়ি বা জমি থেকে উচ্ছেদ করা দণ্ডনীয় ফৌজদারি অপরাধ।'
+            : 'Under Section 8 of the Land Crime Prevention and Redress Act 2023, forcibly dispossessing anyone from their home or land without due process of law constitutes a punishable statutory offense.',
+          sourceIds: ['land-crime-8'],
+        },
+        {
+          text: isBn
+            ? 'ফৌজদারি কার্যবিধির ১৪৫ ধারা অনুযায়ী জমি বা বাড়ি নিয়ে বিরোধে শান্তিভঙ্গ রোধে নির্বাহী ম্যাজিস্ট্রেট অবিলম্বে পুলিশ তদন্ত ও দখল রক্ষার আদেশ দিতে পারেন।'
+            : 'Under Section 145 of the CrPC, Executive Magistrates possess statutory authority to maintain peace and preserve possession pending adjudication by civil courts.',
+          sourceIds: ['crpc-145'],
+        },
+      ],
+      limitations: [
+        isBn
+          ? 'সুনির্দিষ্ট প্রতিকার আইনের ৯ ধারায় মামলা দখলচ্যুতির ৬ মাসের মধ্যে দায়ের করতে হয়; অন্যথায় স্বত্বভিত্তিক সাধারণ দেওয়ানি মামলা (ধারা ৮) করতে হবে।'
+          : 'Suits under Section 9 of the Specific Relief Act must be filed strictly within 6 months of dispossession; otherwise, regular title-based suits under Section 8 are required.',
+      ],
+      sourcePackVersion: SOURCE_VERSION,
+      allowedDraftOptions: [],
+      problemSummary: {
+        identifiedIssue: isBn ? 'অবৈধ দখলচ্যুতি ও দখল পুনরুদ্ধারের আইনি প্রতিকার' : 'Unlawful Dispossession & Recovery of Possession',
+        understanding: isBn
+          ? 'আমরা আপনার বিষয়টি পর্যালোচনা করেছি: কোনো নোটিশ বা আদালতের আদেশ ছাড়াই বলপূর্বক পৈতৃক বাড়ি বা জমি থেকে পরিবারকে উচ্ছেদ করা হয়েছে। বাংলাদেশের আইন অনুযায়ী এটি সম্পূর্ণ বেআইনি।'
+          : 'We have analyzed your inquiry: your family was forcibly evicted from your ancestral house without court order or legal notice. Under Bangladesh law, this is strictly unlawful.',
+        additionalInfoNeeded: [],
+      },
+      plainLanguageExplanation: {
+        heading: isBn
+          ? 'সুনির্দিষ্ট প্রতিকার আইন ১৮৭৭ (ধারা ৮ ও ৯) এবং ভূমি অপরাধ প্রতিরোধ ও প্রতিকার আইন ২০২৩ (ধারা ৮)'
+          : 'Specific Relief Act 1877 (Sections 8 & 9) and Land Crime Prevention and Redress Act 2023 (Section 8)',
+        meaning: isBn
+          ? 'সহজ কথায়, আইনের বৈধ প্রক্রিয়া ছাড়া কাউকে তার বসবাসরত বাড়ি বা জমি থেকে জোর করে বের করে দেওয়া বেআইনি। সুনির্দিষ্ট প্রতিকার আইনের ৯ ধারা অনুযায়ী দখল হারানোর ৬ মাসের মধ্যে আপনি দেওয়ানি আদালতে মামলা করে মালিকানার জটিল প্রমাণ ছাড়াই পূর্ববর্তী দখলের ভিত্তিতে বাড়ি ফিরে পেতে পারেন। একইসাথে নির্বাহী ম্যাজিস্ট্রেট আদালতে ১৪৫ ধারায় পিটিশন দিয়ে তাৎক্ষণিক হস্তক্ষেপ চাইতে পারেন।'
+          : 'In plain language, kicking anyone out of their peaceful home without a court decree is illegal. Under Section 9 of the Specific Relief Act, you can sue in civil court within 6 months to recover possession based on prior occupation alone, without having to prove title deeds first. You can also petition the Executive Magistrate under Section 145 CrPC.',
+        userRightsAndOptions: isBn
+          ? [
+              'ধারা ৯ অনুযায়ী ৬ মাসের মধ্যে দ্রুত দখল পুনরুদ্ধারের মোকদ্দমা দায়েরের অধিকার।',
+              'ফৌজদারি কার্যবিধির ১৪৫ ধারায় নির্বাহী ম্যাজিস্ট্রেট আদালতে শান্তি রক্ষার পিটিশন।',
+              'ভূমি অপরাধ আইনের ৮ ধারায় বলপূর্বক বেদখলের বিরুদ্ধে প্রতিকার প্রার্থনা।'
+            ]
+          : [
+              'Statutory right to recover possession within 6 months under Section 9.',
+              'Emergency petition before Executive Magistrate under Section 145 CrPC.',
+              'Criminal redress under Section 8 of the Land Crime Prevention and Redress Act 2023.'
+            ],
+        whatToDoNext: isBn
+          ? 'দখলের প্রমাণাদি (বিল, খাজনার দাখিলা) নিয়ে অবিলম্বে একজন দেওয়ানি আইনজীবী বা জেলা লিগ্যাল এইড অফিসারের (১৬৬৯৯) পরামর্শে ১৪৫ ধারা ও ৯ ধারায় ব্যবস্থা নিন।'
+          : 'Safeguard proof of possession (utility bills, receipts) and seek prompt counsel through a civil advocate or National Legal Aid (16699) to file under Section 145 CrPC and Section 9 SRA.'
+      }
+    };
+  }
+
+  // -------------------------------------------------------------
+  // DOMAIN 5: FAMILY & MARRIAGE (Family Courts Act 2023, MFLO 1961)
+  // -------------------------------------------------------------
+  if (isFamily) {
+    return {
+      schemaVersion: 1,
+      answerId: request.requestId,
+      mode,
+      status: 'completed',
+      questions: [],
+      userFacts: [
+        ...accumulatedFacts,
+        { fieldId: 'issue_type', value: 'family_dower_maintenance', status: 'user_confirmed', provenance: 'intent_classification' },
+      ],
+      checklist: [
+        {
+          id: 'step-family-1',
+          text: isBn
+            ? 'নিকাহনামা (কাবিননামা), জাতীয় পরিচয়পত্র এবং দেনমোহর ও বিগত মাসসমূহের অপরিশোধিত খোরপোশের তালিকা প্রস্তুত করুন।'
+            : 'Gather your Nikahnama (marriage contract), national ID, and itemized calculation of unpaid dower and maintenance.',
+          sourceIds: ['family-court-2023-5'],
+          condition: isBn ? 'কাবিননামা ও পাওনার হিসাব আবশ্যক' : 'Nikahnama and calculation required',
+        },
+        {
+          id: 'step-family-2',
+          text: isBn
+            ? 'দ্রুত প্রশাসনিক খোরপোশের আদেশের জন্য স্থানীয় ইউনিয়ন পরিষদ বা পৌরসভা চেয়ারম্যান বরাবরে সালিশি কাউন্সিলে আবেদন দাখিল করুন।'
+            : 'Lodge an application before the local Union Parishad or Municipal Chairman under Section 9 MFLO for an expedited maintenance certificate.',
+          sourceIds: ['mflo-1961-9'],
+        },
+        {
+          id: 'step-family-3',
+          text: isBn
+            ? 'পারিবারিক আদালত আইন, ২০২৩ (২০২৩ সনের ২৬ নং আইন)-এর ৫ ও ৬ ধারা অনুযায়ী স্ত্রী যে এলাকায় সচরাচর বসবাস করছেন (বাবার বাড়ির এলাকা) সেই এলাকার পারিবারিক আদালতে দেনমোহর ও ভরণপোষণের মামলা দায়ের করুন।'
+            : 'Institute a suit in the Family Court within whose territorial jurisdiction the wife ordinarily resides (e.g. paternal home) under Sections 5 and 6 of the Family Courts Act, 2023 (Act No. 26 of 2023).',
+          sourceIds: ['family-court-2023-5', 'family-court-2023-6'],
+        },
+        {
+          id: 'step-family-4',
+          text: isBn
+            ? 'বিনামূল্যে সরকারি আইনি সহায়তা ও প্যানেল আইনজীবী পেতে জেলা লিগ্যাল এইড হেল্পলাইনে (১৬৬৯৯) যোগাযোগ করুন।'
+            : 'Contact National Legal Aid (16699) to obtain free legal advice and representation from a panel lawyer.',
+          sourceIds: ['legalaid-16'],
+          officeId: nationalLegalAid.id,
+        },
+      ],
+      explanation: [
+        {
+          text: isBn
+            ? 'পারিবারিক আদালত আইন, ২০২৩ (২০২৩ সনের ২৬ নং আইন)-এর ধারা ৫ অনুযায়ী ৫টি নির্দিষ্ট বিষয়ে পারিবারিক আদালতের একচ্ছত্র এখতিয়ার রয়েছে: (১) বিবাহ বিচ্ছেদ, (২) দাম্পত্য অধিকার পুনরুদ্ধার, (৩) দেনমোহর, (৪) ভরণপোষণ, এবং (৫) অপ্রাপ্তবয়স্ক সন্তানের অভিভাবকত্ব ও হেফাজত।'
+            : 'Under Section 5 of the Family Courts Act 2023 (Act No. 26 of 2023), Family Courts possess exclusive subject-matter jurisdiction over 5 matrimonial matters: (1) dissolution of marriage, (2) restitution of conjugal rights, (3) dower, (4) maintenance, and (5) guardianship and custody of children.',
+          sourceIds: ['family-court-2023-5'],
+        },
+        {
+          text: isBn
+            ? 'ধারা ৬ অনুযায়ী বাদী বা স্ত্রী যে এলাকার পারিবারিক আদালতের আঞ্চলিক অধিক্ষেত্রে সচরাচর বসবাস করেন, সেখানেই মামলা দায়ের করার স্পষ্ট সংবিধিবদ্ধ অধিকার প্রদান করা হয়েছে।'
+            : 'Under Section 6, the wife is explicitly empowered to institute matrimonial suits in the Family Court within whose territorial jurisdiction she ordinarily resides (protecting her when residing at her paternal home).',
+          sourceIds: ['family-court-2023-6'],
+        },
+        {
+          text: isBn
+            ? 'মুসলিম পারিবারিক আইন অধ্যাদেশ, ১৯৬১-এর ধারা ৯ অনুযায়ী স্বামী যথোপযুক্ত ভরণপোষণ প্রদানে ব্যর্থ হলে স্ত্রী স্থানীয় সালিশি কাউন্সিলের মাধ্যমে বাধ্যতামূলক খোরপোশের আদেশ পেতে পারেন।'
+            : 'Under Section 9 of the Muslim Family Laws Ordinance 1961, when a husband fails to maintain his wife adequately, she may petition the local Arbitration Council for an enforceable maintenance certificate.',
+          sourceIds: ['mflo-1961-9'],
+        },
+      ],
+      limitations: [
+        isBn
+          ? 'দেনমোহর ও খোরপোশের সুনির্দিষ্ট আর্থিক অংক নির্ধারণে কাবিননামার শর্তাবলী ও স্বামীর আর্থিক সামর্থ্য আদালত বিবেচনা করবে।'
+          : 'Exact quantum of maintenance and prompt dower enforcement are subject to Nikahnama terms and husband’s financial capacity.',
+      ],
+      sourcePackVersion: SOURCE_VERSION,
+      allowedDraftOptions: [],
+      problemSummary: {
+        identifiedIssue: isBn ? 'দেনমোহর, ভরণপোষণ ও পারিবারিক আদালতের এখতিয়ার' : 'Dower, Maintenance & Family Court Jurisdiction',
+        understanding: isBn
+          ? 'আমরা আপনার বিষয়টি পর্যালোচনা করেছি: স্বামী ভরণপোষণ দিচ্ছে না এবং দেনমোহর প্রদানে অস্বীকৃতি জানাচ্ছে। পারিবারিক আদালত আইন ২০২৩ অনুযায়ী স্ত্রী হিসেবে আপনি সম্পূর্ণ সুরক্ষিত।'
+          : 'We have reviewed your situation: the husband has refused maintenance and dower. Under the Family Courts Act 2023, you hold strict statutory entitlements as a wife.',
+        additionalInfoNeeded: [],
+      },
+      plainLanguageExplanation: {
+        heading: isBn
+          ? 'পারিবারিক আদালত আইন, ২০২৩ (২০২৩ সনের ২৬ নং আইন, ধারা ৫ ও ৬) এবং মুসলিম পারিবারিক আইন অধ্যাদেশ, ১৯৬১'
+          : 'Family Courts Act 2023 (Act No. 26 of 2023, Sections 5 & 6) and Muslim Family Laws Ordinance 1961',
+        meaning: isBn
+          ? 'সহজ কথায়, ডিভোর্স না হলেও স্ত্রী তার প্রাপ্য দেনমোহর এবং নিয়মিত ভরণপোষণ পাওয়ার পূর্ণ অধিকারী। পারিবারিক আদালত আইন ২০২৩ (২০২৩ সনের ২৬ নং আইন)-এর ৫ ধারা অনুযায়ী দেনমোহর ও ভরণপোষণের মামলা পারিবারিক আদালতের একচ্ছত্র এখতিয়ারাধীন। এছাড়া ৬ ধারা অনুযায়ী আপনি বর্তমানে আপনার বাবার বাড়ির যে এলাকায় বসবাস করছেন, সেই এলাকার পারিবারিক আদালতেই মামলা দায়ের করতে পারবেন (স্বামীর এলাকায় যাওয়ার বাধ্যবাধকতা নেই)।'
+          : 'In plain language, even without divorce, a wife has a statutory right to her dower and monthly maintenance. Under Section 5 of the Family Courts Act 2023 (Act No. 26 of 2023), the Family Court holds exclusive jurisdiction over these matters. Under Section 6, you can file the suit in the Family Court where you currently reside with your parents, without traveling to your husband’s locality.',
+        userRightsAndOptions: isBn
+          ? [
+              'পারিবারিক আদালত আইনের ৫ ও ৬ ধারা অনুযায়ী নিজ বসবাসের এলাকায় দেনমোহর ও ভরণপোষণের মোকদ্দমা দায়ের।',
+              'মুসলিম পারিবারিক আইন অধ্যাদেশের ৯ ধারায় ইউনিয়ন পরিষদ সালিশি কাউন্সিলে দ্রুত খোরপোশের আবেদন।',
+              'জেলা লিগ্যাল এইড অফিস (১৬৬৯৯) থেকে বিনামূল্যে সরকারি আইনজীবী সেবা গ্রহণের সুযোগ।'
+            ]
+          : [
+              'File suit for dower and maintenance in your local Family Court under Sections 5 and 6.',
+              'Petition the local Arbitration Council under Section 9 of MFLO 1961.',
+              'Access free government legal aid and representation via 16699.'
+            ],
+        whatToDoNext: isBn
+          ? 'কাবিননামার কপি ও জাতীয় পরিচয়পত্র সংগ্রহ করুন এবং ইউনিয়ন পরিষদ সালিশি কাউন্সিল অথবা স্থানীয় পারিবারিক আদালতে মামলা করার জন্য জেলা লিগ্যাল এইড (১৬৬৯৯) বা পারিবারিক আইনজীবীর পরামর্শ নিন।'
+          : 'Collect your Nikahnama and national ID, and consult National Legal Aid (16699) or a family advocate to file before the local Family Court.'
+      }
+    };
+  }
+
+  // -------------------------------------------------------------
+  // DOMAIN 6: CYBER & DIGITAL SECURITY (Pornography Act 2012, Cyber Protection 2026)
+  // -------------------------------------------------------------
+  if (isDigital) {
+    return {
+      schemaVersion: 1,
+      answerId: request.requestId,
+      mode,
+      status: 'completed',
+      questions: [],
+      userFacts: [
+        ...accumulatedFacts,
+        { fieldId: 'issue_type', value: 'cyber_blackmail_intimate_media', status: 'user_confirmed', provenance: 'intent_classification' },
+      ],
+      checklist: [
+        {
+          id: 'step-cyber-1',
+          text: isBn
+            ? 'হুমকিদাতার মেসেজ, প্রোফাইল লিঙ্ক, পোস্ট, ফোন নম্বর ও আর্থিক দাবির সকল স্ক্রিনশট ও ডিজিটাল প্রমাণ অবিকৃত অবস্থায় সংরক্ষণ করুন।'
+            : 'Capture and securely preserve unedited screenshots of threats, messages, profile links, phone numbers, and extortion demands.',
+          sourceIds: ['cyber-pornography-8'],
+          condition: isBn ? 'ডিজিটাল প্রমাণ সংরক্ষণ আবশ্যক' : 'Digital evidence preservation required',
+        },
+        {
+          id: 'step-cyber-2',
+          text: isBn
+            ? 'বাংলাদেশ পুলিশের সাইবার সাপোর্ট ফর উইমেন (০১৩২০০০-০৮৮৮) অথবা সিআইডি সাইবার পুলিশ সেন্টারে (০১৭৬৯৬৯১৫২২) অবিলম্বে অভিযোগ জানান।'
+            : 'Contact Police Cyber Support for Women (01320000888) or CID Cyber Police Centre (01769691522) immediately.',
+          sourceIds: ['cyber-pornography-8', 'cyber-22'],
+        },
+        {
+          id: 'step-cyber-3',
+          text: isBn
+            ? 'নিকটস্থ থানায় পর্নোগ্রাফি নিয়ন্ত্রণ আইন ২০১২-এর ধারা ৮ এবং দণ্ডবিধির ৩৮৪ ধারায় তাৎক্ষণিক এজাহার (FIR) বা সাধারণ ডায়েরি (GD) দাখিল করুন।'
+            : 'Lodge an immediate FIR or GD at your local police station under Section 8 of the Pornography Control Act 2012 and Section 384 Penal Code.',
+          sourceIds: ['cyber-pornography-8', 'cyber-pornography-8-2', 'penal-384'],
+        },
+        {
+          id: 'step-cyber-4',
+          text: isBn
+            ? 'ব্ল্যাকমেইলকারীর কোনো আর্থিক দাবিতে টাকা প্রদান করবেন না এবং সাইবার হেল্পলাইনের সহায়তায় আপত্তিকর কনটেন্ট দ্রুত ব্লক করার আবেদন করুন।'
+            : 'Do not pay any extortion demands, and request emergency content blocking through the national cyber safety helplines.',
+          sourceIds: ['cyber-22'],
+        },
+      ],
+      explanation: [
+        {
+          text: isBn
+            ? 'পর্নোগ্রাফি নিয়ন্ত্রণ আইন, ২০১২-এর ধারা ৮(১), ৮(২) ও ৮(৩) অনুযায়ী কোনো ব্যক্তির ব্যক্তিগত বা অন্তরঙ্গ ছবি/ভিডিও ইন্টারনেটে ছড়িয়ে দেওয়ার ভয় দেখিয়ে টাকা বা সুবিধা দাবি করা মারাত্মক আমলযোগ্য ও অজামিনযোগ্য অপরাধ (অনূর্ধ্ব ৭ বছর সশ্রম কারাদণ্ড ও অর্থদণ্ড)।'
+            : 'Under Section 8(1), (2), and (3) of the Pornography Control Act 2012, blackmailing or threatening to disseminate non-consensual intimate media over the internet is a grave cognizable and non-bailable offense punishable by up to 7 years rigorous imprisonment and fine.',
+          sourceIds: ['cyber-pornography-8', 'cyber-pornography-8-2'],
+        },
+        {
+          text: isBn
+            ? 'ডিজিটাল মাধ্যমে অর্থ দাবি বা ভয়ভীতি প্রদর্শনের ক্ষেত্রে সাইবার সুরক্ষা সংস্কার আইন ২০২৬-এর ধারা ২২ এবং দণ্ডবিধির ৩৮৪ ধারা (চাঁদাবাজি) সরাসরি প্রযোজ্য।'
+            : 'For extortion committed digitally, Section 22 of the Cyber Protection Act 2026 and Section 384 of the Penal Code (Extortion) apply directly.',
+          sourceIds: ['cyber-22', 'penal-384'],
+        },
+        {
+          text: isBn
+            ? 'অনলাইনে ছদ্মবেশ ধারণ বা আইডি হ্যাক করে প্রতারণার ক্ষেত্রে দণ্ডবিধির ৪১৯ ধারা এবং সাইবার আইনের সংশ্লিষ্ট ধারা অনুযায়ী বিশেষ সাইবার ট্রাইব্যুনালে বিচার্য।'
+            : 'Impersonation, hacking, or identity fraud in cyberspace is prosecuted under Penal Code Section 419 and specialized cyber legislation.',
+          sourceIds: ['penal-419'],
+        },
+      ],
+      limitations: [
+        isBn
+          ? 'ডিজিটাল আলামত ধ্বংস বা মুছে ফেললে তদন্ত ব্যাহত হতে পারে; তাই কোনো মেসেজ ডিলিট না করে স্ক্রিনশট ও লিঙ্ক সংরক্ষণ আবশ্যক।'
+          : 'Do not delete incriminating messages or profiles, as unaltered digital metadata is essential for police cyber forensics.',
+      ],
+      sourcePackVersion: SOURCE_VERSION,
+      allowedDraftOptions: ['gd'],
+      problemSummary: {
+        identifiedIssue: isBn ? 'সাইবার ব্ল্যাকমেইল ও অন্তরঙ্গ ছবি ছড়িয়ে দেওয়ার হুমকি' : 'Cyber Extortion & Non-Consensual Intimate Media Threats',
+        understanding: isBn
+          ? 'আমরা আপনার বিষয়টি পর্যালোচনা করেছি: ফেসবুক বা আইডি হ্যাক করে অন্তরঙ্গ ছবি ভাইরাল করার ভয় দেখিয়ে টাকা দাবি করা হচ্ছে। বাংলাদেশের আইনে এটি চরম দণ্ডনীয় অজামিনযোগ্য অপরাধ।'
+          : 'We have reviewed your situation: intimate photos are being weaponized for extortion via social media. Under Bangladesh law, this constitutes a serious non-bailable criminal offense.',
+        additionalInfoNeeded: [],
+      },
+      plainLanguageExplanation: {
+        heading: isBn
+          ? 'পর্নোগ্রাফি নিয়ন্ত্রণ আইন ২০১২ (ধারা ৮) এবং সাইবার সুরক্ষা সংস্কার ২০২৬'
+          : 'Pornography Control Act 2012 (Section 8) & Cyber Protection Act 2026',
+        meaning: isBn
+          ? 'সহজ কথায়, কোনো ব্যক্তির ব্যক্তিগত বা গোপন ছবি ইন্টারনেটে ছড়িয়ে দেওয়ার ভয় দেখিয়ে টাকা চাওয়া পর্নোগ্রাফি নিয়ন্ত্রণ আইনের ৮ ধারা অনুযায়ী অজামিনযোগ্য অপরাধ, যার সাজা সর্বোচ্চ ৭ বছর সশ্রম কারাদণ্ড। অপরাধীকে কোনো টাকা দেবেন না, কারণ টাকা দিলে ব্ল্যাকমেইল বন্ধ হয় না। দ্রুত স্ক্রিনশট ও প্রোফাইল লিঙ্ক সংরক্ষণ করে পুলিশ সাইবার উইং (০১৩২০০০-০৮৮৮) ও থানায় যোগাযোগ করুন।'
+          : 'In plain language, threatening to viral intimate photos for money is a non-bailable offense under Section 8 of the Pornography Control Act 2012, carrying up to 7 years rigorous imprisonment. Do not yield to ransom demands. Safeguard all digital screenshots and report to Police Cyber Support (01320000888) and your local Thana immediately.',
+        userRightsAndOptions: isBn
+          ? [
+              'পর্নোগ্রাফি নিয়ন্ত্রণ আইন ২০১২-এর ধারা ৮ অনুযায়ী তাৎক্ষণিক পুলিশি হস্তক্ষেপ ও গ্রেফতারের দাবি।',
+              'পুলিশ সাইবার সাপোর্ট ফর উইমেন (০১৩২০০০-০৮৮৮) বা সিআইডি সাইবার ক্রাইম সেন্টারের জরুরি সহায়তা।',
+              'দণ্ডবিধির ৩৮৪ ধারায় চাঁদাবাজি ও সাইবার সুরক্ষা আইনে মামলা দায়েরের অধিকার।'
+            ]
+          : [
+              'Immediate police arrest and intervention under Section 8 of Pornography Control Act 2012.',
+              'Emergency assistance from Police Cyber Support for Women (01320000888) or CID Cyber Police.',
+              'Criminal prosecution under Section 384 of the Penal Code and Cyber Protection Act 2026.'
+            ],
+        whatToDoNext: isBn
+          ? 'সকল চ্যাট, মেসেজ ও প্রোফাইলের স্ক্রিনশট রাখুন, অপরাধীকে কোনো টাকা দেবেন না এবং পুলিশ সাইবার সাপোর্ট ফর উইমেনে (০১৩২০০০-০৮৮৮) কল করুন।'
+          : 'Preserve all messages and profile URLs, refuse payments, and call Police Cyber Support for Women (01320000888) immediately.'
+      },
+      draftOffer: {
+        prompt: isBn
+          ? 'আপনি কি এই ঘটনার ভিত্তিতে থানায় একটি সাধারণ ডায়েরি (GD) বা লিখিত অভিযোগের খসড়া তৈরি করতে চান?'
+          : 'Would you like to prepare a formal General Diary (GD) draft regarding this cyber threat?',
+        documentType: 'gd',
+        documentTitle: isBn
+          ? 'সাইবার হুমকি ও ব্ল্যাকমেইল সংক্রান্ত সাধারণ ডায়েরি (GD)'
+          : 'General Diary (GD) Application for Cyber Threat & Harassment',
+        description: isBn
+          ? 'MyLaws আপনার তথ্যের ভিত্তিতে থানায় দাখিলযোগ্য একটি প্রমিত জিডি খসড়া প্রস্তুত করবে। আপনি প্রিন্ট-রেডি A4 PDF ডাউনলোড করতে পারবেন।'
+          : 'MyLaws will generate a structured GD application for submission to the local police station.',
+        missingDetails: isBn
+          ? ['হুমকিদাতার অ্যাকাউন্ট বা ফোন নম্বর', 'ঘটনাস্থল বা সংশ্লিষ্ট থানা']
+          : ['Sender account or phone number', 'Police station jurisdiction']
+      }
+    };
+  }
+
+  // -------------------------------------------------------------
+  // DOMAIN 7: FUNDAMENTAL RIGHTS & ARREST/BAIL (Constitution Art 33, CrPC 61)
+  // -------------------------------------------------------------
+  if (isRights) {
+    return {
+      schemaVersion: 1,
+      answerId: request.requestId,
+      mode,
+      status: 'completed',
+      questions: [],
+      userFacts: [
+        ...accumulatedFacts,
+        { fieldId: 'issue_type', value: 'unlawful_arrest_detention', status: 'user_confirmed', provenance: 'intent_classification' },
+      ],
+      checklist: [
+        {
+          id: 'step-rights-1',
+          text: isBn
+            ? 'কোন থানা বা তদন্তকারী সংস্থা গ্রেফতার করেছে, গ্রেফতারের সুনির্দিষ্ট সময় ও স্থান নথিবদ্ধ করুন।'
+            : 'Record the arresting police station, arresting officer identity, and exact date/time of apprehension.',
+          sourceIds: ['const-33-arrest'],
+          condition: isBn ? 'গ্রেফতারের সময় ও স্থান নথিবদ্ধকরণ' : 'Log arrest time and location',
+        },
+        {
+          id: 'step-rights-2',
+          text: isBn
+            ? 'থানা বা তদন্ত কর্মকর্তার নিকট গ্রেফতারকৃত ব্যক্তিকে ২৪ ঘণ্টার মধ্যে নিকটস্থ ম্যাজিস্ট্রেটের আদালতে হাজির করার বাধ্যবাধকতা স্মরণ করিয়ে দিন।'
+            : 'Demand that the arresting agency comply with the mandatory 24-hour statutory limit to present the detainee before a Magistrate.',
+          sourceIds: ['crpc-61', 'const-33-arrest'],
+        },
+        {
+          id: 'step-rights-3',
+          text: isBn
+            ? 'আদালতে সোপর্দ করার সাথে সাথে সংশ্লিষ্ট চিফ জুডিশিয়াল বা মেট্রোপলিটন ম্যাজিস্ট্রেট আদালতে আইনজীবীর মাধ্যমে জরুরি জামিনের আবেদন দাখিল করুন।'
+            : 'Move an immediate bail application through an advocate before the Chief Judicial or Metropolitan Magistrate Court.',
+          sourceIds: ['crpc-61', 'crpc-167'],
+        },
+        {
+          id: 'step-rights-4',
+          text: isBn
+            ? 'বিনা খরচে সরকারি প্যানেল আইনজীবী পেতে জাতীয় লিগ্যাল এইড হেল্পলাইনে (১৬৬৯৯) জরুরি যোগাযোগ করুন।'
+            : 'Contact National Legal Aid (16699) immediately for free state-funded legal representation and panel advocate appointment.',
+          sourceIds: ['legalaid-16', 'legalaid-9'],
+          officeId: nationalLegalAid.id,
+        },
+      ],
+      explanation: [
+        {
+          text: isBn
+            ? 'গণপ্রজাতন্ত্রী বাংলাদেশের সংবিধানের অনুচ্ছেদ ৩৩(২) অনুযায়ী পরোয়ানা ব্যতিরেকে গ্রেফতারকৃত প্রত্যেক ব্যক্তিকে গ্রেফতারের স্থান থেকে ম্যাজিস্ট্রেটের আদালতে পৌঁছানোর প্রয়োজনীয় সময় ব্যতীত ২৪ ঘণ্টার মধ্যে নিকটতম ম্যাজিস্ট্রেটের আদালতে হাজির করতে হবে এবং ম্যাজিস্ট্রেটের স্পষ্ট আদেশ ছাড়া এর চেয়ে বেশি সময় আটকে রাখা যাবে না।'
+            : 'Under Article 33(2) of the Constitution of Bangladesh, every person arrested without warrant must be produced before the nearest Magistrate within 24 hours (excluding journey time) and cannot be detained in custody beyond that period without the authority of a Magistrate.',
+          sourceIds: ['const-33-arrest'],
+        },
+        {
+          text: isBn
+            ? 'ফৌজদারি কার্যবিধির ধারা ৬১ অনুযায়ী কোনো পুলিশ কর্মকর্তা ম্যাজিস্ট্রেটের বিশেষ আদেশ ব্যতীত গ্রেফতারকৃত কোনো ব্যক্তিকে ২৪ ঘণ্টার বেশি সময় পুলিশ হেফাজতে আটকে রাখতে পারবেন না।'
+            : 'Under Section 61 of the Code of Criminal Procedure, no police officer shall detain in custody a person arrested without warrant for a longer period than under all circumstances of the case is reasonable, and such period shall not exceed 24 hours.',
+          sourceIds: ['crpc-61'],
+        },
+        {
+          text: isBn
+            ? 'আইনগত সহায়তা প্রদান আইন, ২০০০-এর ধারা ১৬ অনুযায়ী যে কোনো অসচ্ছল নাগরিক বা আটক ব্যক্তি সরকারের খরচে জেলা লিগ্যাল এইড অফিসারের মাধ্যমে আইনজীবী ও জামিন সহায়তার অধিকারী।'
+            : 'Under Section 16 of the Legal Aid Services Act 2000, detained indigent persons are entitled to free government-funded legal counsel and bail assistance through the District Legal Aid Officer (Hotline 16699).',
+          sourceIds: ['legalaid-16', 'legalaid-9'],
+        },
+      ],
+      limitations: [
+        isBn
+          ? 'ম্যাজিস্ট্রেটের আদেশ ছাড়া ২৪ ঘণ্টার অতিরিক্ত আটক সংবিধান পরিপন্থী; তবে আদালতে সোপর্দ করার পর ম্যাজিস্ট্রেট রিমান্ড বা জেলহাজতের আদেশ দিতে পারেন।'
+          : 'Detention beyond 24 hours without magistrate order is unconstitutional; however, upon production, the Magistrate may order judicial custody or police remand under Section 167.',
+      ],
+      sourcePackVersion: SOURCE_VERSION,
+      allowedDraftOptions: [],
+      problemSummary: {
+        identifiedIssue: isBn ? 'পরোয়ানা ছাড়া গ্রেফতার ও ২৪ ঘণ্টার বেশি অবৈধ আটক' : 'Arrest Without Warrant & Unlawful Detention Beyond 24 Hours',
+        understanding: isBn
+          ? 'আমরা আপনার বিষয়টি পর্যালোচনা করেছি: পরোয়ানা ছাড়া গ্রেফতার করে ২৪ ঘণ্টার বেশি (৪৮ ঘণ্টা) সময় ধরে ম্যাজিস্ট্রেটে হাজির না করে থানায় আটকে রাখা হয়েছে। এটি সংবিধান ও আইনের চরম লঙ্ঘন।'
+          : 'We have reviewed your situation: your brother was arrested without warrant and kept in lockup for 48 hours without being presented to a Magistrate. This is a direct constitutional and statutory violation.',
+        additionalInfoNeeded: [],
+      },
+      plainLanguageExplanation: {
+        heading: isBn
+          ? 'গণপ্রজাতন্ত্রী বাংলাদেশের সংবিধান (অনুচ্ছেদ ৩৩) ও ফৌজদারি কার্যবিধি (ধারা ৬১)'
+          : 'Constitution of Bangladesh (Article 33) & Code of Criminal Procedure (Section 61)',
+        meaning: isBn
+          ? 'সহজ কথায়, সংবিধানের ৩৩(২) অনুচ্ছেদ এবং ফৌজদারি কার্যবিধির ৬১ ধারা অনুযায়ী পরোয়ানা ছাড়া গ্রেফতারকৃত যে কোনো ব্যক্তিকে ২৪ ঘণ্টার মধ্যে ম্যাজিস্ট্রেটের আদালতে হাজির করা পুলিশের জন্য বাধ্যতামূলক। ম্যাজিস্ট্রেটের লিখিত অনুমতি ছাড়া কোনো নাগরিককে থানায় ২৪ ঘণ্টার বেশি আটকে রাখা বেআইনি। ৪৮ ঘণ্টা আটকে রাখা সরাসরি মৌলিক অধিকারের লঙ্ঘন। অবিলম্বে আদালতে আইনজীবী ও লিগ্যাল এইড (১৬৬৯৯) নিয়ে জামিনের পদক্ষেপ নিন।'
+          : 'In plain language, Article 33(2) of the Constitution and Section 61 of the CrPC mandate that any person arrested without a warrant must be produced before a Magistrate within 24 hours. Holding anyone in police lockup for 48 hours without court production is strictly illegal and an infringement of fundamental rights. Move an immediate bail petition before the Magistrate Court.',
+        userRightsAndOptions: isBn
+          ? [
+              'সংবিধানের অনুচ্ছেদ ৩৩(২) অনুযায়ী ২৪ ঘণ্টার মধ্যে ম্যাজিস্ট্রেটের আদালতে সোপর্দ হওয়ার সাংবিধানিক অধিকার।',
+              'ফৌজদারি কার্যবিধির ৬১ ও ১৬৭ ধারার আওতায় আদালতে অবিলম্বে জামিন প্রার্থনা।',
+              'জাতীয় লিগ্যাল এইড সংস্থা (১৬৬৯৯) থেকে বিনামূল্যে সরকারি প্যানেল আইনজীবী পাওয়ার অধিকার।'
+            ]
+          : [
+              'Constitutional entitlement to be produced before a Magistrate within 24 hours under Article 33(2).',
+              'Immediate application for bail before the Magistrate under Sections 61 and 167 CrPC.',
+              'Access to free state-appointed legal counsel via National Legal Aid (16699).'
+            ],
+        whatToDoNext: isBn
+          ? 'সংশ্লিষ্ট মেট্রোপলিটন বা জুডিশিয়াল ম্যাজিস্ট্রেট আদালতে খোঁজ নিন এবং জাতীয় আইনি সহায়তা হেল্পলাইনে (১৬৬৯৯) যোগাযোগ করে জামিনের জন্য আইনজীবী নিয়োগ করুন।'
+          : 'Locate the case before the designated Metropolitan/Judicial Magistrate Court and contact National Legal Aid (16699) to appoint a counsel for immediate bail.'
+      }
+    };
+  }
+
+  // -------------------------------------------------------------
+  // DOMAIN 8: CANDIDATE-PROVISIONS-GROUNDED FALLBACK
+  // -------------------------------------------------------------
+  if (candidateProvisions && candidateProvisions.length > 0) {
+    const topP = candidateProvisions[0];
+    const topTitle = topP.title ? topP.title[isBn ? 'bn' : 'en'] : topP.id;
+    const topAct = topP.act ? topP.act[isBn ? 'bn' : 'en'] : topP.actId || 'আইন';
+    const topQuote = topP.quote || '';
+    const topExplanation = topP.explanation ? topP.explanation[isBn ? 'bn' : 'en'] : '';
+
+    return {
+      schemaVersion: 1,
+      answerId: request.requestId,
+      mode,
+      status: 'completed',
+      questions: [],
+      userFacts: [
+        ...accumulatedFacts,
+        {
+          fieldId: 'query',
+          value: originalMessage,
+          status: 'user_reported',
+          provenance: 'user_input',
+        },
+      ],
+      checklist: [
+        {
+          id: 'step-retrieved-1',
+          text: isBn
+            ? `ঘটনা সম্পর্কিত যাবতীয় নথিপত্র এবং প্রমাণ সংরক্ষণ করুন (${topAct} এর ${topP.section} অনুযায়ী)।`
+            : `Safeguard relevant records and supporting documents in accordance with ${topAct} (${topP.section}).`,
+          sourceIds: [topP.id],
+        },
+        {
+          id: 'step-retrieved-2',
+          text: isBn
+            ? 'সরকারি জাতীয় আইনি সহায়তা হেল্পলাইনে (১৬৬৯৯) যোগাযোগ করে আপনার এলাকার প্রযোজ্য সেবা সম্পর্কে বিনামূল্যে পরামর্শ নিন।'
+            : 'Contact National Legal Aid at 16699 to discover available governmental legal services in your area.',
+          sourceIds: ['constitution-27'],
+          officeId: nationalLegalAid.id,
+        },
+      ],
+      explanation: [
+        {
+          text: topExplanation || (isBn
+            ? `${topAct}-এর ${topP.section} অনুযায়ী: "${topQuote}"`
+            : `Under ${topAct} (${topP.section}): "${topQuote}"`),
+          sourceIds: [topP.id],
+        },
+        {
+          text: isBn
+            ? 'গণপ্রজাতন্ত্রী বাংলাদেশের সংবিধানের অনুচ্ছেদ ৩১ অনুযায়ী প্রত্যেক নাগরিকের আইনানুযায়ী আচরণ পাওয়ার ও আইনের আশ্রয় লাভের অবিচ্ছেদ্য অধিকার রয়েছে।'
+            : 'Article 31 of the Constitution establishes the inalienable right of every citizen to be treated only in accordance with law.',
+          sourceIds: ['constitution-31'],
+        },
+      ],
+      limitations: [
+        isBn
+          ? 'এই পরামর্শটি সরকারি গেজেটভুক্ত প্রামাণ্য বিধান থেকে সংগৃহীত। আদালতের চূড়ান্ত প্রক্রিয়ার জন্য আইনজীবীর সহায়তা নিন।'
+          : 'This guidance is grounded in verified statutory provisions. Consult an advocate for judicial representation.',
+      ],
+      sourcePackVersion: SOURCE_VERSION,
+      allowedDraftOptions: [],
+      problemSummary: {
+        identifiedIssue: topTitle,
+        understanding: isBn
+          ? `আমরা আপনার বিষয়টি পর্যালোচনা করেছি। এই সংক্রান্ত ঘটনায় ${topAct} প্রযোজ্য।`
+          : `We have reviewed your inquiry. The statutory provisions of ${topAct} apply to this matter.`,
+        additionalInfoNeeded: [],
+      },
+      plainLanguageExplanation: {
+        heading: `${topAct} (${topP.section})`,
+        meaning: topExplanation || (isBn ? topQuote : topQuote),
+        userRightsAndOptions: isBn
+          ? [
+              `${topAct} অনুযায়ী আইনি প্রতিকার ও সুরক্ষার অধিকার।`,
+              'সরকারি জাতীয় আইনি সহায়তা সংস্থা (১৬৬৯৯) থেকে বিনামূল্যে পরামর্শ গ্রহণের সুযোগ।'
+            ]
+          : [
+              `Statutory protection under ${topAct}.`,
+              'Access to free government legal aid via 16699.'
+            ],
+        whatToDoNext: isBn
+          ? 'আপনার নথিপত্র সংগ্রহ করুন এবং জাতীয় আইনি সহায়তা হেল্পলাইনে (১৬৬৯৯) যোগাযোগ করুন।'
+          : 'Organize your documents and consult the National Legal Aid Hotline at 16699.'
+      }
+    };
+  }
+
+  // -------------------------------------------------------------
+  // DOMAIN 9: GENERIC / OTHER LEGAL INQUIRY FALLBACK (NO FAKE DRAFTS)
   // -------------------------------------------------------------
   return {
     schemaVersion: 1,
@@ -1750,3 +2651,4 @@ export function createLegalWorkflow(
     },
   };
 }
+

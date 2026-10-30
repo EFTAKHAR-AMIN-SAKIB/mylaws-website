@@ -21,6 +21,8 @@ export default function SourcesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
   const [activeSourceId, setActiveSourceId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 24;
 
   const categories: Array<{ id: Category | 'all'; label: string }> = [
     { id: 'all', label: t(`সকল বিষয় (${provisions.length}টি)`, `All Topics (${provisions.length})`) },
@@ -33,8 +35,22 @@ export default function SourcesPage() {
     { id: 'rights', label: t('মৌলিক অধিকার ও লিগ্যাল এইড', 'Fundamental Rights & Legal Aid') },
   ];
 
+  const handleCategoryChange = (cat: Category | 'all') => {
+    setSelectedCategory(cat);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (term: string) => {
+    setSearchTerm(term);
+    setCurrentPage(1);
+  };
+
   const filteredProvisions = provisions.filter((p) => {
-    const matchesCat = selectedCategory === 'all' || p.category === selectedCategory;
+    const matchesCat =
+      selectedCategory === 'all' ||
+      (p.categories && p.categories.length > 0
+        ? p.categories.includes(selectedCategory)
+        : p.category === selectedCategory);
     const term = searchTerm.toLowerCase().trim();
     const matchesSearch =
       !term ||
@@ -46,6 +62,12 @@ export default function SourcesPage() {
       p.quote.toLowerCase().includes(term);
     return matchesCat && matchesSearch;
   });
+
+  const totalPages = Math.ceil(filteredProvisions.length / PAGE_SIZE) || 1;
+  const paginatedProvisions = filteredProvisions.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-bg-light text-primary-light transition-colors bg-parchment-grid">
@@ -65,8 +87,8 @@ export default function SourcesPage() {
 
           <p className="font-hind text-xs sm:text-sm text-secondary-light leading-relaxed">
             {t(
-              `MyLaws কোনো অনুমাননির্ভর তথ্য বা কাল্পনিক আইনের উদ্ধৃতি প্রদান করে না। বর্তমান ভেরিফাইড ডাটাবেজে বাংলাদেশ সরকারের আইন মন্ত্রণালয়ের অফিশিয়াল পোর্টাল (bdlaws.minlaw.gov.bd) থেকে সংগৃহীত ৭টি মৌলিক ক্যাটাগরিতে মোট ${provisions.length}টি প্রামাণ্য বিধান সংরক্ষিত রয়েছে।`,
-              `MyLaws does not hallucinate statutes. The current verified corpus contains ${provisions.length} specific provisions across 7 core legal categories from the official Bangladesh Code portal (bdlaws.minlaw.gov.bd).`
+              `MyLaws কোনো অনুমাননির্ভর তথ্য বা কাল্পনিক আইনের উদ্ধৃতি প্রদান করে না। বর্তমান ভেরিফাইড ডাটাবেজে বাংলাদেশ সরকারের আইন মন্ত্রণালয়ের অফিশিয়াল পোর্টাল (bdlaws.minlaw.gov.bd) থেকে সংগৃহীত ৭টি মৌলিক ক্যাটাগরিতে নির্বাচিত ${provisions.length}টি প্রামাণ্য বিধান সংরক্ষিত রয়েছে। এটি সমগ্র বাংলাদেশ আইনের পূর্ণাঙ্গ ডাটাবেজ নয়, বরং সাধারণ নাগরিক অধিকার ও নিত্যদিনের আইনি বিরোধ সংক্রান্ত বাছাইকৃত গুরুত্বপূর্ণ বিধান।`,
+              `MyLaws does not hallucinate statutes. The current verified corpus contains ${provisions.length} selected provisions across 7 core legal categories from the official Bangladesh Code portal (bdlaws.minlaw.gov.bd). It covers selected citizen-facing statutory provisions, not the entire body of Bangladesh law.`
             )}
           </p>
         </div>
@@ -115,12 +137,12 @@ export default function SourcesPage() {
 
         {/* Filter and Search Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 border-t border-border-light/60 dark:border-border-dark/60">
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 max-w-full flex-nowrap sm:flex-wrap">
             {categories.map((c) => (
               <button
                 key={c.id}
-                onClick={() => setSelectedCategory(c.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                onClick={() => handleCategoryChange(c.id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 active-press whitespace-nowrap ${
                   selectedCategory === c.id
                     ? 'bg-accent-light text-surface-light dark:bg-accent-dark dark:text-bg-dark font-semibold'
                     : 'bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark text-secondary-light dark:text-secondary-dark hover:border-accent-light dark:hover:border-accent-dark'
@@ -137,15 +159,30 @@ export default function SourcesPage() {
               type="text"
               placeholder={t('আইন বা ধারা খুঁজুন...', 'Search provision...')}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full text-xs rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark pl-9 pr-3.5 py-2 text-primary-light dark:text-primary-dark focus:border-accent-light dark:focus:border-accent-dark"
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="w-full text-base sm:text-xs rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark pl-9 pr-3.5 py-2 text-primary-light dark:text-primary-dark focus:border-accent-light dark:focus:border-accent-dark"
             />
           </div>
         </div>
 
+        {/* Pagination Summary */}
+        <div className="flex items-center justify-between text-xs text-secondary-light dark:text-secondary-dark px-1">
+          <span>
+            {t(
+              `মোট ${filteredProvisions.length}টি বিধানের মধ্যে ${(currentPage - 1) * PAGE_SIZE + 1}–${Math.min(currentPage * PAGE_SIZE, filteredProvisions.length)} দেখানো হচ্ছে`,
+              `Showing ${(currentPage - 1) * PAGE_SIZE + 1}–${Math.min(currentPage * PAGE_SIZE, filteredProvisions.length)} of ${filteredProvisions.length} provisions`
+            )}
+          </span>
+          {totalPages > 1 && (
+            <span className="font-mono">
+              {t(`পৃষ্ঠা ${currentPage} / ${totalPages}`, `Page ${currentPage} of ${totalPages}`)}
+            </span>
+          )}
+        </div>
+
         {/* Provisions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProvisions.map((p) => (
+          {paginatedProvisions.map((p) => (
             <div
               key={p.id}
               onClick={() => setActiveSourceId(p.id)}
@@ -177,6 +214,35 @@ export default function SourcesPage() {
             </div>
           ))}
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3 pt-6 pb-2">
+            <button
+              onClick={() => {
+                setCurrentPage((prev) => Math.max(prev - 1, 1));
+                window.scrollTo({ top: 400, behavior: 'smooth' });
+              }}
+              disabled={currentPage === 1}
+              className="px-4 py-2 rounded-xl text-xs font-medium border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark disabled:opacity-40 disabled:cursor-not-allowed hover:border-accent-light transition-colors"
+            >
+              {t('← পূর্ববর্তী পৃষ্ঠা', '← Previous Page')}
+            </button>
+            <span className="text-xs font-mono text-secondary-light dark:text-secondary-dark px-2">
+              {currentPage} / {totalPages}
+            </span>
+            <button
+              onClick={() => {
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+                window.scrollTo({ top: 400, behavior: 'smooth' });
+              }}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 rounded-xl text-xs font-medium border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark disabled:opacity-40 disabled:cursor-not-allowed hover:border-accent-light transition-colors"
+            >
+              {t('পরবর্তী পৃষ্ঠা →', 'Next Page →')}
+            </button>
+          </div>
+        )}
       </main>
 
       {/* Source Modal */}

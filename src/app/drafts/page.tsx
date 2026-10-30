@@ -157,11 +157,11 @@ export default function DraftsPage() {
             </p>
           </div>
 
-          {/* Template Switcher Tabs */}
-          <div className="flex items-center gap-1.5 p-1 bg-surface-cardLight border border-border-light rounded-xl shadow-2xs">
+          {/* Template Switcher Tabs - Horizontally scrollable on small screens */}
+          <div className="flex items-center gap-1.5 p-1 bg-surface-cardLight border border-border-light rounded-xl shadow-2xs overflow-x-auto no-scrollbar max-w-full">
             <button
               onClick={() => handleTypeChange('dife')}
-              className={`px-3.5 py-2 text-xs tracking-wider rounded-lg transition-all ${
+              className={`px-3.5 py-2 text-xs tracking-wider rounded-lg transition-all shrink-0 active-press ${
                 lang === 'bn' ? 'font-hind font-semibold' : 'font-cinzel'
               } ${
                 docType === 'dife'
@@ -173,7 +173,7 @@ export default function DraftsPage() {
             </button>
             <button
               onClick={() => handleTypeChange('gd')}
-              className={`px-3.5 py-2 text-xs tracking-wider rounded-lg transition-all ${
+              className={`px-3.5 py-2 text-xs tracking-wider rounded-lg transition-all shrink-0 active-press ${
                 lang === 'bn' ? 'font-hind font-semibold' : 'font-cinzel'
               } ${
                 docType === 'gd'
@@ -185,7 +185,7 @@ export default function DraftsPage() {
             </button>
             <button
               onClick={() => handleTypeChange('dncrp')}
-              className={`px-3.5 py-2 text-xs tracking-wider rounded-lg transition-all ${
+              className={`px-3.5 py-2 text-xs tracking-wider rounded-lg transition-all shrink-0 active-press ${
                 lang === 'bn' ? 'font-hind font-semibold' : 'font-cinzel'
               } ${
                 docType === 'dncrp'
@@ -198,25 +198,25 @@ export default function DraftsPage() {
           </div>
         </div>
 
-        {/* Mobile View Toggle: Form vs Preview */}
-        <div className="no-print flex lg:hidden mt-4 p-1 bg-surface-cardLight dark:bg-surface-cardDark border border-border-light dark:border-border-dark rounded-xl">
+        {/* Mobile View Toggle: Form vs Preview (Sticky on Mobile) */}
+        <div className="no-print flex lg:hidden mt-3 p-1 bg-surface-cardLight/95 backdrop-blur-md border border-border-light rounded-xl sticky top-14 z-20 shadow-xs">
           <button
             onClick={() => setMobileTab('edit')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all active-press ${
               mobileTab === 'edit'
-                ? 'bg-accent-light text-surface-light dark:bg-accent-dark dark:text-bg-dark shadow'
-                : 'text-secondary-light dark:text-secondary-dark'
+                ? 'bg-accent-light text-surface-light shadow-xs'
+                : 'text-secondary-light'
             }`}
           >
             <Edit3 className="h-3.5 w-3.5" />
-            <span>{t('তথ্য পূরণ (Edit Form)', 'Edit Form')}</span>
+            <span>{t('তথ্য পূরণ (Edit)', 'Edit Form')}</span>
           </button>
           <button
             onClick={() => setMobileTab('preview')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all active-press ${
               mobileTab === 'preview'
-                ? 'bg-accent-light text-surface-light dark:bg-accent-dark dark:text-bg-dark shadow'
-                : 'text-secondary-light dark:text-secondary-dark'
+                ? 'bg-accent-light text-surface-light shadow-xs'
+                : 'text-secondary-light'
             }`}
           >
             <Eye className="h-3.5 w-3.5" />
@@ -385,7 +385,7 @@ export default function DraftsPage() {
             {/* A4 Document Paper Sheet */}
             <div
               ref={printRef}
-              className="printable-document bg-white text-black p-8 sm:p-14 rounded-2xl border border-border-light shadow-xl min-h-[750px] font-bangla text-sm leading-relaxed space-y-6"
+              className="printable-document bg-white text-black p-5 sm:p-14 rounded-2xl border border-border-light shadow-xl min-h-[600px] sm:min-h-[750px] font-bangla text-sm leading-relaxed space-y-6 overflow-x-auto"
             >
               {/* Document Paragraphs */}
               <div className="space-y-4">
@@ -415,6 +415,35 @@ export default function DraftsPage() {
                   'This draft document is prepared by MyLaws for formal submission. Verify all facts, dates, and names before signing and submitting to authorities.'
                 )}
               </p>
+            </div>
+
+            {/* Sticky Mobile Action Bar in Preview Tab */}
+            <div className="no-print lg:hidden fixed bottom-14 left-0 right-0 z-30 p-2.5 bg-surface-cardLight/95 backdrop-blur-md border-t border-border-light flex items-center justify-around gap-2 shadow-lg">
+              <button
+                type="button"
+                onClick={handleCopyText}
+                className="flex-1 py-2 px-2 rounded-lg border border-border-light text-xs font-semibold flex items-center justify-center gap-1 active-press bg-surface-light text-secondary-light"
+              >
+                {copied ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5 text-accent-light" />}
+                <span>{copied ? t('কপি হয়েছে', 'Copied') : t('কপি', 'Copy')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handlePrint}
+                className="py-2 px-3 rounded-lg border border-border-light text-xs font-semibold flex items-center justify-center gap-1 active-press bg-surface-light text-secondary-light"
+              >
+                <Printer className="h-3.5 w-3.5 text-accent-light" />
+                <span>{t('প্রিন্ট', 'Print')}</span>
+              </button>
+              <button
+                type="button"
+                disabled={exportingPdf}
+                onClick={handlePdfExport}
+                className="flex-1 py-2 px-3 rounded-lg bg-accent-light text-white text-xs font-semibold flex items-center justify-center gap-1 shadow active-press disabled:opacity-50"
+              >
+                <Download className="h-3.5 w-3.5" />
+                <span>{exportingPdf ? t('তৈরি হচ্ছে...', '...') : t('PDF ডাউনলোড', 'PDF')}</span>
+              </button>
             </div>
           </div>
         </div>

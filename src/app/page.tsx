@@ -130,10 +130,10 @@ export default function HomePage() {
                 </p>
 
                 {/* Action Buttons: Signature Bracket Button & Application Target */}
-                <div className="flex flex-wrap items-center gap-4 pt-1">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
                   <Link
                     href="/ask"
-                    className="bracket-btn text-[#231F1C] hover:text-accent-light py-3.5 px-7 shadow-sm"
+                    className="bracket-btn text-[#231F1C] hover:text-accent-light py-3.5 px-7 shadow-sm text-center active-press"
                   >
                     <span className={lang === 'bn' ? 'font-hind font-bold text-xs' : 'font-cinzel text-xs font-bold'}>
                       — {t('এখনই প্রশ্ন করুন', 'USE ONLINE NOW')} —
@@ -142,7 +142,7 @@ export default function HomePage() {
 
                   <Link
                     href="/download"
-                    className="inline-flex items-center gap-2 rounded-lg border border-border-light bg-surface-light px-5 py-3 text-xs tracking-wider text-[#231F1C] hover:border-accent-light hover:text-accent-light transition-all shadow-2xs"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-border-light bg-surface-light px-5 py-3 text-xs tracking-wider text-[#231F1C] hover:border-accent-light hover:text-accent-light transition-all shadow-2xs active-press"
                   >
                     <Smartphone className="h-4 w-4 text-accent-light" />
                     <span className={lang === 'bn' ? 'font-hind font-semibold text-xs' : 'font-cinzel text-xs'}>
@@ -155,7 +155,7 @@ export default function HomePage() {
                 <div className="flex flex-wrap items-center gap-5 pt-2 text-xs text-[#5A534A]">
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0" />
-                    <span>{t('লগইন বা একাউন্ট ছাড়াই ব্যবহারযোগ্য', 'Zero login required')}</span>
+                    <span>{t('নিরাপদ সাইন-ইন ভিত্তিক সেবা', 'Secure authenticated access')}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0" />
@@ -163,7 +163,7 @@ export default function HomePage() {
                   </div>
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0" />
-                    <span>{t('ব্রাউজারেই তথ্য নিরাপদ', '100% private in browser')}</span>
+                    <span>{t('ব্যবহারকারীর ব্যক্তিগত তথ্যের সুরক্ষা', 'Per-user query privacy')}</span>
                   </div>
                 </div>
 

@@ -153,6 +153,10 @@ export interface AnswerResult {
   limitations: string[];
   sourcePackVersion: string;
   allowedDraftOptions: DocumentType[];
+  relevantProvisions?: any[];
+  isOutOfScope?: boolean;
+  disclaimer?: string;
+  followUpQuestion?: string;
   // Conversational Multi-turn Response
   isFollowUp?: boolean;
   isGreeting?: boolean;

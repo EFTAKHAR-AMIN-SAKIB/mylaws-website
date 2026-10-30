@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { provisions as fallbackProvisions } from '@/data/legal';
+import { provisions as fallbackProvisions, CORPUS_VERSION, CORPUS_PUBLISHED_AT } from '@/data/legal';
 import { searchLibrary } from '@/lib/retrieval';
 import { isCloudflareConfigured, fetchProvisionsFromD1 } from '@/lib/cloudflare';
 
@@ -9,11 +9,11 @@ export async function GET(req: NextRequest) {
   const category = searchParams.get('category');
 
   let results = isCloudflareConfigured()
-    ? await fetchProvisionsFromD1(200)
+    ? await fetchProvisionsFromD1(1000)
     : fallbackProvisions;
 
   if (category) {
-    results = results.filter((p) => p.category === category);
+    results = results.filter((p) => (p.categories && p.categories.length > 0 ? p.categories.includes(category as any) : p.category === category));
   }
 
   if (q && q.trim().length > 0) {
@@ -23,9 +23,11 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(
     {
       count: results.length,
-      provisions: results,
-      consultedDate: '2026-10-26',
+      corpusVersion: CORPUS_VERSION,
+      publishedAt: CORPUS_PUBLISHED_AT,
+      consultedDate: '2026-10-30',
       source: isCloudflareConfigured() ? 'cloudflare_d1' : 'local_verified_corpus',
+      provisions: results,
     },
     {
       headers: {

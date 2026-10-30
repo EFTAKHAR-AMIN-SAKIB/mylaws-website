@@ -1,0 +1,30 @@
+{
+  "name": "MyLaws — বাংলাদেশ আইনি তথ্য ও প্রস্তুতি সহকারী",
+  "short_name": "MyLaws",
+  "description": "সহজ বাংলায় আপনার অধিকার বুঝুন, যাচাইকৃত আইনি বিধান দেখুন এবং অভিযোগ বা জিডির খসড়া প্রস্তুত করুন।",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F1EDE1",
+  "theme_color": "#F1EDE1",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["legal", "government", "utilities"]
+}

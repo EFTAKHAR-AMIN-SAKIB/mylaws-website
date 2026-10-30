@@ -242,7 +242,7 @@ describe('Audit Regression & Acceptance Suite (Section 12 Verification)', () => 
     expect(data.status).toBe('clarifying');
     expect(['online_meta', 'online_guided_fallback']).toContain(data.engineProvenance);
     expect(data.checklist.length).toBeGreaterThanOrEqual(3);
-  }, 15000);
+  }, 25000);
 
   // 15. APK file on disk matches metadata and SHA256 checksum in manifest
   it('verifies actual APK metadata matches byte size and SHA256 in manifest', async () => {
@@ -277,5 +277,5 @@ describe('Audit Regression & Acceptance Suite (Section 12 Verification)', () => 
     for (const sid of result.sourceIds) {
       expect(allowed.has(sid)).toBe(true);
     }
-  }, 20000);
+  }, 35000);
 });

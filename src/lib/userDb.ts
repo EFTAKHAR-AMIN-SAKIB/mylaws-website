@@ -32,15 +32,34 @@ export const DEFAULT_DAILY_LIMIT = parseInt(process.env.DAILY_QUERY_LIMIT || '30
  * Verifies a client-provided Firebase ID token using Google's Identity Toolkit REST API
  */
 export async function verifyFirebaseToken(idToken: string): Promise<VerifiedUser | null> {
-  // Support mock token in test environment
-  if (process.env.NODE_ENV === 'test' && idToken.startsWith('test_')) {
-    return {
-      uid: 'test_uid_123',
-      email: 'test@example.com',
-      displayName: 'Test User',
-      photoUrl: null,
-      provider: 'test',
-    };
+  const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true' || process.env.ALLOW_TEST_AUTH === 'true';
+
+  // Support mock token strictly in designated test environments or local staging verification
+  if (isTestEnv) {
+    if (idToken.startsWith('test_staging_token_')) {
+      return {
+        uid: 'test_uid_staging_123',
+        email: 'staging@mylaws.bd',
+        displayName: 'Staging Verifier',
+        photoUrl: null,
+        provider: 'test',
+      };
+    }
+
+    if (idToken.startsWith('test_')) {
+      return {
+        uid: 'test_uid_123',
+        email: 'test@example.com',
+        displayName: 'Test Citizen',
+        photoUrl: null,
+        provider: 'test',
+      };
+    }
+  }
+
+  // Reject any synthetic test tokens in production environments
+  if (idToken.startsWith('test_')) {
+    return null;
   }
 
   const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
@@ -256,4 +275,25 @@ export async function getUserHistoryFromD1(
   );
 
   return rows || [];
+}
+
+/**
+ * Delete a user's question history (single query or purge all) from Cloudflare D1
+ */
+export async function deleteUserHistoryFromD1(
+  userId: string,
+  queryId?: string
+): Promise<boolean> {
+  if (queryId) {
+    const res = await queryD1(
+      'DELETE FROM user_queries WHERE userId = ? AND id = ?',
+      [userId, queryId]
+    );
+    return res !== null;
+  }
+  const res = await queryD1(
+    'DELETE FROM user_queries WHERE userId = ?',
+    [userId]
+  );
+  return res !== null;
 }

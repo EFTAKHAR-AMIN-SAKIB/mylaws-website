@@ -12,12 +12,12 @@
 **MyLaws** is an accessible legal information and document preparation web application designed for citizens in Bangladesh facing everyday legal disputes (such as unpaid wages, threats/harassment, and consumer fraud).
 
 ### The Core Architectural Dilemma
-In legal tech, standard generative AI (LLMs) often **hallucinate**: they invent non-existent penal sections, hallucinate court deadlines, or give legally dangerous procedural advice. 
+In legal tech, standard generative AI (LLMs) can generate misleading advice or cite incorrect penal sections if unconstrained.
 
-To solve this, MyLaws implements a **Hybrid Deterministic Architecture**:
-1. **The System Works Fully Without Any External API**: It does not depend on an external AI API (like OpenAI, Meta, or Anthropic) or external database to function.
-2. **Deterministic Legal Ground Truth**: Queries are analyzed using an in-memory rule-based Finite State Machine (FSM) combined with a BM25 lexical retrieval engine over 23 human-verified statutory provisions from official Bangladesh gazettes (`bdlaws.minlaw.gov.bd`).
-3. **Optional Model Enrichment**: If an external API key (`MODEL_API_KEY`) is configured, an LLM layer can enrich the explanation, but its citations are strictly filtered and validated against the verified statutory corpus. If the API fails or is missing, it falls back to the deterministic engine seamlessly.
+To address this, MyLaws implements a **Hybrid Grounded Architecture**:
+1. **Autonomous Fallback Resilience**: The system operates deterministically using the published verified statutory corpus release without requiring external LLM APIs.
+2. **Deterministic Grounding in Official Gazettes**: Queries are matched against verified statutory provisions extracted verbatim from official Bangladesh gazettes (`bdlaws.minlaw.gov.bd`) across all 7 legal categories.
+3. **Model Grounding & Citation Validation**: When an optional model layer (`MODEL_API_KEY`) is active, explanations are constrained to the retrieved provisions. Citations are verified against the published corpus, falling back to deterministic guidance upon any network error or timeout.
 
 ---
 

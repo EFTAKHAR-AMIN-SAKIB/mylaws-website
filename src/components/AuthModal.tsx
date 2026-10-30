@@ -110,12 +110,15 @@ export function AuthModal() {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
       onClick={(e) => {
         if (e.target === e.currentTarget) closeAuthModal();
       }}
     >
-      <div className="relative w-full max-w-md overflow-hidden rounded-xl border border-amber-900/20 bg-[#faf8f5] dark:bg-[#1a1e24] shadow-2xl transition-all">
+      <div className="relative w-full max-w-md overflow-hidden rounded-t-3xl sm:rounded-xl border-t sm:border border-amber-900/20 bg-[#faf8f5] dark:bg-[#1a1e24] shadow-2xl transition-all animate-bottom-sheet sm:animate-in max-h-[90vh] overflow-y-auto flex flex-col pb-safe">
+        {/* Mobile Drag Handle */}
+        <div className="w-10 h-1 rounded-full bg-slate-400/40 mx-auto mt-2.5 -mb-1 sm:hidden shrink-0" />
+
         {/* Architectural Header Bar */}
         <div className="bg-gradient-to-r from-[#1e293b] via-[#0f172a] to-[#1e293b] px-6 py-4 text-amber-50">
           <div className="flex items-center justify-between">

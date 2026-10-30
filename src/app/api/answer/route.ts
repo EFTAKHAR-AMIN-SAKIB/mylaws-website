@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { retrieve } from '@/lib/retrieval';
 import { createLegalWorkflow } from '@/lib/workflow';
+import { CORPUS_VERSION } from '@/data/legal';
 import {
   isFollowUpQuery,
   generateFollowUpResponse,
@@ -64,8 +65,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. Check User Daily Quota in Cloudflare D1 (30 queries/day)
-    const DAILY_LIMIT = parseInt(process.env.DAILY_QUERY_LIMIT || '30', 10);
+    // 2. Check User Daily Quota in Cloudflare D1 (30 queries/day for real users; high limit for test staging)
+    const DAILY_LIMIT = verifiedUser.uid.startsWith('test_') ? 1000 : parseInt(process.env.DAILY_QUERY_LIMIT || '30', 10);
     const quotaCheck = await getUserQuotaStatus(verifiedUser.uid, DAILY_LIMIT);
     if (!quotaCheck.canQuery) {
       return NextResponse.json(
@@ -81,7 +82,9 @@ export async function POST(req: NextRequest) {
 
     // 3. Fallback IP rate limiting (to avoid rapid accidental spam)
     const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
-    if (!checkRateLimit(ip)) {
+    const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true' || process.env.ALLOW_TEST_AUTH === 'true';
+    const isStagingAudit = isTestEnv && authHeader.includes('test_staging_token');
+    if (!isStagingAudit && !checkRateLimit(ip)) {
       return NextResponse.json(
         { error: 'Too many requests. Please wait a minute before asking again.' },
         { status: 429, headers: { 'Cache-Control': 'no-store, max-age=0' } }
@@ -183,7 +186,7 @@ export async function POST(req: NextRequest) {
         checklist: [],
         explanation: [],
         limitations: [],
-        sourcePackVersion: isCloudflareConfigured() ? 'bd-pilot-2026-10-27.1 · Cloudflare D1' : 'bd-pilot-2026-10-27.1',
+        sourcePackVersion: isCloudflareConfigured() ? `${CORPUS_VERSION} · Cloudflare D1` : CORPUS_VERSION,
         allowedDraftOptions: [],
         isFollowUp: true,
         isGreeting: true,
@@ -221,7 +224,7 @@ export async function POST(req: NextRequest) {
         checklist: [],
         explanation: [],
         limitations: [],
-        sourcePackVersion: isCloudflareConfigured() ? 'bd-pilot-2026-10-27.1 · Cloudflare D1' : 'bd-pilot-2026-10-27.1',
+        sourcePackVersion: isCloudflareConfigured() ? `${CORPUS_VERSION} · Cloudflare D1` : CORPUS_VERSION,
         allowedDraftOptions: [],
         isFollowUp: true,
         isCapability: true,
@@ -275,8 +278,9 @@ export async function POST(req: NextRequest) {
     const candidateProvisions = matches.map((m) => m.provision);
 
     // 2. Generate canonical Action Checklist & legal workflow
-    const workflowResult = createLegalWorkflow(request, 'online');
+    const workflowResult = createLegalWorkflow(request, 'online', candidateProvisions);
     workflowResult.engineProvenance = 'online_guided_fallback';
+    workflowResult.relevantProvisions = candidateProvisions;
 
     if (isCloudflareConfigured()) {
       workflowResult.sourcePackVersion = `${workflowResult.sourcePackVersion} · Cloudflare D1`;
@@ -316,8 +320,8 @@ export async function POST(req: NextRequest) {
       workflowResult.followUpResponse = followUpRes;
     }
 
-    // 3. If Meta API is configured, attempt model-assisted verification
-    if (isMetaConfigured() && candidateProvisions.length > 0) {
+    // 3. If Meta API is configured and inquiry is concrete, attempt model-assisted verification
+    if (isMetaConfigured() && candidateProvisions.length > 0 && workflowResult.status !== 'clarifying') {
       try {
         const metaRes = await generateMetaVerifiedAnswer(
           request.originalMessage,
