@@ -5,7 +5,7 @@
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=flat&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
-[![Vitest](https://img.shields.io/badge/Tests-95%20Passed-brightgreen?style=flat&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Tests-96%20Passed-brightgreen?style=flat&logo=vitest)](https://vitest.dev/)
 [![Corpus](https://img.shields.io/badge/Corpus-255%20Provisions%20%7C%2031%20Acts-orange?style=flat)](https://bdlaws.minlaw.gov.bd)
 [![Production](https://img.shields.io/badge/Production-Live%20on%20Vercel-success?style=flat)](https://mylaws-bd.vercel.app)
 
@@ -130,7 +130,7 @@ src/
 │   │   └── user/sync/route.ts      # Cloudflare D1 user quota & profile sync
 │   ├── ask/page.tsx                # Interactive Legal Assistant page
 │   ├── drafts/page.tsx             # Bangla Draft Editor & A4 PDF preview page
-│   ├── download/page.tsx           # APK & offline pack download page
+│   ├── download/page.tsx           # Native application preview & progress roadmap (/download, /application)
 │   ├── login/page.tsx              # Firebase user authentication page
 │   ├── sources/page.tsx            # Public statutory library directory with pagination
 │   └── page.tsx                    # Landing showcase page

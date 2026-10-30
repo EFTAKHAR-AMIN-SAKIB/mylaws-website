@@ -25,9 +25,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     } catch {}
 
     try {
-      const savedLang = localStorage.getItem('mylaws_lang') as Lang;
-      if (savedLang && (savedLang === 'bn' || savedLang === 'en')) {
-        setLangState(savedLang);
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramLang = urlParams.get('lang');
+      if (paramLang === 'bn' || paramLang === 'en') {
+        setLangState(paramLang);
+        localStorage.setItem('mylaws_lang', paramLang);
+      } else {
+        const savedLang = localStorage.getItem('mylaws_lang') as Lang;
+        if (savedLang && (savedLang === 'bn' || savedLang === 'en')) {
+          setLangState(savedLang);
+        }
       }
     } catch {
       // In private browsing or restricted environments, keep in-memory defaults

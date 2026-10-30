@@ -3,6 +3,13 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  redirects: async () => [
+    {
+      source: "/application",
+      destination: "/download",
+      permanent: true,
+    },
+  ],
   headers: async () => [
     {
       source: "/(.*)",
