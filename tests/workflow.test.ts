@@ -7,6 +7,7 @@ import {
   isCapabilityQuery,
   detectInputLanguage,
   isPrimaryLegalInquiry,
+  toEnglishNum,
 } from '../src/lib/followup';
 import type { AnswerRequest } from '../src/types/contracts';
 
@@ -540,5 +541,40 @@ describe('Action Checklist & Legal Workflow Engine', () => {
     expect(explText).toContain('২০২৩ সনের ২৬ নং আইন');
     expect(explText).toContain('ধারা ৫');
     expect(explText).toContain('একচ্ছত্র এখতিয়ার');
+  });
+
+  it('correctly handles free government legal aid & 16699 indigent inquiry without misclassifying as arrest', () => {
+    const req: AnswerRequest = {
+      requestId: 'test-legal-aid-16699',
+      originalMessage: 'অসচ্ছল নাগরিক হিসেবে আদালতে বিনামূল্যে সরকারি আইনজীবী ও আইনি সহায়তা (লিগ্যাল এইড ১৬৬৯৯) পাওয়ার উপায় কী?',
+      language: 'bn',
+      facts: [],
+    };
+
+    const res = createLegalWorkflow(req);
+    expect(res.status).toBe('completed');
+    expect(res.problemSummary?.identifiedIssue).toContain('বিনামূল্যে সরকারি আইনি সহায়তা ও প্যানেল আইনজীবী প্রাপ্তি');
+    expect(res.problemSummary?.identifiedIssue).not.toContain('গ্রেফতার');
+    expect(res.problemSummary?.understanding).toContain('সরকারি খরচে আইনজীবী ও আইনি সহায়তার উপায় জানতে চেয়েছেন');
+    expect(res.checklist.length).toBe(4);
+    expect(res.checklist.some((s) => s.officeId === 'bd-national-legal-aid')).toBe(true);
+    const stepSourceIds = res.checklist.flatMap((s) => s.sourceIds || []);
+    expect(stepSourceIds).toContain('legalaid-16');
+    expect(stepSourceIds).not.toContain('crpc-61');
+    expect(res.plainLanguageExplanation?.heading).toContain('আইনগত সহায়তা প্রদান আইন, ২০০০');
+  });
+
+  it('toEnglishNum converts Bengali numerals to clean standard numerals and handles edge cases', () => {
+    expect(toEnglishNum('০১২৩৪৫৬৭৮৯')).toBe('0123456789');
+    expect(
+      toEnglishNum('আইন বলছে মজুরি দেওয়ার শেষ তারিখের পর ৭ কার্যদিবসের মধ্যে, আর ১,০০০-এর বেশি শ্রমিক থাকলে ১০ কার্যদিবসের মধ্যে')
+    ).toBe(
+      'আইন বলছে মজুরি দেওয়ার শেষ তারিখের পর 7 কার্যদিবসের মধ্যে, আর 1,000-এর বেশি শ্রমিক থাকলে 10 কার্যদিবসের মধ্যে'
+    );
+    expect(toEnglishNum('বকেয়া হওয়ার ৬ মাসের মধ্যে')).toBe('বকেয়া হওয়ার 6 মাসের মধ্যে');
+    expect(toEnglishNum('১৬১০৪ এবং ১৬৬৯৯')).toBe('16104 এবং 16699');
+    expect(toEnglishNum('')).toBe('');
+    expect(toEnglishNum(null)).toBe('');
+    expect(toEnglishNum(undefined)).toBe('');
   });
 });

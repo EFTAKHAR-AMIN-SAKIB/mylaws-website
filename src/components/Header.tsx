@@ -26,7 +26,7 @@ import {
   Clock,
   ArrowRight,
 } from 'lucide-react';
-import { toBanglaNum } from '@/lib/followup';
+
 import type { SavedUserQuery } from '@/lib/userDb';
 
 export function Header() {
@@ -103,8 +103,8 @@ export function Header() {
 
   const dailyLimit = quota?.dailyLimit || 30;
   const remainingQuota = quota ? quota.remaining : dailyLimit;
-  const formattedRemaining = lang === 'bn' ? toBanglaNum(remainingQuota) : `${remainingQuota}`;
-  const formattedDailyLimit = lang === 'bn' ? toBanglaNum(dailyLimit) : `${dailyLimit}`;
+  const formattedRemaining = `${remainingQuota}`;
+  const formattedDailyLimit = `${dailyLimit}`;
   const userDisplayName = user?.displayName || user?.email?.split('@')[0] || t('আইন সেবাপ্রার্থী', 'Citizen');
 
   const handleStartNewCase = () => {

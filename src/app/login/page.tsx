@@ -215,7 +215,7 @@ function LoginContent() {
                 />
 
                 {/* Left Side: Interactive Form Panel */}
-                <div className="w-full md:w-[54%] p-8 sm:p-12 z-10 flex flex-col justify-center">
+                <div className="w-full md:w-[54%] p-6 sm:p-10 md:p-12 z-10 flex flex-col justify-center order-2 md:order-1">
                   
                   {/* Dynamic Form Title */}
                   <div className="mb-6">
@@ -448,7 +448,7 @@ function LoginContent() {
                 </div>
 
                 {/* Right Side: Signature Welcome Showcase Panel */}
-                <div className="w-full md:w-[46%] p-8 sm:p-12 z-10 flex flex-col justify-between relative bg-gradient-to-br from-[#F5EDE0] to-[#EAE0CA] md:bg-transparent">
+                <div className="w-full md:w-[46%] p-6 sm:p-10 md:p-12 z-10 flex flex-col justify-between relative bg-gradient-to-br from-[#F5EDE0] to-[#EAE0CA] md:bg-transparent order-1 md:order-2 border-b md:border-b-0 border-[#DDD3C1]/60">
                   
                   {/* Top Big Heading matching the Reference Image */}
                   <div className="space-y-1 pt-2">

@@ -48,6 +48,15 @@ export function toBanglaNum(n: number | string): string {
 }
 
 /**
+ * Converts Bengali numeral digits to clean, standard numerals (e.g. ৩০ -> 30, ১,০০০ -> 1,000)
+ * Eliminates confusion where Bengali ১ looks like English 9, ৪ looks like 8, ৭ looks like 9/1, etc.
+ */
+export function toEnglishNum(text: string | null | undefined): string {
+  if (!text) return '';
+  return text.replace(/[০-৯]/g, (c) => String(c.charCodeAt(0) - 0x09e6));
+}
+
+/**
  * Detects whether the query is a friendly greeting or salutation.
  */
 export function isGreetingQuery(text: string): boolean {
@@ -82,6 +91,16 @@ export function isCapabilityQuery(text: string): boolean {
   const normalized = text.trim().toLowerCase();
   const clean = normalized.replace(/[!?.,।\-]+$/, '').trim();
 
+  // If query explicitly mentions substantive legal entities or disputes, it is NOT a generic capability query
+  const hasSubstantiveLegalTerms =
+    /\b(lawyer|advocate|court|legal\s*aid|16699|arrest|bail|wage|salary|land|stolen|theft|fraud|consumer|police|gd|fir)\b/i.test(clean) ||
+    /আইনজীবী|উকিল|আদালত|লিগ্যাল এইড|১৬৬৯৯|গ্রেফতার|জামিন|বেতন|মজুরি|চাকরি|জমি|দখল|মারধর|চুরি|ওষুধ|ভোক্তা|খোরপোষ|দেনমোহর|পুলিশ|জিডি|এজাহার|মামলা/u.test(clean);
+
+  if (hasSubstantiveLegalTerms) return false;
+
+  const exactShortQueries = ['help', 'help me', 'সাহায্য', 'সহায়তা', 'সহায়তা', 'sahajjo'];
+  if (exactShortQueries.includes(clean)) return true;
+
   const capabilityPhrases = [
     'what you can provide me',
     'what can you provide me',
@@ -99,8 +118,6 @@ export function isCapabilityQuery(text: string): boolean {
     'what are you',
     'what is mylaws',
     'tell me about yourself',
-    'help me',
-    'help',
     'tumi ki korte paro',
     'apni ki korte paren',
     'tumi ki ki korte paro',
@@ -122,9 +139,7 @@ export function isCapabilityQuery(text: string): boolean {
     'আপনার কাজ কী',
     'তুমি কে',
     'আপনি কে',
-    'মাই ল কি',
-    'সাহায্য',
-    'সহায়তা'
+    'মাই ল কি'
   ];
 
   if (capabilityPhrases.some((phrase) => clean.includes(phrase))) return true;

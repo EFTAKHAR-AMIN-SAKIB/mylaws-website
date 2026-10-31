@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useApp } from './AppContext';
 import type { ChecklistStep } from '@/types/contracts';
+import { toEnglishNum } from '@/lib/followup';
 import { CheckCircle2, Shield, Building, HelpCircle } from 'lucide-react';
 
 interface ChecklistProps {
@@ -14,7 +15,7 @@ interface ChecklistProps {
   hideHeader?: boolean;
 }
 
-const toBanglaNum = (n: number) => n.toString().replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[parseInt(d, 10)]);
+
 
 export function Checklist({
   caseId,
@@ -50,7 +51,7 @@ export function Checklist({
               <span>{t('আপনি এখন যে পদক্ষেপ নিবেন:', 'Immediate Steps You Should Take:')}</span>
             </h4>
             <span className="text-xs text-secondary-light font-hind">
-              {lang === 'bn' ? toBanglaNum(completedCount) : completedCount} / {lang === 'bn' ? toBanglaNum(steps.length) : steps.length} {t('সম্পন্ন', 'completed')}
+              {completedCount} / {steps.length} {t('সম্পন্ন', 'completed')}
             </span>
           </div>
         )}
@@ -58,7 +59,7 @@ export function Checklist({
         <div className="space-y-2.5">
           {steps.map((step, idx) => {
             const isDone = !!completed[step.id];
-            const numLabel = lang === 'bn' ? `${toBanglaNum(idx + 1)}.` : `${idx + 1}.`;
+            const numLabel = `${idx + 1}.`;
             return (
               <div
                 key={step.id}
@@ -89,7 +90,7 @@ export function Checklist({
                             : 'font-medium text-primary-light'
                         }`}
                       >
-                        {step.text}
+                        {toEnglishNum(step.text)}
                       </label>
                     </div>
 
@@ -98,7 +99,7 @@ export function Checklist({
                       {step.condition && (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-surface-light border border-border-light text-secondary-light">
                           <HelpCircle className="h-3 w-3 text-secondary-light/80" />
-                          <span>{step.condition}</span>
+                          <span>{toEnglishNum(step.condition)}</span>
                         </span>
                       )}
 
@@ -201,7 +202,7 @@ export function Checklist({
                         : 'font-medium text-primary-light dark:text-primary-dark'
                     }`}
                   >
-                    {step.text}
+                    {toEnglishNum(step.text)}
                   </label>
 
                   {/* Conditions & Badges */}
@@ -209,7 +210,7 @@ export function Checklist({
                     {step.condition && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-bg-light dark:bg-bg-dark border border-border-light dark:border-border-dark text-secondary-light dark:text-secondary-dark">
                         <HelpCircle className="h-3 w-3" />
-                        <span>{step.condition}</span>
+                        <span>{toEnglishNum(step.condition)}</span>
                       </span>
                     )}
 

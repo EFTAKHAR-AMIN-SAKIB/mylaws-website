@@ -1,9 +1,12 @@
 import { provisions, type Provision } from '../data/legal';
+import { toEnglishNum } from './followup';
 
 export interface MetaAnswerResponse {
   answer: string;
   sourceIds: string[];
   extractedFacts?: Array<{ fieldId: string; value: string }>;
+  issueTitle?: string;
+  understanding?: string;
 }
 
 // In-memory rate limiter with cleanup to prevent memory leaks
@@ -104,12 +107,15 @@ CRITICAL SAFETY & GROUNDING RULES:
    - Labour Act 2006: Weekly holidays belong to Section 103 (1 day for factories, 1.5 days for shops). Compensatory holiday is Section 104. Daily work spread-over is Section 105.
    - Family Courts Act 2023: Subject-matter jurisdiction belongs to Section 5. Territorial jurisdiction & wife's forum belong to Section 6.
    - Digital offenses: cite precise sections (e.g. Pornography Control Act Section 8 for intimate media blackmail, Cyber extortion Section 22, Identity fraud Section 24).
+   - Numerals & Quantities: Write all numbers, quantities, worker thresholds, statutory deadlines, section numbers, financial amounts, and helpline numbers using clean, standard Arabic numerals (e.g. 7 কার্যদিবস, 10 দিন, 1,000 শ্রমিক, 6 মাস, 24 ঘণ্টা, ধারা 121, 16104, 16699). Never use Bengali numerals (০-৯) so readers can instantly read figures without font ambiguity.
 5. If the provided sources DO NOT explicitly support a legal claim, DO NOT state that claim.
 6. In "sourceIds", include ONLY the IDs from the supplied list that directly support your explanation. If no supplied source directly applies or you are answering a general/introductory question, provide an empty array [].
 7. Extract any material facts mentioned by the user (e.g. workplace district, employment type, order date, vendor, incident place).
 8. If conversationHistory is provided, the user is having an ongoing legal conversation or asking a follow-up. Answer the latest question in the context of the previous messages without losing track of the case details.
 9. Return ONLY valid, parseable JSON with NO markdown formatting:
 {
+  "issueTitle": "Concise 3-6 word title in target language summarizing the user's specific legal issue",
+  "understanding": "1-2 sentence empathetic understanding in target language acknowledging the user's specific inquiry without bureaucratic jargon",
   "answer": "Conversational, natural plain-language explanation grounded strictly in the sources",
   "sourceIds": ["exact-id-from-supplied-sources"],
   "extractedFacts": [{"fieldId": "workplace", "value": "Gazipur"}]
@@ -179,7 +185,15 @@ CRITICAL SAFETY & GROUNDING RULES:
   }
 
   return {
-    answer: sanitizedAnswer,
+    issueTitle:
+      typeof parsed.issueTitle === 'string' && parsed.issueTitle.trim().length > 0
+        ? toEnglishNum(parsed.issueTitle.trim().slice(0, 150))
+        : undefined,
+    understanding:
+      typeof parsed.understanding === 'string' && parsed.understanding.trim().length > 0
+        ? toEnglishNum(parsed.understanding.trim().slice(0, 500))
+        : undefined,
+    answer: toEnglishNum(sanitizedAnswer),
     sourceIds: [...new Set(validIds)] as string[],
     extractedFacts,
   };

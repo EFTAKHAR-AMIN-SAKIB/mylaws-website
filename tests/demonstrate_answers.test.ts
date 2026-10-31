@@ -188,4 +188,29 @@ describe('Demonstrate Corrected Answers Runtime Suite (/api/answer)', () => {
     expect(dateFact).toBeDefined();
     expect(dateFact.value).toContain('গতকাল');
   });
+
+  // Case 5: Indigent Legal Aid & 16699
+  it('correctly handles free government legal aid inquiry with accurate title, understanding, and checklist', async () => {
+    const req = new NextRequest('http://localhost:3000/api/answer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        requestId: 'test_legal_aid_' + Date.now(),
+        originalMessage: 'অসচ্ছল নাগরিক হিসেবে আদালতে বিনামূল্যে সরকারি আইনজীবী ও আইনি সহায়তা (লিগ্যাল এইড ১৬৬৯৯) পাওয়ার উপায় কী?',
+        language: 'bn',
+        facts: [],
+      }),
+    });
+    const res = await answerRoute(req);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.status).toBe('completed');
+    expect(data.problemSummary?.identifiedIssue).toMatch(/বিনামূল্যে|আইনজীবী|লিগ্যাল এইড|আইনি/);
+    expect(data.problemSummary?.identifiedIssue).not.toContain('গ্রেফতার');
+    expect(data.problemSummary?.understanding).not.toContain('গ্রেফতার');
+    expect(data.checklist.length).toBe(4);
+    expect(data.checklist[0].text).not.toContain('গ্রেফতার');
+    expect(data.checklist.some((s: any) => s.officeId === 'bd-national-legal-aid')).toBe(true);
+    expect(hasCitation(data, 'legalaid-16')).toBe(true);
+  });
 });

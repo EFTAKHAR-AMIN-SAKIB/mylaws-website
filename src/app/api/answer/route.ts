@@ -352,6 +352,31 @@ export async function POST(req: NextRequest) {
           if (workflowResult.plainLanguageExplanation) {
             workflowResult.plainLanguageExplanation.meaning = metaRes.answer;
           }
+
+          // Dynamically reflect model-tailored issue title & understanding
+          if (metaRes.issueTitle && metaRes.issueTitle.trim().length > 0) {
+            if (!workflowResult.problemSummary) {
+              workflowResult.problemSummary = {
+                identifiedIssue: metaRes.issueTitle.trim(),
+                understanding: '',
+                additionalInfoNeeded: [],
+              };
+            } else {
+              workflowResult.problemSummary.identifiedIssue = metaRes.issueTitle.trim();
+            }
+          }
+
+          if (metaRes.understanding && metaRes.understanding.trim().length > 0) {
+            if (!workflowResult.problemSummary) {
+              workflowResult.problemSummary = {
+                identifiedIssue: '',
+                understanding: metaRes.understanding.trim(),
+                additionalInfoNeeded: [],
+              };
+            } else {
+              workflowResult.problemSummary.understanding = metaRes.understanding.trim();
+            }
+          }
         }
 
         // If the model extracted any facts that the user hadn't provided yet, attach them as inferred facts

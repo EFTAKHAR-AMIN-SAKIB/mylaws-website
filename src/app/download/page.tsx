@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useApp } from '@/components/AppContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { toBanglaNum } from '@/lib/followup';
+
 import {
   applicationPageContent,
   MilestoneStatus,
@@ -110,7 +110,7 @@ export default function ApplicationPage() {
         '11': 'নভেম্বর',
         '12': 'ডিসেম্বর',
       };
-      return `${toBanglaNum(parseInt(day, 10))} ${bnMonths[month] || month}, ${toBanglaNum(year)}`;
+      return `${parseInt(day, 10)} ${bnMonths[month] || month}, ${year}`;
     }
     const enDate = new Date(`${dateStr}T00:00:00`);
     return enDate.toLocaleDateString('en-US', {
@@ -325,7 +325,7 @@ export default function ApplicationPage() {
               </span>
               <span className="text-base sm:text-xl font-bold font-anek text-accent-light shrink-0">
                 {lang === 'bn'
-                  ? `আনুমানিক ${toBanglaNum(progressPercent)}%`
+                  ? `আনুমানিক ${progressPercent}%`
                   : `About ${progressPercent}%`}
               </span>
             </div>
@@ -337,7 +337,7 @@ export default function ApplicationPage() {
               aria-valuemax={100}
               aria-label={
                 lang === 'bn'
-                  ? `অ্যান্ড্রয়েড অ্যাপের সামগ্রিক উন্নয়ন অগ্রগতি আনুমানিক ${toBanglaNum(progressPercent)} শতাংশ`
+                  ? `অ্যান্ড্রয়েড অ্যাপের সামগ্রিক উন্নয়ন অগ্রগতি আনুমানিক ${progressPercent} শতাংশ`
                   : `Android app overall development progress: estimated about ${progressPercent} percent`
               }
               className="h-3 w-full bg-border-light/50 rounded-full overflow-hidden p-0.5 border border-border-light/70"

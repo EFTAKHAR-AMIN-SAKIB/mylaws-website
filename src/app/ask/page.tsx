@@ -20,7 +20,7 @@ import type {
   ChatHistoryMessage,
 } from '@/types/contracts';
 import type { SavedUserQuery } from '@/lib/userDb';
-import { detectInputLanguage, toBanglaNum } from '@/lib/followup';
+import { detectInputLanguage, toEnglishNum } from '@/lib/followup';
 import { createLegalWorkflow } from '@/lib/workflow';
 import { provisions } from '@/data/legal';
 import {
@@ -429,7 +429,7 @@ function AskContent() {
       if (res.status === 429) {
         const errJson = await res.json().catch(() => ({}));
         const activeLimit = errJson.userQuota?.dailyLimit || quota?.dailyLimit || 30;
-        const formattedLimit = lang === 'bn' ? toBanglaNum(activeLimit) : `${activeLimit}`;
+        const formattedLimit = `${activeLimit}`;
         const quotaError =
           errJson.message ||
           t(
@@ -552,8 +552,8 @@ function AskContent() {
   const latestResult = [...chatTurns].reverse().find((t) => t.result)?.result;
   const dailyLimit = quota?.dailyLimit || 30;
   const remainingQuestions = quota ? quota.remaining : dailyLimit;
-  const formattedRemaining = lang === 'bn' ? toBanglaNum(remainingQuestions) : `${remainingQuestions}`;
-  const formattedDailyLimit = lang === 'bn' ? toBanglaNum(dailyLimit) : `${dailyLimit}`;
+  const formattedRemaining = `${remainingQuestions}`;
+  const formattedDailyLimit = `${dailyLimit}`;
   const isChatMode = chatTurns.length > 0;
 
   return (
@@ -822,7 +822,7 @@ function AskContent() {
                             {/* Direct Conversational Answer */}
                             <div className="space-y-2">
                               <p className="font-hind text-sm sm:text-base text-primary-light font-medium leading-relaxed whitespace-pre-line">
-                                {turn.result.followUpResponse.directAnswer}
+                                {toEnglishNum(turn.result.followUpResponse.directAnswer)}
                               </p>
                             </div>
 
@@ -838,7 +838,7 @@ function AskContent() {
                                       {pIdx + 1}
                                     </div>
                                     <div className="flex-1">
-                                      <span>{point}</span>
+                                      <span>{toEnglishNum(point)}</span>
                                     </div>
                                   </div>
                                 ))}
@@ -852,7 +852,7 @@ function AskContent() {
                                 <div className="space-y-1">
                                   <span className="font-bold font-anek block">{t('পরবর্তী করণীয় পদক্ষেপ:', 'Recommended Next Step:')}</span>
                                   <p className="font-hind leading-relaxed">
-                                    {turn.result.followUpResponse.suggestedNextStep}
+                                    {toEnglishNum(turn.result.followUpResponse.suggestedNextStep)}
                                   </p>
                                 </div>
                               </div>
@@ -913,7 +913,7 @@ function AskContent() {
                               </span>
                               <div>
                                 <span className="text-xs sm:text-sm font-bold text-primary-light font-anek block">
-                                  {turn.result.problemSummary?.identifiedIssue || t('আইনি অধিকার পর্যালোচনা', 'Legal Applicability Review')}
+                                  {toEnglishNum(turn.result.problemSummary?.identifiedIssue) || t('আইনি অধিকার পর্যালোচনা', 'Legal Applicability Review')}
                                 </span>
                                 <span className="text-[11px] text-secondary-light font-hind">
                                   {t('প্যাক সংস্করণ: ', 'Corpus: ')}{turn.result.sourcePackVersion}
@@ -939,7 +939,7 @@ function AskContent() {
                           {/* 1. Conversational Understanding & Empathy */}
                           <div className="space-y-2">
                             <p className="font-hind text-sm sm:text-base text-primary-light font-medium leading-relaxed">
-                              {turn.result.problemSummary?.understanding || t(
+                              {toEnglishNum(turn.result.problemSummary?.understanding) || t(
                                 'আপনার বিষয়টি পর্যালোচনা করে এর সাথে প্রযোজ্য আইনি ক্ষেত্র চিহ্নিত করা হয়েছে।',
                                 'We have analyzed your situation and identified the applicable statutory legal path.'
                               )}
@@ -1025,7 +1025,7 @@ function AskContent() {
                               </div>
 
                               <p className="font-hind text-xs sm:text-sm text-secondary-light leading-relaxed whitespace-pre-line">
-                                {turn.result.plainLanguageExplanation.meaning}
+                                {toEnglishNum(turn.result.plainLanguageExplanation.meaning)}
                               </p>
 
                               {/* Clickable Statutory Sources (Source pills as drawn in user sketch) */}
@@ -1069,7 +1069,7 @@ function AskContent() {
                                   <div className="space-y-0.5">
                                     <span className="font-bold block">{t('জরুরি করণীয়:', 'What to do next:')}</span>
                                     <span className="font-hind leading-relaxed">
-                                      {turn.result.plainLanguageExplanation.whatToDoNext}
+                                      {toEnglishNum(turn.result.plainLanguageExplanation.whatToDoNext)}
                                     </span>
                                   </div>
                                 </div>

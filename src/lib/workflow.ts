@@ -101,7 +101,7 @@ export function isAmbiguousOrVagueQuery(text: string): boolean {
     'help me please'
   ];
 
-  const specificTerms = /জমি|বেতন|চাকরি|ভাড়া|বাড়ি|দখল|মারধর|চুরি|ছিনতাই|পণ্য|ওষুধ|টাকা|চেক|ডিভোর্স|দেনমোহর|ভরণপোষণ|পুলিশ|জিডি|সাইবার|হ্যাক|দোকান|ক্যাশ|মেমো|blackmail|theft|salary|rent|land|evict|assault|cheating|fraud|wage|stolen|arrest|bail/u;
+  const specificTerms = /জমি|বেতন|চাকরি|ভাড়া|বাড়ি|দখল|মারধর|চুরি|ছিনতাই|পণ্য|ওষুধ|টাকা|চেক|ডিভোর্স|দেনমোহর|ভরণপোষণ|পুলিশ|জিডি|সাইবার|হ্যাক|দোকান|ক্যাশ|মেমো|আইনজীবী|উকিল|লিগ্যাল এইড|১৬৬৯৯|আইনগত সহায়তা|আইনি সহায়তা|অসচ্ছল|blackmail|theft|salary|rent|land|evict|assault|cheating|fraud|wage|stolen|arrest|bail|lawyer|advocate|legal aid|16699|indigent/u;
 
   if (vaguePhrases.some((p) => clean.includes(p.toLowerCase()))) {
     return !specificTerms.test(clean);
@@ -392,30 +392,36 @@ export function createLegalWorkflow(
   const isWork = isWorkQuestion(effectiveQuery) || hasWorkFacts;
   const isConsumer = isConsumerQuestion(effectiveQuery);
 
+  const isLegalAid =
+    /\b(legal\s*aid|16699|panel\s*lawyer|free\s*lawyer|government\s*lawyer|indigent|public\s*defender)\b/i.test(effectiveQuery) ||
+    /লিগ্যাল\s*এইড|১৬৬৯৯|আইনগত\s*সহায়তা|আইনি\s*সহায়তা|বিনামূল্যে\s*(?:সরকারি\s*)?আইনজীবী|প্যানেল\s*আইনজীবী|অসচ্ছল|টাকার\s*অভাবে\s*আইনজীবী|সরকারি\s*আইনজীবী/u.test(effectiveQuery) ||
+    candidateProvisions.some((p) => p.id?.startsWith('legalaid-') && !/\b(arrest|without\s+warrant|lockup|24\s+hours|48\s+hours)\b/i.test(effectiveQuery) && !/গ্রেফতার|ওয়ারেন্ট|লকআপ|২৪ ঘণ্টা|৪৮ ঘণ্টা/u.test(effectiveQuery));
+
   const isRights =
-    candidateProvisions.some((p) => p.category === 'rights' || p.categories?.includes('rights')) ||
+    !isLegalAid &&
+    (candidateProvisions.some((p) => (p.category === 'rights' || p.categories?.includes('rights')) && !p.id?.startsWith('legalaid-')) ||
     /\b(arrest|without\s+warrant|lockup|24\s+hours|48\s+hours|magistrate|remand|bail|custody|habeas|illegal\s+detention)\b/i.test(effectiveQuery) ||
-    /গ্রেফতার|ওয়ারেন্ট|ওয়ারেন্ট ছাড়া|লকআপ|২৪ ঘণ্টা|৪৮ ঘণ্টা|ম্যাজিস্ট্রেট|রিমান্ড|জামিন|হেবিয়াস করপাস|আটক/u.test(effectiveQuery);
+    /গ্রেফতার|ওয়ারেন্ট|ওয়ারেন্ট ছাড়া|লকআপ|২৪ ঘণ্টা|৪৮ ঘণ্টা|ম্যাজিস্ট্রেট|রিমান্ড|জামিন|হেবিয়াস করপাস|আটক/u.test(effectiveQuery));
 
   const isFamily =
-    !isRights &&
+    !isLegalAid && !isRights &&
     (/\b(family|marriage|dower|mahr|maintenance|divorce|talaq|domestic\s+violence|dowry|custody|minor)\b/i.test(effectiveQuery) ||
       /দেনমোহর|ভরণপোষণ|ডিভোর্স|তালাক|পারিবারিক সহিংসতা|যৌতুক|বাবার বাড়ি|অপ্রাপ্তবয়স্ক|হেফাজত|স্ত্রী|স্বামী/u.test(effectiveQuery) ||
       candidateProvisions.some((p) => p.category === 'family' || p.categories?.includes('family')));
 
   const isLand =
-    !isRights && !isFamily &&
+    !isLegalAid && !isRights && !isFamily &&
     (/\b(land|property|topsoil|dredg|dispossess|evict|evicted|kicked\s*out|ancestral\s+house|homestead|deed|khotian|tenant|rent|demolition|possession)\b/i.test(effectiveQuery) ||
       /কৃষিজমি|মাটি কাটা|ড্রেজার|টপসয়েল|ভরাট|দখল|বেদখল|উচ্ছেদ|খতিয়ান|দলিল|বাস্তুচ্যুত|বাড়িভাড়া|ভাড়াটিয়া|বসতবাড়ি|পৈতৃক/u.test(effectiveQuery) ||
       (!/বাবার বাড়ি/u.test(effectiveQuery) && candidateProvisions.some((p) => p.category === 'land' || (p.categories?.includes('land') && p.actId?.includes('land')))));
 
   const isDigital =
-    !isRights && !isFamily && !isLand &&
+    !isLegalAid && !isRights && !isFamily && !isLand &&
     (/\b(cyber|hack|fb|facebook|viral|intimate|blackmail|phishing|whatsapp|leaked|pornography)\b/i.test(effectiveQuery) ||
       /সাইবার|হ্যাক|ফেসবুক|ইন্টারনেট|ভাইরাল|ব্ল্যাকমেইল|পর্নোগ্রাফি|নগ্ন ছবি|অন্তরঙ্গ|ডিজিটাল প্রতারণা/u.test(effectiveQuery) ||
       candidateProvisions.some((p) => (p.category === 'digital' || p.categories?.includes('digital')) && (p.actId?.includes('cyber') || p.actId?.includes('ict') || p.actId?.includes('pornography'))));
 
-  const isGd = !isRights && !isDigital && !isLand && !isFamily && isGdQuestion(effectiveQuery);
+  const isGd = !isLegalAid && !isRights && !isDigital && !isLand && !isFamily && isGdQuestion(effectiveQuery);
 
   // -------------------------------------------------------------
   // DOMAIN 1: WORKPLACE & UNPAID WAGES
@@ -2547,7 +2553,124 @@ export function createLegalWorkflow(
   }
 
   // -------------------------------------------------------------
-  // DOMAIN 8: CANDIDATE-PROVISIONS-GROUNDED FALLBACK
+  // -------------------------------------------------------------
+  // DOMAIN 8: LEGAL AID & INDIGENT CITIZEN ACCESS (Legal Aid Services Act 2000, 16699)
+  // -------------------------------------------------------------
+  if (isLegalAid) {
+    return {
+      schemaVersion: 1,
+      answerId: request.requestId,
+      mode,
+      status: 'completed',
+      questions: [],
+      userFacts: [
+        ...accumulatedFacts,
+        { fieldId: 'issue_type', value: 'legal_aid_indigent_access', status: 'user_confirmed', provenance: 'intent_classification' },
+      ],
+      checklist: [
+        {
+          id: 'step-legalaid-1',
+          text: isBn
+            ? 'আয়ের প্রত্যয়নপত্র (ইউনিয়ন পরিষদ চেয়ারম্যান বা ওয়ার্ড কাউন্সিলর কর্তৃক প্রদত্ত) এবং জাতীয় পরিচয়পত্রের (NID) কপি সংগ্রহ করুন।'
+            : 'Obtain an income certificate (issued by UP Chairman or Ward Councilor) and a copy of your National ID (NID).',
+          sourceIds: ['legalaid-20', 'legalaid-16'],
+          condition: isBn ? 'আয়ের প্রত্যয়নপত্র ও NID সংগ্রহ' : 'Collect Income Certificate & NID',
+        },
+        {
+          id: 'step-legalaid-2',
+          text: isBn
+            ? 'সংশ্লিষ্ট জেলা জজ আদালতের জেলা লিগ্যাল এইড অফিসে নির্ধারিত ফরমে আবেদনপত্র দাখিল করুন।'
+            : 'Submit an application on the prescribed form to the District Legal Aid Office at the District Judgeship.',
+          sourceIds: ['legalaid-9', 'legalaid-16'],
+          officeId: nationalLegalAid.id,
+        },
+        {
+          id: 'step-legalaid-3',
+          text: isBn
+            ? 'জেলা লিগ্যাল এইড কমিটি কর্তৃক আবেদন অনুমোদনের পর সম্পূর্ণ বিনামূল্যে সরকারি প্যানেল আইনজীবী নিয়োগ ও কোর্ট ফি মওকুফের সুবিধা নিন।'
+            : 'Upon approval by the District Legal Aid Committee, receive a dedicated state-appointed panel advocate and full waiver/coverage of court fees.',
+          sourceIds: ['legalaid-11', 'legalaid-20'],
+        },
+        {
+          id: 'step-legalaid-4',
+          text: isBn
+            ? 'জরুরি পরামর্শ বা আবেদনের অবস্থা জানতে জাতীয় লিগ্যাল এইডের টোল-ফ্রি হেল্পলাইন ১৬৬৯৯ নম্বরে (২৪/৭) সরাসরি কল করুন।'
+            : 'For immediate assistance or application tracking, call the National Legal Aid 24/7 toll-free helpline at 16699.',
+          sourceIds: ['legalaid-16', 'legalaid-24'],
+          officeId: nationalLegalAid.id,
+        },
+      ],
+      explanation: [
+        {
+          text: isBn
+            ? 'আইনগত সহায়তা প্রদান আইন, ২০০০-এর ধারা ১৬ অনুযায়ী যে কোনো অসচ্ছল বা আর্থিকভাবে অসমর্থ নাগরিক আদালতে মামলা পরিচালনা ও আত্মপক্ষ সমর্থনের জন্য সরকারি খরচে আইনজীবী ও আইনি সহায়তার পূর্ণ অধিকারী।'
+            : 'Under Section 16 of the Legal Aid Services Act 2000, any indigent or financially disadvantaged citizen has the full right to state-funded legal representation and counsel before courts.',
+          sourceIds: ['legalaid-16'],
+        },
+        {
+          text: isBn
+            ? 'একই আইনের ধারা ৯ ও ১১ অনুযায়ী প্রতিটি জেলা জজ আদালতে জেলা লিগ্যাল এইড অফিস ও কমিটি রয়েছে, যা অসচ্ছল বিচারপ্রার্থীদের আবেদন যাচাই করে অভিজ্ঞ প্যানেল আইনজীবী নিয়োগ এবং মামলার যাবতীয় খরচ বহন করে।'
+            : 'Under Sections 9 and 11 of the Act, District Legal Aid Committees operating at every District Court are mandated to evaluate applications, assign experienced panel advocates, and bear all official court expenses.',
+          sourceIds: ['legalaid-9', 'legalaid-11'],
+        },
+        {
+          text: isBn
+            ? 'ধারা ২০ অনুযায়ী নির্ধারিত বার্ষিক আয়ের নিম্নে থাকা ব্যক্তি, অসচ্ছল বিধবা, প্রতিবন্ধী এবং অসহায় কারাবন্দীরা অগ্রাধিকার ভিত্তিতে বিনামূল্যে আইনি সহায়তা পাওয়ার যোগ্য।'
+            : 'Under Section 20, individuals below the statutory income threshold, indigent widows, disabled citizens, and impoverished detainees receive prioritized free legal aid.',
+          sourceIds: ['legalaid-20'],
+        },
+        {
+          text: isBn
+            ? 'ধারা ২৪ অনুযায়ী লিগ্যাল এইড অফিসের মাধ্যমে মামলা দায়েরের পূর্বে বা বিচারাধীন অবস্থায় বিকল্প বিরোধ নিষ্পত্তি (ADR / সালিশ) সেবাও সম্পূর্ণ বিনামূল্যে গ্রহণ করা যায়।'
+            : 'Under Section 24, pre-trial mediation and Alternative Dispute Resolution (ADR) services are also provided entirely free of cost through the Legal Aid Office.',
+          sourceIds: ['legalaid-24'],
+        },
+      ],
+      limitations: [
+        isBn
+          ? 'সরকারি আইনি সহায়তা পেতে আয়ের নির্ধারিত শর্ত পূরণ করতে হয় এবং প্রয়োজনীয় কাগজপত্র (NID ও আয়ের সনদ) দাখিল করতে হয়।'
+          : 'To qualify for free government legal aid, applicants must meet the statutory income criteria and submit requisite documentation (NID and income certificate).',
+      ],
+      sourcePackVersion: SOURCE_VERSION,
+      allowedDraftOptions: [],
+      problemSummary: {
+        identifiedIssue: isBn
+          ? 'বিনামূল্যে সরকারি আইনি সহায়তা ও প্যানেল আইনজীবী প্রাপ্তি (লিগ্যাল এইড ১৬৬৯৯)'
+          : 'Free Government Legal Aid & State Panel Lawyer Representation (Hotline 16699)',
+        understanding: isBn
+          ? 'আমরা আপনার বিষয়টি পর্যালোচনা করেছি: আপনি আর্থিক অসচ্ছলতার কারণে আদালতে মামলা পরিচালনা বা আইনি অধিকার রক্ষার জন্য সরকারি খরচে আইনজীবী ও আইনি সহায়তার উপায় জানতে চেয়েছেন। আইনগত সহায়তা প্রদান আইন, ২০০০ অনুযায়ী অসচ্ছল নাগরিকদের সম্পূর্ণ বিনামূল্যে আইনজীবী নিয়োগ, কোর্ট ফি ও আইনি পরামর্শ পাওয়ার পূর্ণ অধিকার রয়েছে।'
+          : 'We have reviewed your inquiry: you are seeking government-funded legal aid and a state-appointed panel lawyer due to financial hardship. Under the Legal Aid Services Act 2000, eligible indigent citizens have a full statutory right to free panel advocates, covered court fees, and legal counsel.',
+        additionalInfoNeeded: [],
+      },
+      plainLanguageExplanation: {
+        heading: isBn
+          ? 'আইনগত সহায়তা প্রদান আইন, ২০০০ ও জাতীয় লিগ্যাল এইড নির্দেশিকা'
+          : 'Legal Aid Services Act 2000 & National Legal Aid Guidelines',
+        meaning: isBn
+          ? 'টাকার অভাবে আইনজীবী রাখতে না পারলে দুশ্চিন্তা করবেন না, আপনার জন্য সরকারি ব্যবস্থা আছে। সহজ করে বললে, আর্থিক বা অন্য কোনো কারণে আদালতে মামলা চালাতে অসমর্থ হলে সরকার আপনাকে আইনগত সহায়তা দেবে। প্রতিটি জেলা জজ আদালতে জেলা লিগ্যাল এইড অফিস আছে, যার সভাপতি হলেন জেলা জজ, সেখানে গেলে কমিটি আপনাকে সম্পূর্ণ সরকারি খরচে একজন প্যানেল আইনজীবী ও কোর্ট ফি দিয়ে সহায়তা করবে। নিঃস্ব, অসচ্ছল, বিধবা, তালাকপ্রাপ্তা বা স্বামী পরিত্যক্তা নারী, এসিডদগ্ধ ব্যক্তি, প্রতিবন্ধী এবং নির্ধারিত বার্ষিক আয়ের নিচে থাকা যে কেউ এই সহায়তা পাওয়ার যোগ্য। এর জন্য আপনি সরাসরি জেলা লিগ্যাল এইড অফিসে জাতীয় পরিচয়পত্র ও চেয়ারম্যান বা কাউন্সিলরের আয়ের প্রত্যয়নসহ আবেদন করতে পারেন, আর ঘরে বসে বিস্তারিত জানতে সপ্তাহে ৭ দিন ২৪ ঘণ্টা খোলা টোল-ফ্রি জাতীয় হেল্পলাইন ১৬৬৯৯ নম্বরে কল করতে পারেন।'
+          : 'If you cannot afford a private advocate due to financial distress, the state provides comprehensive free legal assistance. In plain words, the Legal Aid Services Act 2000 ensures that indigent citizens receive dedicated representation before courts at state expense. Every District Judgeship hosts a District Legal Aid Office headed by the Senior District & Sessions Judge. The Committee assigns a qualified panel advocate and covers associated filing fees for eligible individuals—including indigent persons, widows, divorced/abandoned women, disabled individuals, and those below statutory income limits. You can apply directly with your NID and local income certificate, or dial the 24/7 national toll-free helpline 16699.',
+        userRightsAndOptions: isBn
+          ? [
+              'আইনগত সহায়তা প্রদান আইন, ২০০০-এর ধারা ১৬ অনুযায়ী সম্পূর্ণ বিনামূল্যে সরকারি প্যানেল আইনজীবী পাওয়ার আইনি অধিকার।',
+              'আদালতের যাবতীয় কোর্ট ফি ও মামলা পরিচালনার সরকারি ব্যয় মওকুফের সুবিধা।',
+              'জাতীয় লিগ্যাল এইড টোল-ফ্রি হেল্পলাইন ১৬৬৯৯-এর মাধ্যমে ২৪/৭ তাৎক্ষণিক আইনি পরামর্শ গ্রহণ।',
+              'মামলা করার পূর্বে বিনামূল্যে বিকল্প বিরোধ নিষ্পত্তি (ADR) বা আপস-মীমাংসার সুযোগ।'
+            ]
+          : [
+              'Statutory right to a free state-appointed panel advocate under Section 16 of the Legal Aid Services Act 2000.',
+              'Full coverage of court fees and official litigation expenses by the government.',
+              'Access to 24/7 instant legal advice via National Legal Aid Toll-Free Helpline 16699.',
+              'Pre-trial alternative dispute resolution (ADR) and mediation without court costs.'
+            ],
+        whatToDoNext: isBn
+          ? 'নিকটস্থ জেলা জজ আদালতের জেলা লিগ্যাল এইড অফিসে যোগাযোগ করুন অথবা ২৪ ঘণ্টা খোলা টোল-ফ্রি ১৬৬৯৯ নম্বরে কল করে পরামর্শ নিন।'
+          : 'Visit the District Legal Aid Office at your nearest District Court or call the 24/7 toll-free helpline at 16699 for guidance.'
+      }
+    };
+  }
+
+  // -------------------------------------------------------------
+  // DOMAIN 9: CANDIDATE-PROVISIONS-GROUNDED FALLBACK
   // -------------------------------------------------------------
   if (candidateProvisions && candidateProvisions.length > 0) {
     const topP = candidateProvisions[0];
@@ -2636,7 +2759,7 @@ export function createLegalWorkflow(
   }
 
   // -------------------------------------------------------------
-  // DOMAIN 9: GENERIC / OTHER LEGAL INQUIRY FALLBACK (NO FAKE DRAFTS)
+  // DOMAIN 10: GENERIC / OTHER LEGAL INQUIRY FALLBACK (NO FAKE DRAFTS)
   // -------------------------------------------------------------
   return {
     schemaVersion: 1,
