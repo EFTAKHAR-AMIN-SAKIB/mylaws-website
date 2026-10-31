@@ -10,11 +10,11 @@ fs.mkdirSync(OUT_DIR, { recursive: true });
 fs.mkdirSync(BRAIN_DIR, { recursive: true });
 
 async function runCapture() {
-  console.log('Capturing ask page screenshots with demo conversation...');
+  console.log('Capturing ask page screenshots with complete conversation...');
 
   const chromeProc = spawn(CHROME_PATH, [
     '--headless=new',
-    '--remote-debugging-port=9222',
+    '--remote-debugging-port=9235',
     '--disable-gpu',
     '--no-sandbox',
     'about:blank',
@@ -23,11 +23,9 @@ async function runCapture() {
   await new Promise((r) => setTimeout(r, 1500));
 
   try {
-    const vRes = await fetch('http://127.0.0.1:9222/json/version');
+    const vRes = await fetch('http://127.0.0.1:9235/json/version');
     const vData = await vRes.json();
-    const webSocketDebuggerUrl = vData.webSocketDebuggerUrl;
-
-    const ws = new globalThis.WebSocket(webSocketDebuggerUrl);
+    const ws = new globalThis.WebSocket(vData.webSocketDebuggerUrl);
 
     await new Promise((resolve, reject) => {
       ws.onopen = resolve;
@@ -55,7 +53,7 @@ async function runCapture() {
     }
 
     await send('Target.setDiscoverTargets', { discover: true });
-    const { targetId } = await send('Target.createTarget', { url: 'http://localhost:3000/ask?lang=en&demo=1' });
+    const { targetId } = await send('Target.createTarget', { url: 'http://localhost:3000/ask?lang=en&demo=complete' });
     const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true });
 
     function sendSession(method, params = {}) {
@@ -69,7 +67,7 @@ async function runCapture() {
     await sendSession('Page.enable');
     await sendSession('DOM.enable');
 
-    // 1. Emulate Mobile Viewport (iPhone / modern Android: 390 x 844)
+    // 1. Mobile Capture (Top of chat with Header and first message)
     await sendSession('Emulation.setDeviceMetricsOverride', {
       width: 390,
       height: 844,
@@ -77,11 +75,30 @@ async function runCapture() {
       mobile: true,
     });
 
-    console.log('Navigating to http://localhost:3000/ask?lang=en&demo=1 ...');
-    await sendSession('Page.navigate', { url: 'http://localhost:3000/ask?lang=en&demo=1' });
-    await new Promise((r) => setTimeout(r, 3500));
+    console.log('Navigating to http://localhost:3000/ask?lang=en&demo=complete ...');
+    await sendSession('Page.navigate', { url: 'http://localhost:3000/ask?lang=en&demo=complete' });
 
-    // Capture mobile active chat view
+    // Wait until response appears (poll up to 25s)
+    console.log('Waiting for assistant avatar & response...');
+    for (let i = 0; i < 25; i++) {
+      await new Promise((r) => setTimeout(r, 1000));
+      const chk = await sendSession('Runtime.evaluate', {
+        expression: '!!document.querySelector("img[src*=\\"mylaws-assistant-avatar\\"]")',
+        returnByValue: true,
+      });
+      if (chk?.result?.value) {
+        console.log(`Found assistant avatar after ${i + 1}s!`);
+        break;
+      }
+    }
+
+    // Wait 2.5s for initial smooth-scroll to settle, then force scroll to top
+    await new Promise((r) => setTimeout(r, 2500));
+    await sendSession('Runtime.evaluate', {
+      expression: 'window.scrollTo({ top: 0, behavior: "instant" })',
+    });
+    await new Promise((r) => setTimeout(r, 1000));
+
     const mobileScreen = await sendSession('Page.captureScreenshot', {
       format: 'png',
       captureBeyondViewport: false,
@@ -92,32 +109,24 @@ async function runCapture() {
     fs.writeFileSync(path.join(BRAIN_DIR, 'ask_mobile_chat.png'), mobileBuf);
     console.log('Mobile screenshot saved to ask_mobile_chat.png');
 
-    // Also capture Bangla version for bilingual review
-    await sendSession('Page.navigate', { url: 'http://localhost:3000/ask?lang=bn&demo=1' });
-    await new Promise((r) => setTimeout(r, 2500));
-    const mobileBnScreen = await sendSession('Page.captureScreenshot', {
-      format: 'png',
-      captureBeyondViewport: false,
-    });
-    const mobileBnBuf = Buffer.from(mobileBnScreen.data, 'base64');
-    fs.writeFileSync(path.join(OUT_DIR, 'ask_mobile_chat_bn.png'), mobileBnBuf);
-    fs.writeFileSync(path.join(BRAIN_DIR, 'ask_mobile_chat_bn.png'), mobileBnBuf);
-    console.log('Mobile BN screenshot saved to ask_mobile_chat_bn.png');
-
-    // 2. Emulate Desktop (1440 x 900)
+    // 2. Desktop Capture
     await sendSession('Emulation.setDeviceMetricsOverride', {
-      width: 1440,
-      height: 900,
-      deviceScaleFactor: 1.5,
+      width: 1280,
+      height: 850,
+      deviceScaleFactor: 1,
       mobile: false,
     });
-    await sendSession('Page.navigate', { url: 'http://localhost:3000/ask?lang=en&demo=1' });
-    await new Promise((r) => setTimeout(r, 2500));
+
+    await sendSession('Runtime.evaluate', {
+      expression: 'window.scrollTo({ top: 0, behavior: "instant" })',
+    });
+    await new Promise((r) => setTimeout(r, 1000));
 
     const desktopScreen = await sendSession('Page.captureScreenshot', {
       format: 'png',
       captureBeyondViewport: false,
     });
+
     const desktopBuf = Buffer.from(desktopScreen.data, 'base64');
     fs.writeFileSync(path.join(OUT_DIR, 'ask_desktop_chat.png'), desktopBuf);
     fs.writeFileSync(path.join(BRAIN_DIR, 'ask_desktop_chat.png'), desktopBuf);

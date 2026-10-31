@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { BrandLogo } from '@/components/BrandLogo';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useApp } from '@/components/AppContext';
 import { useAuth } from '@/components/AuthContext';
@@ -22,6 +21,7 @@ import type {
 } from '@/types/contracts';
 import type { SavedUserQuery } from '@/lib/userDb';
 import { detectInputLanguage, toBanglaNum } from '@/lib/followup';
+import { createLegalWorkflow } from '@/lib/workflow';
 import { provisions } from '@/data/legal';
 import {
   Send,
@@ -30,7 +30,6 @@ import {
   HelpCircle,
   Shield,
   ShieldCheck,
-  RotateCcw,
   Sparkles,
   Info,
   ArrowRight,
@@ -41,7 +40,6 @@ import {
   FileText,
   History,
   X,
-  Lock,
   Clock,
   User,
   MessageSquare,
@@ -147,8 +145,35 @@ function AskContent() {
         },
       ]);
       setStatus('finding_sources');
+    } else if (searchParams.get('demo') === 'complete' && chatTurns.length === 0) {
+      const demoQuery =
+        lang === 'bn'
+          ? 'আমার মোবাইল চুরি হয়েছে, এখন আমার কী করা উচিত?'
+          : 'someone stolen my mobile, so what should i do now?';
+      const demoResult = createLegalWorkflow({
+        requestId: 'demo-complete',
+        originalMessage: demoQuery,
+        language: lang,
+        facts: [],
+      });
+      setChatTurns([
+        {
+          id: 'turn-demo-user',
+          role: 'user',
+          content: demoQuery,
+          timestamp: new Date().toISOString(),
+        },
+        {
+          id: 'turn-demo-assistant',
+          role: 'assistant',
+          content: '',
+          timestamp: new Date().toISOString(),
+          result: demoResult,
+        },
+      ]);
+      setStatus('ready');
     }
-  }, [searchParams, chatTurns.length]);
+  }, [searchParams, chatTurns.length, lang]);
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -535,90 +560,19 @@ function AskContent() {
     <div className="min-h-screen bg-bg-light text-primary-light flex flex-col font-sans transition-colors duration-200">
       <Header />
 
-      <main className={`flex-1 w-full mx-auto px-3 sm:px-4 py-4 sm:py-6 ${isChatMode ? 'max-w-3xl pb-52 sm:pb-52' : 'max-w-4xl pb-12'}`}>
-        {/* Top Session Bar (Compact and clean, shown when in chat mode) */}
-        {isChatMode && (
-          <div className="flex items-center justify-between pb-3.5 mb-5 border-b border-border-light/60 sticky top-0 bg-bg-light/95 backdrop-blur-md z-20 pt-1 -mx-3 px-3 sm:mx-0 sm:px-0">
-            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-              <BrandLogo size="sm" showSubtitle={false} className="shrink-0" />
-              <div className="hidden sm:flex flex-col justify-center border-l border-border-light/80 pl-2.5">
-                <span className="font-cinzel text-[11px] font-bold text-primary-light tracking-wide leading-none">
-                  {t('আইনি পরামর্শ', 'Legal Consultation')}
-                </span>
-                <span className="text-[10px] text-secondary-light font-hind mt-0.5 leading-none">
-                  {t('গেজেট ও সংবিধিবদ্ধ আইন সমর্থিত', 'Statutory Provisions & Gazette Verified')}
-                </span>
-              </div>
-              <span className="sm:hidden inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-accent-light/10 text-accent-light text-[9px] font-medium font-hind shrink-0">
-                <span className="h-1 w-1 rounded-full bg-emerald-600 animate-pulse" />
-                {t('যাচাইকৃত', 'Verified')}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={handleClearCase}
-                className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl border border-border-light bg-surface-light text-xs font-medium text-secondary-light hover:text-primary-light hover:border-accent-light transition-all shadow-2xs cursor-pointer active:scale-95"
-                title={t('নতুন কেস শুরু করুন', 'Start New Case')}
-              >
-                <RotateCcw className="h-3.5 w-3.5 text-accent-light" />
-                <span className="hidden sm:inline font-hind">{t('নতুন কেস', 'New Case')}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={fetchHistory}
-                className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl border border-border-light bg-surface-light text-xs font-medium text-secondary-light hover:text-primary-light hover:border-accent-light transition-all shadow-2xs cursor-pointer active:scale-95"
-                title={t('ইতিহাস', 'History')}
-              >
-                <History className="h-3.5 w-3.5 text-accent-light" />
-                <span className="hidden sm:inline font-hind">{t('ইতিহাস', 'History')}</span>
-              </button>
-
-              {user ? (
-                <div className="flex items-center gap-1 text-xs text-amber-900 dark:text-amber-200 bg-amber-500/15 px-2 sm:px-2.5 py-1.5 rounded-xl border border-amber-600/30 shadow-2xs font-semibold">
-                  <Sparkles className="h-3 w-3 text-amber-700 dark:text-amber-400 shrink-0" />
-                  <span className="text-[11px] font-hind">
-                    {t(`${formattedRemaining}/${formattedDailyLimit}`, `${formattedRemaining}/${formattedDailyLimit}`)}
-                  </span>
-                </div>
-              ) : (
-                <Link
-                  href="/login?redirect=/ask"
-                  className="flex items-center gap-1 text-xs text-amber-900 bg-amber-500/20 px-2 sm:px-2.5 py-1.5 rounded-xl border border-amber-600/40 hover:bg-amber-500/30 transition-all font-semibold cursor-pointer active:scale-95"
-                >
-                  <Lock className="h-3 w-3 text-amber-700" />
-                  <span className="text-[11px] font-hind">{t('লগইন', 'Login')}</span>
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
+      <main className={`flex-1 w-full mx-auto px-3 sm:px-4 ${isChatMode ? 'max-w-3xl py-2 sm:py-4 pb-52 sm:pb-52' : 'max-w-4xl py-2 md:py-6 pb-20 md:pb-12 flex flex-col'}`}>
 
         {/* ============================================================
             INITIAL COMPOSER HERO (Claude Style - Shown only before conversation starts)
             ============================================================ */}
         {!isChatMode && (
-          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-240px)] max-w-3xl mx-auto px-2 sm:px-4 py-8 animate-in fade-in duration-300">
-            {/* Top Greeting with Emblem */}
-            <div className="flex flex-col items-center text-center space-y-3 mb-8">
-              <div className="inline-flex items-center gap-3">
-                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl bg-accent-light/10 border border-accent-light/20 p-2 flex items-center justify-center shadow-xs">
-                  <Image
-                    src="/images/logo-icon.png"
-                    alt=""
-                    width={40}
-                    height={30}
-                    className="w-full h-full object-contain"
-                    priority
-                  />
-                </div>
-                <h1 className="font-cinzel text-2xl sm:text-4xl font-bold tracking-tight text-primary-light">
-                  {getGreeting()}
-                </h1>
-              </div>
-              <p className="font-hind text-xs sm:text-sm text-secondary-light max-w-md">
+          <div className="flex-1 flex flex-col justify-between md:justify-center max-w-3xl mx-auto w-full px-2 sm:px-4 py-2 md:py-8 animate-in fade-in duration-300">
+            {/* Top / Center Greeting (Clean Claude style - centered typography, no emblem) */}
+            <div className="flex flex-col items-center text-center space-y-2 my-auto md:my-0 md:mb-8 px-2">
+              <h1 className="font-cinzel text-2xl sm:text-4xl font-bold tracking-tight text-primary-light leading-snug">
+                {getGreeting()}
+              </h1>
+              <p className="hidden sm:block font-hind text-xs sm:text-sm text-secondary-light max-w-md">
                 {t(
                   'আপনার আইনি পরিস্থিতি বা সমস্যাটি খুলে বলুন—আমরা যাচাইকৃত আইন, করণীয় ধাপ ও প্রস্তুত খসড়া দেব।',
                   'Describe your situation or legal question—we provide verified statutes, actionable steps, and drafts.'
@@ -626,83 +580,94 @@ function AskContent() {
               </p>
             </div>
 
-            {/* Central Asking Box */}
-            <div className="w-full rounded-3xl border border-border-light bg-surface-cardLight p-4 sm:p-5 shadow-sm hover:shadow-md transition-all space-y-3 focus-within:border-accent-light/60 focus-within:ring-2 focus-within:ring-accent-light/10">
-              <textarea
-                id="top-legal-input"
-                ref={topInputRef}
-                rows={3}
-                value={input}
-                onInput={handleTextareaInput}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey && (typeof window === 'undefined' || window.innerWidth > 768)) {
-                    e.preventDefault();
-                    if (status !== 'submitted' && status !== 'finding_sources' && input.trim()) {
-                      handleAsk();
-                    }
-                  }
-                }}
-                placeholder={t(
-                  'আপনার পরিস্থিতি বা আইনি সমস্যাটি বিস্তারিত লিখুন... (যেমন: আমার মালিক দুই মাসের বকেয়া বেতন দিচ্ছে না, কীভাবে শ্রম আইনের আওতায় প্রতিকার পাব?)',
-                  'Describe your situation or legal question... (e.g. My employer has not paid my two months wages, how do I seek relief under labour law?)'
-                )}
-                className="w-full resize-none border-none bg-transparent p-1.5 text-base text-primary-light placeholder-secondary-light/60 focus:outline-none min-h-[88px]"
-              />
-
-              {/* Bottom Controls Bar Inside Asking Box */}
-              <div className="flex items-center justify-between pt-2 border-t border-border-light/60">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-accent-light/10 text-accent-light border border-accent-light/20">
-                    <span className="h-1.5 w-1.5 rounded-full bg-accent-light animate-pulse" />
-                    <span>{t('বাংলাদেশ আইন ২০২৬', 'Bangladesh Law 2026')}</span>
-                  </span>
-                  <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-secondary-light/80 font-hind">
-                    <ShieldCheck className="h-3 w-3 text-emerald-600" />
-                    <span>{t('গেজেট যাচাইকৃত', 'Gazette Verified')}</span>
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="hidden md:inline text-[11px] text-secondary-light/70 font-hind">
-                    {t('Enter চাপলে উত্তর আসবে', 'Press Enter to submit')}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={status === 'submitted' || status === 'finding_sources' || !input.trim()}
-                    onClick={() => handleAsk()}
-                    className="h-9 w-9 sm:h-10 sm:w-10 rounded-full flex items-center justify-center bg-accent-light text-white shadow hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed active-press transition-all cursor-pointer"
-                    title={t('অনুসন্ধান চালান', 'Submit Inquiry')}
-                  >
-                    {status === 'submitted' || status === 'finding_sources' ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <ArrowUp className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Example Chips - Smooth horizontal thumb swipe on mobile */}
-            <div className="flex sm:flex-wrap items-center sm:justify-center overflow-x-auto no-scrollbar gap-2 mt-6 w-full max-w-2xl px-1 py-1">
-              {exampleChips.map((chip, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    setInput(chip.query);
-                    if (topInputRef.current) {
-                      topInputRef.current.focus();
-                      topInputRef.current.style.height = 'auto';
+            {/* Asking Chat Box (Down on mobile like Claude, centered on desktop) */}
+            <div className="w-full pb-2 md:pb-0">
+              <div className="w-full rounded-2xl sm:rounded-3xl border border-border-light bg-surface-cardLight p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-all space-y-2.5 sm:space-y-3 focus-within:border-accent-light/60 focus-within:ring-2 focus-within:ring-accent-light/10">
+                <textarea
+                  id="top-legal-input"
+                  ref={topInputRef}
+                  rows={2}
+                  value={input}
+                  onInput={handleTextareaInput}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey && (typeof window === 'undefined' || window.innerWidth > 768)) {
+                      e.preventDefault();
+                      if (status !== 'submitted' && status !== 'finding_sources' && input.trim()) {
+                        handleAsk();
+                      }
                     }
                   }}
-                  className="shrink-0 text-xs px-3.5 py-2 sm:py-1.5 rounded-full border border-border-light bg-surface-light text-secondary-light hover:border-accent-light hover:text-accent-light hover:bg-surface-cardLight transition-all cursor-pointer shadow-2xs font-hind flex items-center gap-1.5 active-press whitespace-nowrap"
-                >
-                  <Sparkles className="h-3 w-3 text-accent-light/70" />
-                  <span>{chip.label}</span>
-                </button>
-              ))}
+                  placeholder={t(
+                    'আপনার আইনি পরিস্থিতি বা প্রশ্নটি লিখুন...',
+                    'Describe your situation or legal question...'
+                  )}
+                  className="w-full resize-none border-none bg-transparent p-1 sm:p-1.5 text-base sm:text-base text-primary-light placeholder-secondary-light/60 focus:outline-none min-h-[64px] sm:min-h-[88px]"
+                />
+
+                {/* Bottom Controls Bar Inside Asking Box */}
+                <div className="flex items-center justify-between pt-2 border-t border-border-light/60">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-medium bg-accent-light/10 text-accent-light border border-accent-light/20">
+                      <span className="h-1.5 w-1.5 rounded-full bg-accent-light animate-pulse" />
+                      <span>{t('বাংলাদেশ আইন ২০২৬', 'Bangladesh Law 2026')}</span>
+                    </span>
+                    <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-secondary-light/80 font-hind">
+                      <ShieldCheck className="h-3 w-3 text-emerald-600" />
+                      <span>{t('গেজেট যাচাইকৃত', 'Gazette Verified')}</span>
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 sm:gap-2.5">
+                    <span className="hidden md:inline text-[11px] text-secondary-light/70 font-hind">
+                      {t('Enter চাপলে উত্তর আসবে', 'Press Enter to submit')}
+                    </span>
+
+                    <button
+                      type="button"
+                      disabled={status === 'submitted' || status === 'finding_sources' || !input.trim()}
+                      onClick={() => handleAsk()}
+                      className="h-9 w-9 sm:h-10 sm:w-10 rounded-full flex items-center justify-center bg-accent-light text-white shadow hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed active-press transition-all cursor-pointer"
+                      title={t('অনুসন্ধান চালান', 'Submit Inquiry')}
+                    >
+                      {status === 'submitted' || status === 'finding_sources' ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <ArrowUp className="h-4 w-4 stroke-[2.5]" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Example Chips - Only on desktop to keep mobile screen completely clean and uncluttered like Claude */}
+              <div className="hidden md:flex flex-wrap items-center justify-center gap-2 mt-6 w-full max-w-2xl mx-auto px-1 py-1">
+                {exampleChips.map((chip, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      setInput(chip.query);
+                      if (topInputRef.current) {
+                        topInputRef.current.focus();
+                        topInputRef.current.style.height = 'auto';
+                      }
+                    }}
+                    className="shrink-0 text-xs px-3.5 py-1.5 rounded-full border border-border-light bg-surface-light text-secondary-light hover:border-accent-light hover:text-accent-light hover:bg-surface-cardLight transition-all cursor-pointer shadow-2xs font-hind flex items-center gap-1.5 active-press whitespace-nowrap"
+                  >
+                    <Sparkles className="h-3 w-3 text-accent-light/70" />
+                    <span>{chip.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Discreet disclaimer below dock on desktop */}
+              <p className="text-center text-[10px] text-secondary-light/60 font-hind mt-2 hidden md:block">
+                {t(
+                  'MyLaws সরকারি গেজেট ও সংবিধিবদ্ধ আইন বিশ্লেষণ করে। আদালত বা আনুষ্ঠানিক ওকালতির জন্য মূল গেজেট যাচাই করুন।',
+                  'MyLaws analyzes official statutory gazettes. Verify official legal gazettes for formal court proceedings.'
+                )}
+              </p>
             </div>
           </div>
         )}
@@ -722,7 +687,7 @@ function AskContent() {
             CHAT STREAM CONVERSATION VIEW (Active after inquiry starts)
             ============================================================ */}
         {isChatMode && (
-          <div className="mt-6 space-y-8 animate-in fade-in duration-200">
+          <div className="mt-2 sm:mt-3 space-y-6 sm:space-y-8 animate-in fade-in duration-200">
             {chatTurns.map((turn, turnIdx) => (
               <div key={turn.id} className="space-y-4">
                 {/* ------------------------------------------------------
@@ -755,11 +720,12 @@ function AskContent() {
                       <div className="flex items-center gap-2.5">
                         <div className="h-8 w-8 rounded-full bg-accent-light/15 border border-accent-light/30 p-1.5 flex items-center justify-center shrink-0 shadow-2xs">
                           <Image
-                            src="/images/logo-icon.png"
+                            src="/images/mylaws-assistant-avatar.png"
                             alt="MyLaws"
-                            width={22}
-                            height={16}
+                            width={32}
+                            height={32}
                             className="w-full h-full object-contain"
+                            priority
                           />
                         </div>
                         <div className="flex items-center gap-2">
@@ -936,8 +902,14 @@ function AskContent() {
                           {/* Top Meta Bar: Issue & Provenance */}
                           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-light/60 pb-3.5">
                             <div className="flex items-center gap-2.5">
-                              <span className="p-1.5 rounded-lg bg-accent-light/10 text-accent-light">
-                                <Scale className="h-4 w-4" />
+                              <span className="p-1 rounded-lg bg-accent-light/10 text-accent-light flex items-center justify-center w-7 h-7 shrink-0">
+                                <Image
+                                  src="/images/mylaws-assistant-avatar.png"
+                                  alt=""
+                                  width={20}
+                                  height={20}
+                                  className="w-full h-full object-contain"
+                                />
                               </span>
                               <div>
                                 <span className="text-xs sm:text-sm font-bold text-primary-light font-anek block">
@@ -1291,7 +1263,7 @@ function AskContent() {
       )}
 
       {/* Desktop footer shown only before conversation starts */}
-      {!isChatMode && <Footer />}
+      {!isChatMode && <div className="hidden md:block"><Footer /></div>}
 
       {/* Cloudflare D1 User History Drawer */}
       {historyOpen && (
