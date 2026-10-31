@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { BrandLogo } from '@/components/BrandLogo';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useApp } from '@/components/AppContext';
 import { useAuth } from '@/components/AuthContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Checklist } from '@/components/Checklist';
-import { SourceDrawer } from '@/components/SourceDrawer';
+import { SourceDrawer, findProvision } from '@/components/SourceDrawer';
 import { OfficeModal } from '@/components/OfficeModal';
 import type {
   AnswerRequest,
@@ -54,7 +56,7 @@ import {
 } from 'lucide-react';
 
 function getSourceLabel(sid: string, currentLang: 'en' | 'bn'): string {
-  const prov = provisions.find((p) => p.id === sid);
+  const prov = findProvision(sid);
   if (prov) {
     const actName = currentLang === 'bn' ? prov.act.bn : prov.act.en;
     const shortAct = actName.split(',')[0].split('(')[0].trim();
@@ -133,6 +135,21 @@ function AskContent() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [chatTurns.length]);
 
+  // Visual preview mode for layout inspection (?demo=1)
+  useEffect(() => {
+    if (searchParams.get('demo') === '1' && chatTurns.length === 0) {
+      setChatTurns([
+        {
+          id: 'turn-demo-1',
+          role: 'user',
+          content: 'I paid in advance for online goods but the seller refused delivery or refund. How do I file a consumer complaint for compensation?',
+          timestamp: new Date().toISOString(),
+        },
+      ]);
+      setStatus('finding_sources');
+    }
+  }, [searchParams, chatTurns.length]);
+
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -207,20 +224,53 @@ function AskContent() {
 
   const exampleChips = [
     {
-      label: t('বকেয়া বেতন', 'Unpaid Wages'),
-      query: 'আমার মালিক গত দুই মাসের বেতন দেয়নি। এখন আমি কী করব?',
+      label: t('বকেয়া বেতন ও শ্রম অধিকার', 'Unpaid Wages & Labour'),
+      query: t(
+        'আমার মালিক গত দুই মাসের বকেয়া বেতন পরিশোধ করছে না। আমি কীভাবে শ্রম আদালতের মাধ্যমে প্রতিকার পেতে পারি?',
+        'My employer has not paid my wages for the last two months. How can I seek relief under the Bangladesh Labour Act?'
+      ),
     },
     {
-      label: t('ছুরি দিয়ে আঘাত / মারধর', 'Knife Assault & Hurt'),
-      query: 'কালকে রাতে রাস্তা দিয়ে যাওয়ার সময় একজন আমাকে ছুরি দিয়ে আঘাত করেছে, এখন আমি কী করতে পারি?',
+      label: t('জমি দখল ও জাল দলিল', 'Land Grabbing & Fraud'),
+      query: t(
+        'জাল দলিল তৈরি করে আমাদের পৈতৃক জমি দখলের চেষ্টা করা হচ্ছে। ভূমি অপরাধ প্রতিরোধ আইন ২০২৩ অনুযায়ী কীভাবে প্রতিকার পাব?',
+        'Someone created a forged deed to unlawfully occupy our land. How do I seek remedies under the Land Crime Prevention and Redress Act 2023?'
+      ),
     },
     {
-      label: t('মোবাইল ফোন চুরি', 'Mobile Phone Theft'),
-      query: 'আজ সকাল ৯:৪৫ এ আমার মোবাইল ফোন চুরি হয়েছে, কীভাবে জিডি করব?',
+      label: t('ভোক্তা অধিকার ও প্রতারণা', 'Consumer Rights & Fraud'),
+      query: t(
+        'অনলাইন শপে অগ্রিম মূল্য পরিশোধের পরও পণ্য দেয়নি। ভোক্তা অধিকার সংরক্ষণ অধিদপ্তরে কীভাবে অভিযোগ ও ক্ষতিপূরণ দাবি করব?',
+        'I paid in advance for online goods but the seller refused delivery or refund. How do I file a consumer complaint for compensation?'
+      ),
     },
     {
-      label: t('অনলাইন শপিং প্রতারণা', 'Online Shopping Fraud'),
-      query: 'অনলাইন শপে অগ্রিম টাকা দেওয়ার পরও পণ্য দেয়নি। ভোক্তা অধিকার কীভাবে পাব?',
+      label: t('হুমকি ও নিরাপত্তা জিডি', 'Threats & Police GD'),
+      query: t(
+        'অপরিচিত নম্বর থেকে আমাকে ফোনে প্রাণনাশের হুমকি দেওয়া হচ্ছে। থানায় কীভাবে নিরাপত্তা সাধারণ ডায়েরি (GD) করব?',
+        'I am receiving death threats from unknown phone numbers. How do I file a protective General Diary (GD) with the police station?'
+      ),
+    },
+    {
+      label: t('সাইবার হয়রানি ও ব্ল্যাকমেইল', 'Cyber Harassment'),
+      query: t(
+        'আমার ছবি ব্যবহার করে ফেসবুকে ভুয়া আইডি খুলে ব্ল্যাকমেইল ও মানহানি করা হচ্ছে। সাইবার নিরাপত্তা আইনে কী আইনি পদক্ষেপ নেওয়া যায়?',
+        'Someone created a fake profile with my photos and is blackmailing me. What legal steps can I take under cyber and pornography laws?'
+      ),
+    },
+    {
+      label: t('পারিবারিক ভরণপোষণ ও সুরক্ষা', 'Family Maintenance & Protection'),
+      query: t(
+        'পারিবারিক সহিংসতা থেকে সুরক্ষা এবং পারিবারিক আদালত আইন ২০২৩ অনুযায়ী স্ত্রী ও সন্তানের ভরণপোষণ পাওয়ার নিয়ম কী?',
+        'How can a spouse obtain protection from domestic violence and claim maintenance under the Family Courts Act 2023?'
+      ),
+    },
+    {
+      label: t('বিনামূল্যে সরকারি আইনি সহায়তা', 'Free Government Legal Aid'),
+      query: t(
+        'অসচ্ছল নাগরিক হিসেবে আদালতে বিনামূল্যে সরকারি আইনজীবী ও আইনি সহায়তা (লিগ্যাল এইড ১৬৬৯৯) পাওয়ার উপায় কী?',
+        'How can an underprivileged citizen apply for free government legal aid and representation through the national 16699 helpline?'
+      ),
     },
   ];
 
@@ -430,7 +480,7 @@ function AskContent() {
     if (prevLangRef.current !== lang) {
       prevLangRef.current = lang;
       const lastUserTurn = [...chatTurns].reverse().find((t) => t.role === 'user');
-      if (lastUserTurn) {
+      if (lastUserTurn && !searchParams.get('demo')) {
         const lastResult = [...chatTurns].reverse().find((t) => t.result)?.result;
         handleAsk(lastUserTurn.content, lastResult?.userFacts || [], lang);
       }
@@ -485,58 +535,61 @@ function AskContent() {
     <div className="min-h-screen bg-bg-light text-primary-light flex flex-col font-sans transition-colors duration-200">
       <Header />
 
-      <main className={`flex-1 w-full mx-auto px-4 py-6 ${isChatMode ? 'max-w-3xl pb-44 sm:pb-48' : 'max-w-4xl pb-12'}`}>
+      <main className={`flex-1 w-full mx-auto px-3 sm:px-4 py-4 sm:py-6 ${isChatMode ? 'max-w-3xl pb-52 sm:pb-52' : 'max-w-4xl pb-12'}`}>
         {/* Top Session Bar (Compact and clean, shown when in chat mode) */}
         {isChatMode && (
-          <div className="flex items-center justify-between pb-4 mb-6 border-b border-border-light/60">
-            <div className="flex items-center gap-2.5">
-              <span className="h-8 w-8 rounded-xl bg-accent-light/10 text-accent-light flex items-center justify-center shrink-0">
-                <Scale className="h-4 w-4" />
-              </span>
-              <div>
-                <span className="font-cinzel text-xs font-bold text-primary-light block tracking-wide">
-                  {t('MyLaws আইনি পরামর্শ', 'MyLaws Legal Consultation')}
+          <div className="flex items-center justify-between pb-3.5 mb-5 border-b border-border-light/60 sticky top-0 bg-bg-light/95 backdrop-blur-md z-20 pt-1 -mx-3 px-3 sm:mx-0 sm:px-0">
+            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+              <BrandLogo size="sm" showSubtitle={false} className="shrink-0" />
+              <div className="hidden sm:flex flex-col justify-center border-l border-border-light/80 pl-2.5">
+                <span className="font-cinzel text-[11px] font-bold text-primary-light tracking-wide leading-none">
+                  {t('আইনি পরামর্শ', 'Legal Consultation')}
                 </span>
-                <span className="text-[10px] text-secondary-light font-hind">
-                  {t('বাংলাদেশ গেজেট ও সংবিধিবদ্ধ আইন সমর্থিত', 'Statutory Provisions & Gazette Verified')}
+                <span className="text-[10px] text-secondary-light font-hind mt-0.5 leading-none">
+                  {t('গেজেট ও সংবিধিবদ্ধ আইন সমর্থিত', 'Statutory Provisions & Gazette Verified')}
                 </span>
               </div>
+              <span className="sm:hidden inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-accent-light/10 text-accent-light text-[9px] font-medium font-hind shrink-0">
+                <span className="h-1 w-1 rounded-full bg-emerald-600 animate-pulse" />
+                {t('যাচাইকৃত', 'Verified')}
+              </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <button
                 type="button"
                 onClick={handleClearCase}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-light bg-surface-light text-xs font-medium text-secondary-light hover:text-primary-light hover:border-accent-light transition-all shadow-2xs cursor-pointer"
+                className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl border border-border-light bg-surface-light text-xs font-medium text-secondary-light hover:text-primary-light hover:border-accent-light transition-all shadow-2xs cursor-pointer active:scale-95"
                 title={t('নতুন কেস শুরু করুন', 'Start New Case')}
               >
                 <RotateCcw className="h-3.5 w-3.5 text-accent-light" />
-                <span className="hidden sm:inline">{t('নতুন কেস', 'New Case')}</span>
+                <span className="hidden sm:inline font-hind">{t('নতুন কেস', 'New Case')}</span>
               </button>
 
               <button
                 type="button"
                 onClick={fetchHistory}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-light bg-surface-light text-xs font-medium text-secondary-light hover:text-primary-light hover:border-accent-light transition-all shadow-2xs cursor-pointer"
+                className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl border border-border-light bg-surface-light text-xs font-medium text-secondary-light hover:text-primary-light hover:border-accent-light transition-all shadow-2xs cursor-pointer active:scale-95"
+                title={t('ইতিহাস', 'History')}
               >
                 <History className="h-3.5 w-3.5 text-accent-light" />
-                <span className="hidden sm:inline">{t('ইতিহাস', 'History')}</span>
+                <span className="hidden sm:inline font-hind">{t('ইতিহাস', 'History')}</span>
               </button>
 
               {user ? (
-                <div className="flex items-center gap-1 text-xs text-amber-900 dark:text-amber-200 bg-amber-500/15 px-2.5 py-1.5 rounded-lg border border-amber-600/30 shadow-2xs">
-                  <Sparkles className="h-3 w-3 text-amber-700 dark:text-amber-400" />
-                  <span className="font-semibold text-[11px]">
-                    {t(`বাকি: ${formattedRemaining}/${formattedDailyLimit}`, `${formattedRemaining}/${formattedDailyLimit} left`)}
+                <div className="flex items-center gap-1 text-xs text-amber-900 dark:text-amber-200 bg-amber-500/15 px-2 sm:px-2.5 py-1.5 rounded-xl border border-amber-600/30 shadow-2xs font-semibold">
+                  <Sparkles className="h-3 w-3 text-amber-700 dark:text-amber-400 shrink-0" />
+                  <span className="text-[11px] font-hind">
+                    {t(`${formattedRemaining}/${formattedDailyLimit}`, `${formattedRemaining}/${formattedDailyLimit}`)}
                   </span>
                 </div>
               ) : (
                 <Link
                   href="/login?redirect=/ask"
-                  className="flex items-center gap-1 text-xs text-amber-900 bg-amber-500/20 px-2.5 py-1.5 rounded-lg border border-amber-600/40 hover:bg-amber-500/30 transition-all font-semibold cursor-pointer"
+                  className="flex items-center gap-1 text-xs text-amber-900 bg-amber-500/20 px-2 sm:px-2.5 py-1.5 rounded-xl border border-amber-600/40 hover:bg-amber-500/30 transition-all font-semibold cursor-pointer active:scale-95"
                 >
                   <Lock className="h-3 w-3 text-amber-700" />
-                  <span className="text-[11px]">{t('লগইন', 'Login')}</span>
+                  <span className="text-[11px] font-hind">{t('লগইন', 'Login')}</span>
                 </Link>
               )}
             </div>
@@ -551,9 +604,16 @@ function AskContent() {
             {/* Top Greeting with Emblem */}
             <div className="flex flex-col items-center text-center space-y-3 mb-8">
               <div className="inline-flex items-center gap-3">
-                <span className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl bg-accent-light/10 text-accent-light flex items-center justify-center shadow-xs">
-                  <Scale className="h-6 w-6 sm:h-7 sm:w-7 text-accent-light" />
-                </span>
+                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl bg-accent-light/10 border border-accent-light/20 p-2 flex items-center justify-center shadow-xs">
+                  <Image
+                    src="/images/logo-icon.png"
+                    alt=""
+                    width={40}
+                    height={30}
+                    className="w-full h-full object-contain"
+                    priority
+                  />
+                </div>
                 <h1 className="font-cinzel text-2xl sm:text-4xl font-bold tracking-tight text-primary-light">
                   {getGreeting()}
                 </h1>
@@ -584,8 +644,8 @@ function AskContent() {
                   }
                 }}
                 placeholder={t(
-                  'আপনার পরিস্থিতি বা আইনি প্রশ্নটি বিস্তারিত লিখুন... (যেমন: আমার দোকান থেকে মালামাল চুরি হয়েছে, এখন কী করব?)',
-                  'Describe your situation or legal question... (e.g. Goods were stolen from my shop, what should I do?)'
+                  'আপনার পরিস্থিতি বা আইনি সমস্যাটি বিস্তারিত লিখুন... (যেমন: আমার মালিক দুই মাসের বকেয়া বেতন দিচ্ছে না, কীভাবে শ্রম আইনের আওতায় প্রতিকার পাব?)',
+                  'Describe your situation or legal question... (e.g. My employer has not paid my two months wages, how do I seek relief under labour law?)'
                 )}
                 className="w-full resize-none border-none bg-transparent p-1.5 text-base text-primary-light placeholder-secondary-light/60 focus:outline-none min-h-[88px]"
               />
@@ -693,8 +753,14 @@ function AskContent() {
                     {/* Top Assistant Persona Banner & Quick Copy Action */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
-                        <div className="h-8 w-8 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-2xs font-cinzel font-bold text-xs">
-                          ML
+                        <div className="h-8 w-8 rounded-full bg-accent-light/15 border border-accent-light/30 p-1.5 flex items-center justify-center shrink-0 shadow-2xs">
+                          <Image
+                            src="/images/logo-icon.png"
+                            alt="MyLaws"
+                            width={22}
+                            height={16}
+                            className="w-full h-full object-contain"
+                          />
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="font-cinzel text-xs font-bold text-primary-light tracking-wide">
@@ -1116,58 +1182,80 @@ function AskContent() {
 
       {/* ============================================================
           FIXED BOTTOM CHAT DOCK (Claude & ChatGPT Mobile App Style)
-          Shrunk & docked at bottom with safe-area spacing
+          Floats cleanly above MobileBottomNav on mobile, docks at bottom on desktop.
           ============================================================ */}
       {isChatMode && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 pointer-events-none pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-6 bg-gradient-to-t from-bg-light via-bg-light/95 to-transparent">
-          <div className="max-w-3xl mx-auto px-3 sm:px-4 w-full pointer-events-auto">
+        <div className="fixed bottom-[calc(3.85rem+env(safe-area-inset-bottom,0px))] md:bottom-0 left-0 right-0 z-30 pointer-events-none pb-1 md:pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-3 bg-gradient-to-t from-bg-light/95 via-bg-light/80 to-transparent">
+          <div className="max-w-3xl mx-auto px-2.5 sm:px-4 w-full pointer-events-auto">
             {/* Docked Asking Card */}
-            <div className="rounded-2xl sm:rounded-3xl border border-border-light bg-surface-cardLight/95 backdrop-blur-md shadow-xl transition-all focus-within:border-accent-light/60 focus-within:ring-2 focus-within:ring-accent-light/10 p-2.5 sm:p-3.5 space-y-2">
-              <textarea
-                ref={bottomInputRef}
-                rows={1}
-                value={input}
-                onInput={handleTextareaInput}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey && (typeof window === 'undefined' || window.innerWidth > 768)) {
-                    e.preventDefault();
-                    if (status !== 'submitted' && status !== 'finding_sources' && input.trim()) {
-                      handleAsk();
-                    }
-                  }
-                }}
-                placeholder={t(
-                  'অনুসরণমূলক প্রশ্ন লিখুন...',
-                  'Write a message...'
-                )}
-                className="w-full resize-none border-none bg-transparent px-2 py-1 text-base sm:text-sm text-primary-light placeholder-secondary-light/60 focus:outline-none min-h-[44px] max-h-[140px]"
-              />
+            <div className="rounded-2xl sm:rounded-3xl border border-border-light/90 bg-surface-cardLight/95 backdrop-blur-md shadow-xl transition-all focus-within:border-accent-light/80 focus-within:ring-2 focus-within:ring-accent-light/15 p-2 sm:p-2.5">
+              <div className="flex items-end gap-1.5 sm:gap-2">
+                {/* Quick Action: Start New Case */}
+                <button
+                  type="button"
+                  onClick={handleClearCase}
+                  className="h-9 w-9 rounded-xl flex items-center justify-center text-secondary-light hover:text-accent-light hover:bg-bg-light border border-border-light/70 transition-colors shrink-0 active:scale-95 cursor-pointer"
+                  title={t('নতুন আলোচনা শুরু করুন', 'Start New Case')}
+                  aria-label="New case"
+                >
+                  <Plus className="h-4 w-4 text-accent-light" />
+                </button>
 
-              {/* Bottom Dock Action Row */}
-              <div className="flex items-center justify-between pt-1 border-t border-border-light/40">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <button
-                    type="button"
-                    onClick={handleClearCase}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium text-secondary-light hover:text-primary-light hover:bg-bg-light active-press transition-all cursor-pointer border border-border-light/40 bg-surface-light"
-                    title={t('নতুন আলোচনা শুরু করুন', 'Start new chat')}
-                  >
-                    <Plus className="h-3 w-3 text-accent-light" />
-                    <span className="font-hind">{t('নতুন', 'New')}</span>
-                  </button>
+                {/* Auto-expanding Input Area */}
+                <div className="flex-1 relative flex items-center min-w-0">
+                  <textarea
+                    ref={bottomInputRef}
+                    rows={1}
+                    value={input}
+                    onInput={handleTextareaInput}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey && (typeof window === 'undefined' || window.innerWidth > 768)) {
+                        e.preventDefault();
+                        if (status !== 'submitted' && status !== 'finding_sources' && input.trim()) {
+                          handleAsk();
+                        }
+                      }
+                    }}
+                    placeholder={t(
+                      'অনুসরণমূলক প্রশ্ন বা তথ্য লিখুন...',
+                      'Write a follow-up question or inquiry...'
+                    )}
+                    className="w-full resize-none border-none bg-transparent px-2.5 py-1.5 text-base sm:text-sm text-primary-light placeholder:text-secondary-light/60 focus:outline-none min-h-[38px] max-h-[140px] leading-relaxed"
+                  />
+                </div>
 
+                {/* Prominent Send Button (Always visible on the right!) */}
+                <button
+                  type="button"
+                  disabled={status === 'submitted' || status === 'finding_sources' || !input.trim()}
+                  onClick={() => handleAsk()}
+                  className="h-9 w-9 sm:h-9.5 sm:w-9.5 rounded-xl flex items-center justify-center bg-accent-light text-white shadow-sm hover:opacity-95 disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 transition-all shrink-0 cursor-pointer"
+                  title={t('পাঠান', 'Send')}
+                  aria-label="Send message"
+                >
+                  {status === 'submitted' || status === 'finding_sources' ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <ArrowUp className="h-4 w-4 stroke-[2.5]" />
+                  )}
+                </button>
+              </div>
+
+              {/* Sleek Context & Quota Row */}
+              <div className="flex items-center justify-between pt-1.5 mt-1 border-t border-border-light/40 px-1 text-[11px] text-secondary-light">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={fetchHistory}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium text-secondary-light hover:text-primary-light hover:bg-bg-light active-press transition-all cursor-pointer border border-border-light/40 bg-surface-light sm:hidden"
-                    title={t('ইতিহাস', 'History')}
+                    className="inline-flex items-center gap-1 font-hind text-secondary-light hover:text-accent-light transition-colors cursor-pointer text-[11px]"
                   >
                     <History className="h-3 w-3 text-accent-light" />
+                    <span>{t('ইতিহাস', 'History')}</span>
                   </button>
-
-                  <span className="text-[10px] sm:text-[11px] font-hind text-secondary-light/80 px-2 py-0.5 rounded-full bg-bg-light/80 border border-border-light/60">
-                    {t(`বাকি: ${formattedRemaining}/${formattedDailyLimit}`, `${formattedRemaining}/${formattedDailyLimit} left`)}
+                  <span className="text-border-light/60">•</span>
+                  <span className="font-hind text-secondary-light/80 text-[10px] sm:text-[11px]">
+                    {t(`কোটা: ${formattedRemaining}/${formattedDailyLimit}`, `Quota: ${formattedRemaining}/${formattedDailyLimit} left`)}
                   </span>
                 </div>
 
@@ -1175,25 +1263,12 @@ function AskContent() {
                   <span className="hidden md:inline text-[10px] text-secondary-light/60 font-hind">
                     {t('Shift+Enter নতুন লাইনের জন্য', 'Shift+Enter for newline')}
                   </span>
-                  <button
-                    type="button"
-                    disabled={status === 'submitted' || status === 'finding_sources' || !input.trim()}
-                    onClick={() => handleAsk()}
-                    className="h-8 w-8 sm:h-9 sm:w-9 rounded-full flex items-center justify-center bg-accent-light text-white shadow hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed active-press transition-all cursor-pointer"
-                    title={t('পাঠান', 'Send')}
-                  >
-                    {status === 'submitted' || status === 'finding_sources' ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <ArrowUp className="h-3.5 w-3.5" />
-                    )}
-                  </button>
                 </div>
               </div>
             </div>
 
-            {/* Discreet Disclaimer below dock */}
-            <p className="text-center text-[9px] sm:text-[10px] text-secondary-light/60 font-hind mt-1.5 hidden sm:block">
+            {/* Discreet Disclaimer below dock (Desktop only) */}
+            <p className="text-center text-[9px] sm:text-[10px] text-secondary-light/60 font-hind mt-1.5 hidden md:block">
               {t(
                 'MyLaws সরকারি গেজেট ও সংবিধিবদ্ধ আইন বিশ্লেষণ করে। আদালত বা আনুষ্ঠানিক ওকালতির জন্য মূল গেজেট যাচাই করুন।',
                 'MyLaws analyzes official statutory gazettes. Verify official legal gazettes for formal court proceedings.'

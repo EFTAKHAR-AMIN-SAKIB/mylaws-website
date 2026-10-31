@@ -45,7 +45,7 @@ const config: Config = {
         display: ["'Anek Bangla'", "'Playfair Display'", "'Cinzel'", "serif"],
         cinzel: ["'Cinzel'", "'Anek Bangla'", "serif"],
         serif: ["'Playfair Display'", "'Merriweather'", "Georgia", "serif"],
-        sans: ["'Hind Siliguri'", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+        sans: ["'Inter'", "'Hind Siliguri'", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
         bangla: ["'Anek Bangla'", "'Hind Siliguri'", "'SolaimanLipi'", "'Kalpurush'", "sans-serif"],
         anek: ["'Anek Bangla'", "sans-serif"],
         hind: ["'Hind Siliguri'", "sans-serif"],

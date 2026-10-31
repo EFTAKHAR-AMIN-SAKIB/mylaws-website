@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from './AppContext';
@@ -32,14 +33,20 @@ export function Header() {
   const { lang, setLang, t } = useApp();
   const { user, quota, openAuthModal, signOutUser, getIdToken, loading: authLoading } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [recentQueries, setRecentQueries] = useState<SavedUserQuery[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
 
-  // Close user dropdown when clicking outside
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Close desktop user dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
@@ -50,9 +57,9 @@ export function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Prevent background scroll when mobile drawer is open
+  // Prevent background scroll when mobile drawer or profile sheet is open
   useEffect(() => {
-    if (mobileOpen) {
+    if (mobileOpen || mobileProfileOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -60,11 +67,11 @@ export function Header() {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [mobileOpen]);
+  }, [mobileOpen, mobileProfileOpen]);
 
   // Load user queries for slide-over drawer when drawer opens
   useEffect(() => {
-    if (mobileOpen && user) {
+    if ((mobileOpen || mobileProfileOpen) && user) {
       setLoadingHistory(true);
       getIdToken().then((token) => {
         if (!token) {
@@ -84,7 +91,7 @@ export function Header() {
           .finally(() => setLoadingHistory(false));
       });
     }
-  }, [mobileOpen, user, getIdToken]);
+  }, [mobileOpen, mobileProfileOpen, user, getIdToken]);
 
   const navLinks = [
     { href: '/', label: t('হোম', 'HOME'), icon: Home },
@@ -102,6 +109,7 @@ export function Header() {
 
   const handleStartNewCase = () => {
     setMobileOpen(false);
+    setMobileProfileOpen(false);
     try {
       sessionStorage.removeItem('mylaws_pending_draft');
     } catch {}
@@ -113,7 +121,7 @@ export function Header() {
   };
 
   return (
-    <header className="no-print sticky top-0 z-50 border-b border-border-light/80 bg-bg-light/95 backdrop-blur-md transition-colors">
+    <header className="no-print sticky top-0 z-40 border-b border-border-light/80 bg-bg-light/95 backdrop-blur-md transition-colors">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-3 py-2.5 sm:px-6 lg:px-8">
         
         {/* Left Section: Mobile Menu Trigger + Brand Logo */}
@@ -121,7 +129,7 @@ export function Header() {
           {/* Mobile Slide-Over Drawer Trigger (Positioned on left like ChatGPT / Claude) */}
           <button
             onClick={() => setMobileOpen(true)}
-            className="md:hidden p-2 -ml-1 rounded-xl text-primary-light hover:bg-border-light/40 active:scale-95 transition-all"
+            className="md:hidden p-2 -ml-1 rounded-xl text-primary-light hover:bg-border-light/40 active-press transition-all"
             aria-label="Open Navigation Drawer"
           >
             <Menu className="h-6 w-6 text-primary-light" />
@@ -157,7 +165,7 @@ export function Header() {
           })}
         </nav>
 
-        {/* Right Section: Desktop Language Switcher, User Auth, & CTA */}
+        {/* Right Section: Desktop Controls */}
         <div className="hidden sm:flex items-center gap-3">
           {/* Language Switch */}
           <button
@@ -192,7 +200,7 @@ export function Header() {
                     </Link>
                   )}
 
-                  {/* User Profile Dropdown Pill */}
+                  {/* User Profile Dropdown Pill (Desktop) */}
                   <div className="relative" ref={userMenuRef}>
                     <button
                       onClick={() => setUserDropdownOpen(!userDropdownOpen)}
@@ -219,7 +227,7 @@ export function Header() {
                       <ChevronDown className="h-3 w-3 text-secondary-light" />
                     </button>
 
-                    {/* Dropdown Menu */}
+                    {/* Desktop Dropdown Menu */}
                     {userDropdownOpen && (
                       <div className="absolute right-0 mt-2 w-64 rounded-xl border border-border-light bg-surface-light p-3 shadow-xl z-50 animate-in fade-in slide-in-from-top-1 duration-150">
                         <div className="border-b border-border-light pb-2.5 mb-2.5">
@@ -289,13 +297,13 @@ export function Header() {
           )}
         </div>
 
-        {/* Mobile Right Controls: New Case (+) + Language + Profile (Claude & ChatGPT Style) */}
+        {/* Mobile Right Controls: New Case (+) + Language + Profile */}
         <div className="flex md:hidden items-center gap-2">
           {/* Quick "New Case" button on mobile for /ask page */}
           {pathname === '/ask' && (
             <button
               onClick={handleStartNewCase}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium font-cinzel rounded-lg border border-accent-light/30 bg-accent-light/10 text-accent-light active:scale-95 transition-all"
+              className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium font-cinzel rounded-lg border border-accent-light/30 bg-accent-light/10 text-accent-light active-press transition-all"
               title={t('নতুন কেস শুরু করুন', 'Start New Case')}
             >
               <Plus className="h-3.5 w-3.5" />
@@ -306,24 +314,25 @@ export function Header() {
           {/* Mobile Language Switcher */}
           <button
             onClick={() => setLang(lang === 'bn' ? 'en' : 'bn')}
-            className="px-2 py-1 text-[11px] font-cinzel rounded-lg border border-border-light bg-surface-light text-secondary-light font-bold active:scale-95 transition-all"
+            className="px-2 py-1 text-[11px] font-cinzel rounded-lg border border-border-light bg-surface-light text-secondary-light font-bold active-press transition-all"
           >
             {lang === 'bn' ? 'EN' : 'বাং'}
           </button>
 
-          {/* User Avatar / Login */}
+          {/* User Profile Avatar Trigger (Opens Dedicated Mobile Profile Sheet) */}
           {user ? (
             <button
-              onClick={() => setMobileOpen(true)}
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-700 text-xs font-bold text-white shadow-xs active:scale-95"
-              title={userDisplayName}
+              onClick={() => setMobileProfileOpen(true)}
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-700 text-xs font-bold text-white shadow-xs active-press cursor-pointer ring-2 ring-amber-700/20"
+              title={t('প্রোফাইল ও কোটা দেখুন', 'View Profile & Quota')}
+              aria-label="Open Citizen Profile"
             >
               {userDisplayName.charAt(0).toUpperCase()}
             </button>
           ) : (
             <Link
               href="/login"
-              className="px-2.5 py-1 text-[11px] font-cinzel rounded-lg border border-amber-800/40 bg-amber-500/10 text-amber-900 font-bold active:scale-95"
+              className="px-2.5 py-1 text-[11px] font-cinzel rounded-lg border border-amber-800/40 bg-amber-500/10 text-amber-900 font-bold active-press"
             >
               {t('লগইন', 'LOGIN')}
             </Link>
@@ -332,19 +341,20 @@ export function Header() {
       </div>
 
       {/* ========================================================
-          NATIVE SLIDE-OVER APP DRAWER (Claude, ChatGPT, Gemini Style)
+          1. NATIVE SLIDE-OVER NAVIGATION DRAWER (Mounted via Portal)
           ======================================================== */}
-      {mobileOpen && (
+      {mounted && mobileOpen && createPortal(
         <div
-          className="md:hidden fixed inset-0 z-50 flex bg-black/60 backdrop-blur-xs transition-opacity duration-200"
+          className="fixed inset-0 z-50 flex bg-black/60 backdrop-blur-xs transition-opacity duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget) setMobileOpen(false);
           }}
+          role="dialog"
+          aria-modal="true"
         >
           <div
             className="h-full w-[85vw] max-w-xs bg-surface-light border-r border-border-light shadow-2xl flex flex-col justify-between animate-in slide-in-from-left duration-250 ease-out"
-            role="dialog"
-            aria-modal="true"
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Drawer Header */}
             <div className="p-4 border-b border-border-light/80 flex items-center justify-between bg-bg-light/50">
@@ -353,7 +363,7 @@ export function Header() {
               </div>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="p-1.5 rounded-lg text-secondary-light hover:bg-border-light/40 active:scale-95 transition-colors"
+                className="p-1.5 rounded-lg text-secondary-light hover:bg-border-light/40 active-press transition-colors"
                 aria-label="Close Drawer"
               >
                 <X className="h-5 w-5" />
@@ -365,56 +375,11 @@ export function Header() {
               {/* Primary Action Button: New Case */}
               <button
                 onClick={handleStartNewCase}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-accent-light text-white font-cinzel text-xs font-bold tracking-wider shadow-sm active:scale-98 transition-all"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-accent-light text-white font-cinzel text-xs font-bold tracking-wider shadow-sm active-press transition-all"
               >
                 <Plus className="h-4 w-4" />
                 <span>{t('নতুন কেস শুরু করুন', 'START NEW INQUIRY')}</span>
               </button>
-
-              {/* User Profile Card */}
-              {user ? (
-                <div className="rounded-xl border border-amber-600/20 bg-amber-500/10 p-3 space-y-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-700 text-xs font-bold text-white uppercase shadow-xs">
-                      {userDisplayName.charAt(0)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-primary-light truncate">{userDisplayName}</p>
-                      <p className="text-[10px] text-secondary-light truncate">{user.email}</p>
-                    </div>
-                  </div>
-
-                  {/* Quota Progress */}
-                  <div className="pt-1 text-[11px]">
-                    <div className="flex items-center justify-between font-semibold text-amber-900 dark:text-amber-200">
-                      <span className="flex items-center gap-1">
-                        <Sparkles className="h-3 w-3 text-amber-600" />
-                        {t('দৈনিক এআই কোটা', 'Daily AI Quota')}
-                      </span>
-                      <span>{formattedRemaining}/{formattedDailyLimit} {t('বাকি', 'left')}</span>
-                    </div>
-                    <div className="mt-1 h-1.5 w-full rounded-full bg-amber-200/50 overflow-hidden">
-                      <div
-                        className="h-full bg-amber-600 transition-all"
-                        style={{ width: `${Math.min(100, Math.max(0, (remainingQuota / dailyLimit) * 100))}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-xl border border-border-light bg-bg-light/60 p-3 text-center space-y-2">
-                  <p className="text-xs text-secondary-light font-hind">
-                    {t('প্রশ্ন সংরক্ষণ ও সীমাহীন ব্যবহারের জন্য লগইন করুন', 'Sign in to save case history and access AI features')}
-                  </p>
-                  <Link
-                    href="/login"
-                    onClick={() => setMobileOpen(false)}
-                    className="block w-full py-2 rounded-lg bg-accent-light text-white text-xs font-cinzel font-bold shadow-xs active:scale-95 transition-all"
-                  >
-                    {t('লগইন / রেজিস্টার', 'SIGN IN / REGISTER')}
-                  </Link>
-                </div>
-              )}
 
               {/* Navigation Menu */}
               <div className="space-y-1">
@@ -429,7 +394,7 @@ export function Header() {
                       key={link.href}
                       href={link.href}
                       onClick={() => setMobileOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium tracking-wide transition-all active:scale-98 ${
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium tracking-wide transition-all active-press ${
                         isActive
                           ? 'bg-accent-light/15 text-accent-light font-bold'
                           : 'text-primary-light hover:bg-bg-light'
@@ -444,7 +409,7 @@ export function Header() {
                 })}
               </div>
 
-              {/* Recent Question History Section (Claude & ChatGPT Style) */}
+              {/* Recent Question History Section */}
               {user && (
                 <div className="space-y-2 pt-2 border-t border-border-light/70">
                   <div className="flex items-center justify-between px-2">
@@ -489,29 +454,166 @@ export function Header() {
 
             {/* Drawer Footer */}
             <div className="p-4 border-t border-border-light/80 bg-bg-light/40 space-y-3">
-              {user && (
-                <button
-                  onClick={async () => {
-                    setMobileOpen(false);
-                    await signOutUser();
-                  }}
-                  className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-red-200 text-xs font-semibold text-red-600 hover:bg-red-50 active:scale-98 transition-colors"
-                >
-                  <LogOut className="h-3.5 w-3.5" />
-                  <span>{t('সাইন আউট', 'Sign Out')}</span>
-                </button>
-              )}
-
-              <div className="flex items-center justify-between text-[11px] text-secondary-light pt-1">
+              <div className="flex items-center justify-between text-[11px] text-secondary-light">
                 <span className="flex items-center gap-1 font-hind">
-                  <ShieldCheck className="h-3 w-3 text-accent-light" />
+                  <ShieldCheck className="h-3.5 w-3.5 text-accent-light" />
                   <span>{t('বাংলাদেশ কোড সমর্থিত', 'Bangladesh Code')}</span>
                 </span>
                 <span className="font-cinzel text-[10px]">v1.0.0</span>
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ========================================================
+          2. DEDICATED MOBILE USER PROFILE BOTTOM SHEET (Mounted via Portal)
+          ======================================================== */}
+      {mounted && mobileProfileOpen && createPortal(
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs transition-opacity duration-200"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setMobileProfileOpen(false);
+          }}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="relative w-full max-w-md rounded-t-3xl sm:rounded-2xl border-t sm:border border-border-light bg-surface-light shadow-2xl p-5 pb-safe space-y-4 animate-bottom-sheet max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Mobile Drag Indicator Bar */}
+            <div className="w-10 h-1 rounded-full bg-secondary-light/30 mx-auto -mt-1 mb-2 sm:hidden" />
+
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-border-light/80">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 rounded-lg bg-accent-light/10 text-accent-light">
+                  <UserIcon className="h-4 w-4" />
+                </span>
+                <h3 className="font-cinzel text-sm font-bold tracking-wider text-primary-light">
+                  {t('ইউজার অ্যাকাউন্ট ও প্রোফাইল', 'CITIZEN ACCOUNT & PROFILE')}
+                </h3>
+              </div>
+              <button
+                onClick={() => setMobileProfileOpen(false)}
+                className="p-1.5 rounded-lg text-secondary-light hover:bg-border-light/40 active-press transition-colors"
+                aria-label="Close Profile"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* User Identity Card */}
+            {user ? (
+              <div className="rounded-2xl border border-amber-600/30 bg-amber-500/10 p-4 space-y-3 shadow-2xs">
+                <div className="flex items-center gap-3">
+                  {user.photoURL ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={user.photoURL}
+                      alt={userDisplayName}
+                      className="h-12 w-12 rounded-full object-cover ring-2 ring-amber-600/30"
+                    />
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-700 text-lg font-bold text-white uppercase shadow">
+                      {userDisplayName.charAt(0)}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-primary-light truncate">{userDisplayName}</p>
+                    <p className="text-xs text-secondary-light truncate">{user.email}</p>
+                    <span className="inline-flex items-center gap-1 text-[10px] text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-300 font-semibold mt-1">
+                      <ShieldCheck className="h-3 w-3 text-emerald-700" />
+                      <span>{t('অনুমোদিত নাগরিক আইডি', 'Verified Citizen Account')}</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Quota Progress */}
+                <div className="pt-2 border-t border-amber-600/20 text-xs">
+                  <div className="flex items-center justify-between font-semibold text-amber-950">
+                    <span className="flex items-center gap-1.5 font-cinzel">
+                      <Sparkles className="h-3.5 w-3.5 text-amber-700" />
+                      <span>{t('দৈনিক এআই আইনি কোটা', 'Daily AI Legal Quota')}</span>
+                    </span>
+                    <span className="font-bold">
+                      {formattedRemaining} / {formattedDailyLimit} {t('বাকি', 'left')}
+                    </span>
+                  </div>
+                  <div className="mt-2 h-2 w-full rounded-full bg-amber-200/60 overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-amber-600 to-amber-500 transition-all"
+                      style={{ width: `${Math.min(100, Math.max(0, (remainingQuota / dailyLimit) * 100))}%` }}
+                    />
+                  </div>
+                  <p className="text-[10px] text-secondary-light/80 mt-1.5 font-hind">
+                    {t(
+                      'প্রতিদিন রাত ১২:০০ টায় দৈনিক প্রশ্ন কোটা স্বয়ংক্রিয়ভাবে নবায়ন হয়।',
+                      'Daily inquiry allowance refreshes automatically at midnight.'
+                    )}
+                  </p>
+                </div>
+              </div>
+            ) : null}
+
+            {/* Quick Actions List */}
+            <div className="space-y-1.5 pt-1">
+              <button
+                onClick={handleStartNewCase}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-border-light bg-surface-cardLight hover:border-accent-light text-primary-light text-xs font-semibold active-press transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Plus className="h-4 w-4 text-accent-light" />
+                  <span className="font-hind text-xs">{t('নতুন আইনি কেস শুরু করুন', 'Start New Legal Case')}</span>
+                </div>
+                <ArrowRight className="h-3.5 w-3.5 text-secondary-light" />
+              </button>
+
+              <Link
+                href="/drafts"
+                onClick={() => setMobileProfileOpen(false)}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-border-light bg-surface-cardLight hover:border-accent-light text-primary-light text-xs font-semibold active-press transition-all"
+              >
+                <div className="flex items-center gap-2.5">
+                  <FileText className="h-4 w-4 text-accent-light" />
+                  <span className="font-hind text-xs">{t('সংরক্ষিত অভিযোগ ও জিডি ড্রাফট', 'Saved Complaint & GD Drafts')}</span>
+                </div>
+                <ArrowRight className="h-3.5 w-3.5 text-secondary-light" />
+              </Link>
+
+              <Link
+                href="/sources"
+                onClick={() => setMobileProfileOpen(false)}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-border-light bg-surface-cardLight hover:border-accent-light text-primary-light text-xs font-semibold active-press transition-all"
+              >
+                <div className="flex items-center gap-2.5">
+                  <BookOpen className="h-4 w-4 text-accent-light" />
+                  <span className="font-hind text-xs">{t('যাচাইকৃত বাংলাদেশ গেজেট ও আইন', 'Verified Statutory Gazettes')}</span>
+                </div>
+                <ArrowRight className="h-3.5 w-3.5 text-secondary-light" />
+              </Link>
+            </div>
+
+            {/* Sign Out Button */}
+            {user && (
+              <div className="pt-2">
+                <button
+                  onClick={async () => {
+                    setMobileProfileOpen(false);
+                    await signOutUser();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-red-200 bg-red-50 text-xs font-bold text-red-600 hover:bg-red-100 active-press transition-colors shadow-2xs cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="font-hind">{t('অ্যাকাউন্ট থেকে সাইন আউট', 'Sign Out of Account')}</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>,
+        document.body
       )}
     </header>
   );

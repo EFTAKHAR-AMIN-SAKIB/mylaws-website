@@ -161,7 +161,7 @@ export function LadyJustice() {
             {t('লেডি জাস্টিস · আইনের চিরন্তন সমতা', 'JUSTITIA · EQUALITY BEFORE LAW')}
           </span>
         </div>
-        <p className={`text-[10px] text-secondary-light/80 mt-1 ${lang === 'bn' ? 'font-hind font-medium' : 'font-serif italic'}`}>
+        <p className={`text-[10px] text-secondary-light/80 mt-1 ${lang === 'bn' ? 'font-hind font-medium' : 'font-sans font-medium'}`}>
           {t('পাল্লা স্পর্শ করে ভারসাম্য পরীক্ষা করুন', 'Hover pans to balance facts against statutory rights')}
         </p>
       </div>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=Cinzel:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Anek+Bangla:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=Cinzel:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -321,3 +321,11 @@ html, body {
   padding-top: calc(env(safe-area-inset-top, 0px) + 8px);
 }
 
+
+/* Remove 96px vertical drafting grid lines on mobile to eliminate harsh vertical slash artifact */
+@media screen and (max-width: 768px) {
+  .drafting-grid-96,
+  .bg-parchment-grid {
+    background-image: none !important;
+  }
+}

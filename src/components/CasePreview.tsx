@@ -86,7 +86,7 @@ export function CasePreview() {
       </div>
 
       {/* 4-Step Interactive Tab Stepper */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 border-b border-border-light/80 bg-surface-light overflow-x-auto">
+      <div className="flex items-center overflow-x-auto no-scrollbar border-b border-border-light/80 bg-surface-light sm:grid sm:grid-cols-4 p-1 gap-1">
         {stepsList.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -94,10 +94,10 @@ export function CasePreview() {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center justify-center gap-1.5 py-2.5 px-2 text-xs font-medium border-b-2 transition-all cursor-pointer ${
+              className={`flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-medium rounded-xl transition-all cursor-pointer shrink-0 active-press ${
                 isActive
-                  ? 'border-accent-light text-accent-light bg-accent-light/5 font-bold'
-                  : 'border-transparent text-secondary-light hover:text-primary-light hover:bg-bg-light/40'
+                  ? 'border border-accent-light/40 text-accent-light bg-accent-light/10 font-bold shadow-2xs'
+                  : 'text-secondary-light hover:text-primary-light hover:bg-bg-light/40'
               }`}
             >
               <span className={`flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
@@ -105,8 +105,7 @@ export function CasePreview() {
               }`}>
                 {tab.stepNum}
               </span>
-              <span className="hidden sm:inline font-anek">{tab.label}</span>
-              <span className="sm:hidden font-anek">{tab.label.split(' ')[0]}</span>
+              <span className="font-anek whitespace-nowrap">{tab.label}</span>
             </button>
           );
         })}
@@ -211,7 +210,7 @@ export function CasePreview() {
                   <ExternalLink className="h-3 w-3" />
                 </a>
               </div>
-              <div className="p-2.5 rounded-xl bg-surface-cardLight border-l-4 border-accent-light text-xs italic font-serif text-primary-light">
+              <div className="p-2.5 rounded-xl bg-surface-cardLight border-l-4 border-accent-light text-xs font-sans text-primary-light leading-relaxed">
                 &ldquo;সেই কাল শেষ হওয়ার পরবর্তী সাত কর্মদিবসের মধ্যে তাহার মজুরী পরিশোধ করিতে হইবে।&rdquo;
               </div>
             </div>

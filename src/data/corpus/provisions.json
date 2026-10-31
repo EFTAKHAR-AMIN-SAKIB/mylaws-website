@@ -2671,7 +2671,7 @@
     "relatedProvisions": []
   },
   {
-    "id": "family-court-2023-4",
+    "id": "family-court-2023-5",
     "actId": "act_family_courts_2023",
     "sectionNumber": "Section 5",
     "categories": [
@@ -2696,7 +2696,7 @@
     "effectiveDate": "2023-01-01",
     "legalStatus": "active",
     "reviewStatus": "auto_checked",
-    "contentHash": "7df8bb79a966e7f7b7c9ca40d6443ce365a5b91ca5cbad5c5868aa09b467c509",
+    "contentHash": "4cf1a1f58fa9d7151e5b871cfa4aa8635d9f0cd1a7b31c8188825e864b5c8737",
     "keywords": [
       "family court",
       "divorce suit",

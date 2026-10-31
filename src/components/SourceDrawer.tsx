@@ -10,12 +10,46 @@ interface SourceDrawerProps {
   onClose: () => void;
 }
 
+
+export function findProvision(sourceId: string | null | undefined): Provision | undefined {
+  if (!sourceId) return undefined;
+  const raw = sourceId.trim();
+  const lower = raw.toLowerCase();
+
+  // 1. Direct match (exact or case-insensitive)
+  let found = provisions.find((p) => p.id === raw || p.id.toLowerCase() === lower);
+  if (found) return found;
+
+  // 2. Known alias mappings
+  const ALIAS_MAP: Record<string, string> = {
+    'family-court-2023-5': 'family-court-2023-5',
+    'family-court-2023-4': 'family-court-2023-5',
+    'family-court-5': 'family-court-2023-5',
+    'mflo-1961-9': 'mflo-9',
+    'mflo-9': 'mflo-9',
+    'land-crime-19-1': 'land-crime-19',
+    'cyber-pornography-8-2': 'pornography-8-2',
+    'const-33-arrest': 'constitution-33',
+  };
+
+  const aliasTarget = ALIAS_MAP[lower];
+  if (aliasTarget) {
+    found = provisions.find((p) => p.id === aliasTarget || p.id.toLowerCase() === aliasTarget.toLowerCase());
+    if (found) return found;
+  }
+
+  // 3. Fallback: stripped dashes/underscores
+  const stripped = lower.replace(/[-_]/g, '');
+  found = provisions.find((p) => p.id.toLowerCase().replace(/[-_]/g, '') === stripped);
+  return found;
+}
+
 export function SourceDrawer({ sourceId, onClose }: SourceDrawerProps) {
   const { lang, t } = useApp();
 
   if (!sourceId) return null;
 
-  const provision = provisions.find((p) => p.id === sourceId);
+  const provision = findProvision(sourceId);
 
   return (
     <div
@@ -62,11 +96,11 @@ export function SourceDrawer({ sourceId, onClose }: SourceDrawerProps) {
               </div>
 
               {/* Verbatim Excerpt */}
-              <div className="p-4 rounded-xl bg-bg-light dark:bg-bg-dark border-l-4 border-accent-light dark:border-accent-dark space-y-1.5">
-                <span className="text-[10px] uppercase font-semibold text-secondary-light dark:text-secondary-dark tracking-wider">
+              <div className="p-4 rounded-xl bg-surface-cardLight border border-border-light/80 border-l-4 border-l-accent-light space-y-2 shadow-2xs">
+                <span className="text-[10px] sm:text-[11px] uppercase font-bold text-accent-light tracking-wider font-cinzel block">
                   {t('সরকারি গেজেট/পোর্টাল থেকে মূল উদ্ধৃতি (Verbatim Excerpt):', 'Verbatim Excerpt from Official Portal:')}
                 </span>
-                <p className="font-serif text-sm italic leading-relaxed text-primary-light dark:text-primary-dark">
+                <p className="font-sans text-[13.5px] sm:text-sm font-normal not-italic leading-relaxed text-[#231F1C] tracking-normal select-text">
                   &ldquo;{provision.quote}&rdquo;
                 </p>
               </div>

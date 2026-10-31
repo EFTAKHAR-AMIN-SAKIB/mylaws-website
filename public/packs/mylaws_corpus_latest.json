@@ -1,7 +1,7 @@
 {
   "version": "2026.10.30-batch2.2",
-  "publishedAt": "2026-10-30T13:46:23.092Z",
-  "contentHash": "cbde8d7d2f74da61d491c52e31d38aa21512abcb93f7c8c7cf3769b4f96ac5a1",
+  "publishedAt": "2026-10-30T17:44:57.278Z",
+  "contentHash": "b168a1a46290f9ec380039dcda7ca1390a85fd8a6ab6f95c75ab60543802f1e7",
   "provisionCount": 255,
   "actsCount": 31,
   "acts": [
@@ -3537,7 +3537,7 @@
       ]
     },
     {
-      "id": "family-court-2023-4",
+      "id": "family-court-2023-5",
       "category": "family",
       "categories": [
         "family"
@@ -3559,7 +3559,7 @@
       "effectiveDate": "2023-01-01",
       "legalStatus": "active",
       "reviewStatus": "auto_checked",
-      "contentHash": "7df8bb79a966e7f7b7c9ca40d6443ce365a5b91ca5cbad5c5868aa09b467c509",
+      "contentHash": "4cf1a1f58fa9d7151e5b871cfa4aa8635d9f0cd1a7b31c8188825e864b5c8737",
       "explanation": {
         "bn": "পারিবারিক আদালত আইন ২০২৩-এর ৫ ধারা অনুযায়ী পারিবারিক আদালতের ৫টি সুনির্দিষ্ট পারিবারিক বিষয়ে মামলা গ্রহণ ও নিষ্পত্তির একচ্ছত্র এখতিয়ার রয়েছে: (১) বিবাহ বিচ্ছেদ, (২) দাম্পত্য অধিকার পুনরুদ্ধার, (৩) দেনমোহর আদায়, (৪) স্ত্রী ও সন্তানদের ভরণপোষণ, এবং (৫) অপ্রাপ্তবয়স্ক সন্তানের অভিভাবকত্ব ও হেফাজত (কাস্টডি)।",
         "en": "Under Section 5 of the Family Courts Act 2023, Family Courts hold exclusive subject-matter jurisdiction over 5 matrimonial matters: (1) dissolution of marriage, (2) restitution of conjugal rights, (3) dower, (4) maintenance of wife and children, and (5) custody and guardianship of minor children."

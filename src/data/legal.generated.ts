@@ -63,8 +63,8 @@ export interface Provision {
 }
 
 export const CORPUS_VERSION = "2026.10.30-batch2.2";
-export const CORPUS_HASH = "cbde8d7d2f74da61d491c52e31d38aa21512abcb93f7c8c7cf3769b4f96ac5a1";
-export const PUBLISHED_AT = "2026-10-30T13:46:23.092Z";
+export const CORPUS_HASH = "b168a1a46290f9ec380039dcda7ca1390a85fd8a6ab6f95c75ab60543802f1e7";
+export const PUBLISHED_AT = "2026-10-30T17:44:57.278Z";
 export const CORPUS_PUBLISHED_AT = PUBLISHED_AT;
 
 export const canonicalActs: ActMetadata[] = [
@@ -3318,7 +3318,7 @@ export const canonicalProvisions: CanonicalProvision[] = [
     "relatedProvisions": []
   },
   {
-    "id": "family-court-2023-4",
+    "id": "family-court-2023-5",
     "actId": "act_family_courts_2023",
     "sectionNumber": "Section 5",
     "categories": [
@@ -3343,7 +3343,7 @@ export const canonicalProvisions: CanonicalProvision[] = [
     "effectiveDate": "2023-01-01",
     "legalStatus": "active",
     "reviewStatus": "auto_checked",
-    "contentHash": "7df8bb79a966e7f7b7c9ca40d6443ce365a5b91ca5cbad5c5868aa09b467c509",
+    "contentHash": "4cf1a1f58fa9d7151e5b871cfa4aa8635d9f0cd1a7b31c8188825e864b5c8737",
     "keywords": [
       "family court",
       "divorce suit",
