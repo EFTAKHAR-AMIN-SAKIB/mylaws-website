@@ -29,7 +29,6 @@ import {
   AlertCircle,
   HelpCircle,
   Shield,
-  ShieldCheck,
   Sparkles,
   Info,
   ArrowRight,
@@ -557,16 +556,16 @@ function AskContent() {
   const isChatMode = chatTurns.length > 0;
 
   return (
-    <div className="min-h-screen bg-bg-light text-primary-light flex flex-col font-sans transition-colors duration-200">
+    <div className="flex-1 flex flex-col bg-bg-light text-primary-light font-sans transition-colors duration-200">
       <Header />
 
-      <main className={`flex-1 w-full mx-auto px-3 sm:px-4 ${isChatMode ? 'max-w-3xl py-2 sm:py-4 pb-52 sm:pb-52' : 'max-w-4xl py-2 md:py-6 pb-20 md:pb-12 flex flex-col'}`}>
+      <main className={`flex-1 w-full mx-auto px-3 sm:px-4 ${isChatMode ? 'max-w-3xl py-2 sm:py-4 pb-52 sm:pb-52' : 'max-w-4xl py-2 md:py-6 flex flex-col justify-between md:justify-center h-[calc(100dvh-12rem)] md:h-auto'}`}>
 
         {/* ============================================================
             INITIAL COMPOSER HERO (Claude Style - Shown only before conversation starts)
             ============================================================ */}
         {!isChatMode && (
-          <div className="flex-1 flex flex-col justify-between md:justify-center max-w-3xl mx-auto w-full px-2 sm:px-4 py-2 md:py-8 animate-in fade-in duration-300">
+          <div className="flex-1 flex flex-col justify-between md:justify-center max-w-3xl mx-auto w-full px-2 sm:px-4 py-2 md:py-8 animate-in fade-in duration-300 h-full">
             {/* Top / Center Greeting (Clean Claude style - centered typography, no emblem) */}
             <div className="flex flex-col items-center text-center space-y-2 my-auto md:my-0 md:mb-8 px-2">
               <h1 className="font-cinzel text-2xl sm:text-4xl font-bold tracking-tight text-primary-light leading-snug">
@@ -580,9 +579,9 @@ function AskContent() {
               </p>
             </div>
 
-            {/* Asking Chat Box (Down on mobile like Claude, centered on desktop) */}
+            {/* Asking Chat Box (Down on mobile like Claude, centered on desktop - unified in one div) */}
             <div className="w-full pb-2 md:pb-0">
-              <div className="w-full rounded-2xl sm:rounded-3xl border border-border-light bg-surface-cardLight p-3.5 sm:p-5 shadow-sm hover:shadow-md transition-all space-y-2.5 sm:space-y-3 focus-within:border-accent-light/60 focus-within:ring-2 focus-within:ring-accent-light/10">
+              <div className="w-full rounded-2xl sm:rounded-3xl border border-border-light bg-surface-cardLight p-3.5 sm:p-4 shadow-sm hover:shadow-md transition-all focus-within:border-accent-light/60 focus-within:ring-2 focus-within:ring-accent-light/10">
                 <textarea
                   id="top-legal-input"
                   ref={topInputRef}
@@ -602,41 +601,28 @@ function AskContent() {
                     'আপনার আইনি পরিস্থিতি বা প্রশ্নটি লিখুন...',
                     'Describe your situation or legal question...'
                   )}
-                  className="w-full resize-none border-none bg-transparent p-1 sm:p-1.5 text-base sm:text-base text-primary-light placeholder-secondary-light/60 focus:outline-none min-h-[64px] sm:min-h-[88px]"
+                  className="w-full resize-none border-none bg-transparent p-1 text-base sm:text-base text-primary-light placeholder-secondary-light/60 focus:outline-none min-h-[56px] sm:min-h-[72px] leading-relaxed"
                 />
 
-                {/* Bottom Controls Bar Inside Asking Box */}
-                <div className="flex items-center justify-between pt-2 border-t border-border-light/60">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-medium bg-accent-light/10 text-accent-light border border-accent-light/20">
-                      <span className="h-1.5 w-1.5 rounded-full bg-accent-light animate-pulse" />
-                      <span>{t('বাংলাদেশ আইন ২০২৬', 'Bangladesh Law 2026')}</span>
-                    </span>
-                    <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-secondary-light/80 font-hind">
-                      <ShieldCheck className="h-3 w-3 text-emerald-600" />
-                      <span>{t('গেজেট যাচাইকৃত', 'Gazette Verified')}</span>
-                    </span>
-                  </div>
+                <div className="flex items-center justify-between pt-1">
+                  <span className="hidden md:inline text-[11px] text-secondary-light/70 font-hind">
+                    {t('Enter চাপলে উত্তর আসবে', 'Press Enter to submit')}
+                  </span>
 
-                  <div className="flex items-center gap-2 sm:gap-2.5">
-                    <span className="hidden md:inline text-[11px] text-secondary-light/70 font-hind">
-                      {t('Enter চাপলে উত্তর আসবে', 'Press Enter to submit')}
-                    </span>
-
-                    <button
-                      type="button"
-                      disabled={status === 'submitted' || status === 'finding_sources' || !input.trim()}
-                      onClick={() => handleAsk()}
-                      className="h-9 w-9 sm:h-10 sm:w-10 rounded-full flex items-center justify-center bg-accent-light text-white shadow hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed active-press transition-all cursor-pointer"
-                      title={t('অনুসন্ধান চালান', 'Submit Inquiry')}
-                    >
-                      {status === 'submitted' || status === 'finding_sources' ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <ArrowUp className="h-4 w-4 stroke-[2.5]" />
-                      )}
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    disabled={status === 'submitted' || status === 'finding_sources' || !input.trim()}
+                    onClick={() => handleAsk()}
+                    className="ml-auto h-9 w-9 sm:h-10 sm:w-10 rounded-full flex items-center justify-center bg-accent-light text-white shadow hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed active-press transition-all cursor-pointer shrink-0"
+                    title={t('অনুসন্ধান চালান', 'Submit Inquiry')}
+                    aria-label={t('অনুসন্ধান চালান', 'Submit Inquiry')}
+                  >
+                    {status === 'submitted' || status === 'finding_sources' ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <ArrowUp className="h-4 w-4 stroke-[2.5]" />
+                    )}
+                  </button>
                 </div>
               </div>
 
