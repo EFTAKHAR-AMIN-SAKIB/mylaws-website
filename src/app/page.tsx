@@ -71,6 +71,69 @@ export default function HomePage() {
     },
   ];
 
+  const canonicalSteps = [
+    {
+      num: t('০১', '01'),
+      phase: t('ধাপ ০১ · সমস্যা শনাক্তকরণ', 'STEP 01 · IDENTIFICATION'),
+      title: t('সমস্যা গভীরভাবে অনুধাবন', 'Deep Problem Understanding'),
+      desc: t(
+        'AI আপনার পুরো ঘটনা মনোযোগ দিয়ে পড়ে, মূল আইনি সমস্যা শনাক্ত করে এবং সঠিক এখতিয়ারের জন্য অতিরিক্ত কোনো তথ্যের প্রয়োজন আছে কি না তা নির্ধারণ করে।',
+        'AI analyzes your situation thoroughly, identifies core statutory issues, and determines any missing facts needed for exact legal jurisdiction.'
+      ),
+      icon: Search,
+      badge: t('বিশ্লেষণ ও এখতিয়ার', 'PROBLEM IDENTIFICATION'),
+      highlights: [
+        t('মূল বিরোধ ও ক্ষেত্র শনাক্তকরণ', 'Core Legal Dispute Identification'),
+        t('এখতিয়ারের জন্য সম্পূরক প্রশ্ন', 'Jurisdictional Fact Verification'),
+      ],
+    },
+    {
+      num: t('০২', '02'),
+      phase: t('ধাপ ০২ · আইনি উৎস ও ধারা', 'STEP 02 · STATUTORY SOURCES'),
+      title: t('সহজ ভাষায় ব্যাখ্যা ও ধারা', 'Plain Explanation & Sources'),
+      desc: t(
+        'সমস্যার অর্থ কী, আপনার আইনি অধিকার ও বিকল্পসমূহ কী—তা সাধারণ মানুষের বোধগম্য ভাষায় বুঝিয়ে দেওয়া হয়। সাথে বাংলাদেশ কোডের প্রামাণিক গেজেট লিংক থাকে।',
+        'Translates what happened into supportive plain-language advice alongside exact Bangladesh Code gazette citations and verifiable bdlaws links.'
+      ),
+      icon: BookOpen,
+      badge: t('সহজ ব্যাখ্যা ও গেজেট লিঙ্ক', 'PLAIN LANGUAGE & SOURCES'),
+      highlights: [
+        t('বাংলাদেশ কোডের আসল গেজেট পাঠ', 'Verbatim Official Gazette Quotes'),
+        t('নাগরিকের আইনি অধিকার ও বিকল্প', 'Clear Citizen Rights & Remedies'),
+      ],
+    },
+    {
+      num: t('০৩', '03'),
+      phase: t('ধাপ ০৩ · বাস্তব চেকলিস্ট', 'STEP 03 · ACTION CHECKLIST'),
+      title: t('ধাপে ধাপে অ্যাকশন চেকলিস্ট', 'Ordered Action Checklist'),
+      desc: t(
+        'আইন জানার পর, MyLaws সঠিক ক্রমানুসারে আপনার করণীয় পদক্ষেপের চেকলিস্ট প্রদান করে—কী কী প্রমাণ সংরক্ষণ করবেন এবং কোন দপ্তরে যোগাযোগ করবেন।',
+        'Delivers an intuitive, step-by-step checklist of what to do in order—what documents/evidence to preserve and which public agency to approach.'
+      ),
+      icon: CheckSquare,
+      badge: t('ধাপে ধাপে করণীয় পদক্ষেপ', 'ORDERED ACTION CHECKLIST'),
+      highlights: [
+        t('৩ থেকে ৫টি অগ্রাধিকারমূলক পদক্ষেপ', '3 to 5 Prioritized Action Steps'),
+        t('জরুরি হটলাইন (৯৯৯ / ১৬১০৪ / ১৬১২১)', 'Official Hotlines (999/16104/16121)'),
+      ],
+    },
+    {
+      num: t('০৪', '04'),
+      phase: t('ধাপ ০৪ · আনুষ্ঠানিক আবেদন', 'STEP 04 · FORMAL DRAFT'),
+      title: t('প্রমিত খসড়া ও A4 PDF প্রস্তুত', 'Formal Draft & Print-Ready PDF'),
+      desc: t(
+        'পরিস্থিতি অনুযায়ী সরাসরি থানার ভারপ্রাপ্ত কর্মকর্তা, শ্রম পরিদর্শক বা ভোক্তা অধিকার বরাবর প্রমিত আবেদনপত্র তৈরি হয় এবং প্রিন্ট-রেডি A4 PDF ডাউনলোড করা যায়।',
+        'Transforms verified facts into formal petitions for Police OC, Labour Inspector, or DNCRP with instant editable Bangla preview and A4 PDF export.'
+      ),
+      icon: FileText,
+      badge: t('প্রমিত আবেদন ও A4 PDF', 'FORMAL DRAFT PREPARATION'),
+      highlights: [
+        t('বাংলায় সরাসরি এডিটেবল দরখাস্ত', 'In-Browser Editable Bangla Petition'),
+        t('অফিসিয়াল মার্জিনসহ প্রিন্ট-রেডি PDF', 'Print-Ready Multi-Page A4 PDF'),
+      ],
+    },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col bg-[#F1EDE1] text-[#231F1C] transition-colors drafting-grid-96">
       <Header />
@@ -83,7 +146,7 @@ export default function HomePage() {
             ======================================================== */}
         <section
           ref={turntableContainerRef}
-          className="relative w-full border-b border-border-light/80 py-6 sm:py-12 lg:py-16 flex items-center min-h-[auto] lg:min-h-[calc(100vh-5rem)]"
+          className="relative w-full border-b border-border-light/80 py-6 sm:py-12 lg:py-16 flex items-center min-h-[auto] lg:min-h-[min(800px,calc(100vh-5rem))]"
         >
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -241,32 +304,72 @@ export default function HomePage() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
               
-              <div className="lg:col-span-5 space-y-3.5 sm:space-y-4">
+              <div className="lg:col-span-5 space-y-4 sm:space-y-5">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
                   <Sparkles className="h-3.5 w-3.5" />
-                  <span>{t('সরাসরি ইন্টারঅ্যাক্টিভ ডেমো', 'Live Interactive Experience')}</span>
+                  <span>{t('সরাসরি ইন্টারঅ্যাক্টিভ অভিজ্ঞতা', 'Live Interactive Experience')}</span>
                 </div>
 
-                <h2 className="font-display text-2xl sm:text-4xl font-bold text-[#231F1C]">
+                <h2 className="font-display text-2xl sm:text-4xl font-bold text-[#231F1C] tracking-tight">
                   {t(
-                    'বাস্তব কেস ফোল্ডারের মাধ্যমে কীভাবে সাহায্য পাবেন',
-                    'How MyLaws Works in Real Situations'
+                    'বাস্তব আইনি পরিস্থিতিতে MyLaws যেভাবে কাজ করে',
+                    'How MyLaws Resolves Real Legal Scenarios'
                   )}
                 </h2>
 
-                <p className="text-xs sm:text-sm text-[#5A534A] leading-relaxed">
+                <p className="text-xs sm:text-sm text-[#5A534A] leading-relaxed font-hind">
                   {t(
-                    'নিচের ফোল্ডারে ক্লিক করে দেখুন কীভাবে MyLaws একটি বকেয়া বেতনের প্রশ্ন বিশ্লেষণ করে স্পষ্ট করণীয় পদক্ষেপ, সরকারি ধারার প্রামাণিক পাঠ এবং প্রস্তুতকৃত খসড়া আবেদন প্রদান করে।',
-                    'Explore the digital case folder to see how an unpaid wages inquiry is structured into actionable steps, official gazette citations, and ready-to-export drafts.'
+                    'আইনি জটিলতায় দিশেহারা না হয়ে পাশের ইন্টারঅ্যাক্টিভ সিমুলেটরটি পরীক্ষা করে দেখুন। শ্রম অধিকার, পুলিশ জিডি, ভূমি অপরাধ কিংবা ভোক্তা অধিকার—প্রতিটি ক্ষেত্রে MyLaws কীভাবে সমস্যা বিশ্লেষণ থেকে প্রমিত খসড়া প্রস্তুত পর্যন্ত ৪টি ধাপে সম্পূর্ণ সমাধান দেয়।',
+                    'Explore our interactive case simulator. See how MyLaws transforms complex real-world situations—across Labour Rights, Police GD, Land Disputes, and Consumer Fraud—into clear 4-step action plans, verbatim gazettes, and verified drafts.'
                   )}
                 </p>
 
-                <div className="pt-1">
+                {/* 4-Step Interactive Workflow Highlights */}
+                <div className="space-y-2.5 pt-1 text-xs font-hind border-y border-border-light/60 py-3">
+                  <div className="flex items-start gap-2.5 text-[#5A534A]">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-light text-white text-[10px] font-bold shrink-0 mt-0.5">১</span>
+                    <div>
+                      <strong className="text-primary-light font-anek">{t('গভীর সমস্যা অনুধাবন: ', 'Deep Case Analysis: ')}</strong>
+                      <span>{t('ঘটনাক্রম পড়ে মূল আইনি বিরোধ ও এখতিয়ার শনাক্তকরণ।', 'Identifies core issues and missing jurisdictional facts.')}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-[#5A534A]">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-light text-white text-[10px] font-bold shrink-0 mt-0.5">২</span>
+                    <div>
+                      <strong className="text-primary-light font-anek">{t('সরকারি গেজেট ও ধারা: ', 'Gazette Citations: ')}</strong>
+                      <span>{t('bdlaws.minlaw.gov.bd এর প্রামাণিক পাঠ ও সরকারি লিংক।', 'Verbatim Bangladesh Code text and official sources.')}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-[#5A534A]">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-light text-white text-[10px] font-bold shrink-0 mt-0.5">৩</span>
+                    <div>
+                      <strong className="text-primary-light font-anek">{t('অ্যাকশন চেকলিস্ট: ', 'Action Checklist: ')}</strong>
+                      <span>{t('কী প্রমাণ সংরক্ষণ করবেন এবং কোন সরকারি হটলাইনে যাবেন।', 'Evidence preservation and emergency hotline routing.')}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-[#5A534A]">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-light text-white text-[10px] font-bold shrink-0 mt-0.5">৪</span>
+                    <div>
+                      <strong className="text-primary-light font-anek">{t('প্রমিত খসড়া ও A4 PDF: ', 'Formal Draft & PDF: ')}</strong>
+                      <span>{t('বাংলায় এডিটেবল আবেদনপত্র ও প্রিন্ট-রেডি ফরম্যাট।', 'Print-ready Bangla petitions with official margins.')}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Primary & Secondary Action CTA */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
                   <Link
                     href="/ask"
-                    className="bracket-btn text-xs font-cinzel font-bold tracking-wider inline-block text-center w-full sm:w-auto"
+                    className="bracket-btn text-xs font-cinzel font-bold tracking-wider inline-block text-center shadow-xs"
                   >
                     <span>— {t('আপনার নিজের প্রশ্ন নিয়ে পরীক্ষা করুন', 'TRY WITH YOUR OWN QUESTION')} —</span>
+                  </Link>
+                  <Link
+                    href="/drafts"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg border border-border-light bg-surface-light text-xs font-semibold text-secondary-light hover:text-accent-light hover:border-accent-light transition-all shadow-2xs font-hind text-center"
+                  >
+                    <FileText className="h-3.5 w-3.5 text-accent-light" />
+                    <span>{t('আইনি খসড়া এডিটর →', 'Legal Draft Editor →')}</span>
                   </Link>
                 </div>
               </div>
@@ -333,18 +436,22 @@ export default function HomePage() {
                     )}
                   </p>
 
-                  <div className="grid grid-cols-3 gap-2 pt-2 text-center text-xs">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-center text-xs">
                     <div className="p-2 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
-                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">{t('৮৮টি', '88')}</span>
+                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">{t('২৫৫টি', '255')}</span>
                       <p className="text-[10px] text-[#5A534A] font-hind leading-tight">{t('যাচাইকৃত ধারা', 'Sections')}</p>
                     </div>
                     <div className="p-2 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
-                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">{t('২৫টি', '25')}</span>
+                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">{t('৩১টি', '31')}</span>
                       <p className="text-[10px] text-[#5A534A] font-hind leading-tight">{t('আইনের পরিধি', 'Acts')}</p>
                     </div>
                     <div className="p-2 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
-                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">১০০%</span>
-                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">bdlaws লিঙ্ক</p>
+                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">{t('৭টি', '7')}</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">{t('নাগরিক ক্ষেত্র', 'Domains')}</p>
+                    </div>
+                    <div className="p-2 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
+                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">{t('১০০%', '100%')}</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">{t('bdlaws লিঙ্ক', 'bdlaws Link')}</p>
                     </div>
                   </div>
                 </div>
@@ -386,18 +493,37 @@ export default function HomePage() {
                     )}
                   </p>
 
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-center text-xs">
+                    <div className="p-2 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
+                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">{t('৩-৫টি', '3-5')}</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">{t('অগ্রাধিকার ধাপ', 'Steps')}</p>
+                    </div>
+                    <div className="p-2 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
+                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">{t('৪টি', '4')}</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">{t('জরুরি হটলাইন', 'Hotlines')}</p>
+                    </div>
+                    <div className="p-2 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
+                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">{t('১০০%', '100%')}</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">{t('বাস্তবায়নযোগ্য', 'Actionable')}</p>
+                    </div>
+                    <div className="p-2 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
+                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">{t('২৪/৭', '24/7')}</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">{t('তাৎক্ষণিক গাইড', 'Instant')}</p>
+                    </div>
+                  </div>
+
                   <div className="space-y-2 pt-1 text-xs font-hind">
                     <div className="flex items-start gap-2 text-[#5A534A]">
                       <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0 mt-0.5" />
-                      <span>প্রমাণ ও দালিলিক কাগজপত্র সংরক্ষণের সুনির্দিষ্ট দিকনির্দেশনা</span>
+                      <span>{t('প্রমাণ ও দালিলিক কাগজপত্র সংরক্ষণের সুনির্দিষ্ট দিকনির্দেশনা (নিয়োগপত্র, চালান, স্ক্রিনশট)', 'Specific instructions for preserving documentation (Appointment letters, vouchers, screenshots)')}</span>
                     </div>
                     <div className="flex items-start gap-2 text-[#5A534A]">
                       <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0 mt-0.5" />
-                      <span>কলকারখানা পরিদর্শক (16104) ও জাতীয় জরুরি সেবা (999) হটলাইন</span>
+                      <span>{t('কলকারখানা পরিদর্শক (১৬১০৪), জাতীয় জরুরি সেবা (৯৯৯) ও ভোক্তা অধিকার (১৬১২১) হটলাইন', 'Hotline routing: DIFE (16104), National Emergency (999), and Consumer Rights (16121)')}</span>
                     </div>
                     <div className="flex items-start gap-2 text-[#5A534A]">
                       <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0 mt-0.5" />
-                      <span>কখন আইনজীবী প্রয়োজন এবং সরকারি লিগ্যাল এইড (16699) নিয়ম</span>
+                      <span>{t('কখন আইনজীবী প্রয়োজন এবং সরকারি আইনি সহায়তা (১৬৬৯৯) পাওয়ার নিয়ম', 'When counsel is essential and Government Free Legal Aid (16699) procedures')}</span>
                     </div>
                   </div>
                 </div>
@@ -439,18 +565,37 @@ export default function HomePage() {
                     )}
                   </p>
 
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-center text-xs">
+                    <div className="p-2 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
+                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">{t('৪+ প্রকার', '4+')}</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">{t('প্রমিত আবেদন', 'Petitions')}</p>
+                    </div>
+                    <div className="p-2 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
+                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">A4 PDF</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">{t('প্রিন্ট-রেডি', 'Print-Ready')}</p>
+                    </div>
+                    <div className="p-2 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
+                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">{t('০%', '0%')}</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">{t('ক্লাউড স্টোরেজ', 'No Cloud Log')}</p>
+                    </div>
+                    <div className="p-2 rounded-xl border border-border-light bg-[#F1EDE1]/70 space-y-0.5">
+                      <span className="font-bold text-accent-light font-cinzel text-sm sm:text-base block">{t('১০০%', '100%')}</span>
+                      <p className="text-[10px] text-[#5A534A] font-hind leading-tight">{t('সম্পাদনাযোগ্য', 'Editable')}</p>
+                    </div>
+                  </div>
+
                   <div className="space-y-2 pt-1 text-xs font-hind">
                     <div className="flex items-start gap-2 text-[#5A534A]">
                       <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0 mt-0.5" />
-                      <span>তাৎক্ষণিক বাংলায় এডিটেবল প্রমিত আবেদন ও জিডি খসড়া</span>
+                      <span>{t('তাৎক্ষণিক বাংলায় এডিটেবল প্রমিত আবেদন ও থানার সাধারণ ডায়েরি (GD) খসড়া', 'Instant Bangla editable formal petitions and Police General Diary (GD) drafts')}</span>
                     </div>
                     <div className="flex items-start gap-2 text-[#5A534A]">
                       <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0 mt-0.5" />
-                      <span>অফিসিয়াল মার্জিন ও পৃষ্ঠা নম্বরসহ প্রিন্ট-রেডি A4 PDF এক্সপোর্ট</span>
+                      <span>{t('অফিসিয়াল মার্জিন ও পৃষ্ঠা নম্বরসহ প্রিন্ট-রেডি মাল্টি-পেজ A4 PDF এক্সপোর্ট', 'Multi-page print-ready A4 PDF export with official margins, signature spaces, and seals')}</span>
                     </div>
                     <div className="flex items-start gap-2 text-[#5A534A]">
                       <CheckCircle2 className="h-4 w-4 text-accent-light shrink-0 mt-0.5" />
-                      <span>১০০% ব্রাউজারে ব্যক্তিগত ও নিরাপদ—কোনো ক্লাউড স্টোরেজ নেই</span>
+                      <span>{t('১০০% ব্রাউজারে ব্যক্তিগত ও নিরাপদ—ব্যক্তিগত কোনো তথ্য ক্লাউড সার্ভারে রাখা হয় না', '100% private and secure in your browser—zero personal data stored remotely')}</span>
                     </div>
                   </div>
                 </div>
@@ -470,9 +615,9 @@ export default function HomePage() {
         </section>
 
         {/* ========================================================
-            4-STEP CANONICAL LEGAL JOURNEY SECTION (Interactive Visual Timeline on Mobile)
+            4-STEP CANONICAL LEGAL JOURNEY SECTION (Connected Process Pipeline)
             ======================================================== */}
-        <section className="py-14 sm:py-24 border-b border-border-light/80">
+        <section className="py-12 sm:py-20 border-b border-border-light/80 bg-surface-light/20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto space-y-2.5">
               <span className="font-cinzel text-xs font-semibold uppercase tracking-[0.2em] text-accent-light">
@@ -481,7 +626,7 @@ export default function HomePage() {
               <h2 className="font-display text-2xl sm:text-4xl font-bold text-[#231F1C]">
                 {t('সমস্যা বর্ণনা থেকে আনুষ্ঠানিক খসড়া—৪টি ধাপে', 'From Problem Statement to Finished Draft in 4 Steps')}
               </h2>
-              <p className="text-xs sm:text-sm text-[#5A534A]">
+              <p className="text-xs sm:text-sm text-[#5A534A] leading-relaxed font-hind">
                 {t(
                   'কোনো জটিল আইনি বইয়ের ভাষা নয়; সহানুভূতিশীল ব্যাখ্যা, বাস্তবিক চেকলিস্ট ও নির্ভুল খসড়ার সমন্বিত সমাধান।',
                   'Not an intimidating legal textbook; supportive plain-language explanations, actionable checklists, and verified draft preparation.'
@@ -489,94 +634,90 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Mobile Connected Timeline & Desktop 4-Column Grid */}
+            {/* Connected Step Cards Container */}
             <div className="relative mt-10 lg:mt-14">
               {/* Connecting vertical timeline line for mobile */}
-              <div className="absolute left-[18px] top-6 bottom-6 w-0.5 bg-gradient-to-b from-accent-light via-accent-gold to-accent-light/20 sm:hidden" />
+              <div className="absolute left-[23px] top-6 bottom-6 w-0.5 bg-gradient-to-b from-accent-light via-accent-gold to-accent-light/20 sm:hidden" />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                {/* Step 1 */}
-                <div className="relative pl-12 sm:pl-0 p-4 sm:p-7 rounded-2xl border border-border-light bg-surface-cardLight shadow-xs space-y-3 hover:border-accent-light/50 transition-all flex flex-col justify-between">
-                  <div className="space-y-2.5">
-                    <div className="absolute left-1 top-4 sm:static flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-accent-light text-white font-anek font-bold text-sm sm:text-base shadow-xs shrink-0">
-                      ১
+              {/* Connecting horizontal track line for desktop */}
+              <div className="hidden lg:block absolute top-[28px] left-[6%] right-[6%] h-[2px] bg-gradient-to-r from-accent-light/30 via-accent-gold/40 to-accent-light/30 z-0" />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 items-stretch relative z-10">
+                {canonicalSteps.map((step, idx) => {
+                  const StepIcon = step.icon;
+                  return (
+                    <div
+                      key={idx}
+                      className="group relative pl-14 sm:pl-6 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-border-light bg-surface-cardLight shadow-xs space-y-4 hover:border-accent-light hover:shadow-md transition-all flex flex-col justify-between"
+                    >
+                      <div className="space-y-3 sm:space-y-3.5">
+                        {/* Step Header: Icon / Badge & Phase Tag */}
+                        <div className="flex items-center justify-between">
+                          <div className="absolute left-2.5 top-5 sm:static flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-accent-light text-white font-anek font-bold text-sm sm:text-base shadow-sm shrink-0 group-hover:scale-105 transition-transform">
+                            <span className="font-anek font-bold">{step.num}</span>
+                          </div>
+                          
+                          <span className="font-cinzel text-[10px] tracking-wider uppercase font-bold text-accent-light bg-accent-light/10 border border-accent-light/20 px-2.5 py-1 rounded-full whitespace-nowrap">
+                            {step.phase}
+                          </span>
+                        </div>
+
+                        {/* Title with matching step icon */}
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5 text-accent-light text-xs font-semibold">
+                            <StepIcon className="h-3.5 w-3.5" />
+                            <span className="font-cinzel text-[10px] tracking-wider uppercase">
+                              {t(`ধাপ ${step.num}`, `STEP ${step.num}`)}
+                            </span>
+                          </div>
+                          <h3 className="font-anek sm:font-display text-base sm:text-lg font-bold text-[#231F1C] group-hover:text-accent-light transition-colors leading-snug">
+                            {step.title}
+                          </h3>
+                        </div>
+
+                        {/* Description */}
+                        <p className="text-xs text-[#5A534A] leading-relaxed font-hind">
+                          {step.desc}
+                        </p>
+
+                        {/* Key deliverables pills / checkmarks */}
+                        <div className="space-y-1.5 pt-2 border-t border-border-light/60">
+                          {step.highlights.map((h, hIdx) => (
+                            <div key={hIdx} className="flex items-start gap-1.5 text-[11px] font-hind text-secondary-light">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-accent-light shrink-0 mt-0.5" />
+                              <span>{h}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Bottom Category Tag */}
+                      <div className="pt-3 border-t border-border-light/60 flex items-center justify-between">
+                        <span className="font-cinzel text-[10px] font-bold text-accent-light/90 tracking-wider">
+                          {step.badge}
+                        </span>
+                        <ArrowRight className="h-3.5 w-3.5 text-accent-light/50 group-hover:text-accent-light group-hover:translate-x-1 transition-all" />
+                      </div>
                     </div>
-                    <h3 className="font-anek text-base sm:text-lg font-bold text-[#231F1C]">
-                      {t('১. সমস্যা গভীরভাবে অনুধাবন', '1. Understand Problem')}
-                    </h3>
-                    <p className="text-xs text-[#5A534A] leading-relaxed font-hind">
-                      {t(
-                        'AI আপনার পুরো ঘটনা পড়ে, মূল আইনি সমস্যা শনাক্ত করে এবং সঠিক এখতিয়ারের জন্য অতিরিক্ত কোনো তথ্যের প্রয়োজন আছে কি না তা নির্ধারণ করে।',
-                        'The AI reads the user\'s story, understands what happened, identifies the main issue, and determines what additional information might be needed.'
-                      )}
-                    </p>
-                  </div>
-                  <div className="pt-2 text-[10px] sm:text-[11px] font-bold text-accent-light font-cinzel">
-                    {t('বিশ্লেষণ ও শনাক্তকরণ', 'PROBLEM IDENTIFICATION')}
-                  </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Bottom Workflow Action Prompt */}
+            <div className="mt-10 sm:mt-12 text-center">
+              <div className="inline-flex flex-col sm:flex-row items-center justify-center gap-3 p-3 sm:p-3.5 px-5 rounded-2xl border border-border-light bg-surface-cardLight shadow-xs max-w-xl mx-auto">
+                <div className="flex items-center gap-2 text-xs font-medium text-secondary-light font-hind">
+                  <Sparkles className="h-4 w-4 text-accent-light shrink-0" />
+                  <span>{t('এই ৪টি ধাপ নিজের কোনো সমস্যা দিয়ে পরীক্ষা করতে চান?', 'Want to test this 4-step workflow on your situation?')}</span>
                 </div>
-
-                {/* Step 2 */}
-                <div className="relative pl-12 sm:pl-0 p-4 sm:p-7 rounded-2xl border border-border-light bg-surface-cardLight shadow-xs space-y-3 hover:border-accent-light/50 transition-all flex flex-col justify-between">
-                  <div className="space-y-2.5">
-                    <div className="absolute left-1 top-4 sm:static flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-accent-light text-white font-anek font-bold text-sm sm:text-base shadow-xs shrink-0">
-                      ২
-                    </div>
-                    <h3 className="font-anek text-base sm:text-lg font-bold text-[#231F1C]">
-                      {t('২. সহজ ভাষায় ব্যাখ্যা ও আইনি উৎস', '2. Explain Plainly')}
-                    </h3>
-                    <p className="text-xs text-[#5A534A] leading-relaxed font-hind">
-                      {t(
-                        'সমস্যার অর্থ কী, আপনার বিকল্পসমূহ কী এবং এরপরে কী করতে পারেন—তা সহজ, আন্তরিক ও সহমর্মী ভাষায় বুঝিয়ে দেওয়া হয়। সাথে নির্ভরযোগ্য সরকারি গেজেট ও লিঙ্ক থাকে।',
-                        'The AI explains what the problem means, what your options are, and what you can do next naturally, alongside relevant statutory sources and links.'
-                      )}
-                    </p>
-                  </div>
-                  <div className="pt-2 text-[10px] sm:text-[11px] font-bold text-accent-light font-cinzel">
-                    {t('সহজ ব্যাখ্যা ও গেজেট লিঙ্ক', 'PLAIN LANGUAGE & SOURCES')}
-                  </div>
-                </div>
-
-                {/* Step 3 */}
-                <div className="relative pl-12 sm:pl-0 p-4 sm:p-7 rounded-2xl border border-border-light bg-surface-cardLight shadow-xs space-y-3 hover:border-accent-light/50 transition-all flex flex-col justify-between">
-                  <div className="space-y-2.5">
-                    <div className="absolute left-1 top-4 sm:static flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-accent-light text-white font-anek font-bold text-sm sm:text-base shadow-xs shrink-0">
-                      ৩
-                    </div>
-                    <h3 className="font-anek text-base sm:text-lg font-bold text-[#231F1C]">
-                      {t('৩. ধাপে ধাপে অ্যাকশন চেকলিস্ট', '3. Action Checklist')}
-                    </h3>
-                    <p className="text-xs text-[#5A534A] leading-relaxed font-hind">
-                      {t(
-                        'পরিস্থিতি ব্যাখ্যা করার পর, MyLaws সঠিক ক্রমানুসারে আপনার করণীয় কাজগুলোর একটি বাস্তবসম্মত চেকলিস্ট প্রদান করে—কী প্রমাণ রাখবেন, কোন দপ্তরে যাবেন তা সাজানো থাকে।',
-                        'After explaining the situation, MyLaws gives the user a practical checklist of what to do, in the exact right order.'
-                      )}
-                    </p>
-                  </div>
-                  <div className="pt-2 text-[10px] sm:text-[11px] font-bold text-accent-light font-cinzel">
-                    {t('ধাপে ধাপে করণীয় পদক্ষেপ', 'ORDERED ACTION CHECKLIST')}
-                  </div>
-                </div>
-
-                {/* Step 4 */}
-                <div className="relative pl-12 sm:pl-0 p-4 sm:p-7 rounded-2xl border border-border-light bg-surface-cardLight shadow-xs space-y-3 hover:border-accent-light/50 transition-all flex flex-col justify-between">
-                  <div className="space-y-2.5">
-                    <div className="absolute left-1 top-4 sm:static flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-accent-light text-white font-anek font-bold text-sm sm:text-base shadow-xs shrink-0">
-                      ৪
-                    </div>
-                    <h3 className="font-anek text-base sm:text-lg font-bold text-[#231F1C]">
-                      {t('৪. আনুষ্ঠানিক খসড়া প্রস্তুতের প্রস্তাব', '4. Formal Draft Offer')}
-                    </h3>
-                    <p className="text-xs text-[#5A534A] leading-relaxed font-hind">
-                      {t(
-                        'করণীয় বোঝার পর MyLaws প্রস্তাব করে: “আনুষ্ঠানিক খসড়া প্রস্তুত করুন”। ক্লিক করলে পরিস্থিতি অনুযায়ী অভিযোগপত্র বা জিডি তৈরি হয় এবং A4 PDF ডাউনলোড করা যায়।',
-                        'Once understood, MyLaws offers the optional next step: “Prepare a formal draft” to help create the complaint letter, notice, or GD, asking for any missing details needed.'
-                      )}
-                    </p>
-                  </div>
-                  <div className="pt-2 text-[10px] sm:text-[11px] font-bold text-accent-light font-cinzel">
-                    {t('প্রমিত আবেদন ও A4 PDF', 'FORMAL DRAFT PREPARATION')}
-                  </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Link
+                    href="/ask"
+                    className="bracket-btn text-xs font-cinzel font-bold py-1.5 px-3.5 text-center active-press"
+                  >
+                    <span>— {t('এখনই প্রশ্ন করুন', 'TRY ONLINE NOW')} —</span>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -599,8 +740,8 @@ export default function HomePage() {
               </div>
               <p className="text-xs text-[#5A534A] max-w-md font-hind">
                 {t(
-                  'আমরা কাল্পনিক বা মনগড়া আইন দেখাই না। বর্তমানে বাংলাদেশ কোডের ৬টি প্রধান আইনের নির্বাচিত ২৩টি বিধান সরাসরি সমর্থিত।',
-                  'We do not fabricate laws. Currently 23 specific provisions across 6 major Bangladesh statutes are verified and active.'
+                  'আমরা কাল্পনিক বা মনগড়া আইন দেখাই না। বর্তমানে বাংলাদেশ কোডের ৩১টি প্রধান আইনের নির্বাচিত ২৫৫টি বিধান ও ৭টি নাগরিক বিভাগ সরাসরি সমর্থিত।',
+                  'We do not fabricate laws. Currently 255 verified provisions across 31 major Bangladesh statutes and 7 core citizen categories are active.'
                 )}
               </p>
             </div>

@@ -27,16 +27,16 @@ export const legalPackManifest: PackState = {
 export const androidReleaseManifest: AndroidReleaseManifest = {
   version: '1.0.0-preview',
   versionCode: 1,
-  releaseDate: '2026-10-28',
+  releaseDate: '2026-11-01',
   status: 'available',
   apkUrl: '/downloads/mylaws-v1-preview.apk',
   fileSizeBytes: 10335330, // 10.3 MB
   sha256Checksum: 'b7b95f475a836ed1d6ba39d4d7e116989126a588c99a8412cccbd3a6563f5445',
   minimumAndroidVersion: 'Android 8.0 (API level 26)',
-  recommendedRam: '4 GB physical RAM (2 GB devices can run online mode and static reference)',
+  recommendedRam: 'Ultra-lightweight: Runs smoothly on low-end devices with minimal RAM (1 GB / 2 GB), as well as standard 4 GB devices',
   testedDevices: [
     'Pixel 6 / 7 (Android 14) - Verified Navigation & Bangla Fonts',
-    'Samsung Galaxy A14 (Android 13, 4 GB RAM) - Tested UI & PDF Generation',
+    'Samsung Galaxy A14 & Entry-Level Budget Devices (1 GB / 2 GB / 4 GB RAM) - Tested UI & PDF Generation',
     'Android Studio Emulator (API 34, x86_64)',
   ],
   changeLog: [
