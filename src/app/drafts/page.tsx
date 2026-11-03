@@ -33,6 +33,7 @@ import {
   MapPin,
   HelpCircle,
   Sparkles,
+  AlertCircle,
 } from 'lucide-react';
 
 export default function DraftsPage() {
@@ -45,7 +46,7 @@ export default function DraftsPage() {
     name: '',
     contact: '',
     address: '',
-    recipient: '',
+    recipient: getDefaultRecipient('domestic_violence'),
     respondent: '',
     place: '',
     date: '',
@@ -183,23 +184,65 @@ export default function DraftsPage() {
   ].filter((g) => g.fields.length > 0);
 
   const handleCopyText = async () => {
-    const text = assembleDraftPlainText(doc, reviewed);
+    // Copy the clean petition body directly so it can be pasted directly into documents or email
+    const text = doc.paragraphs.join('\n\n');
+    let success = false;
+
     try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (typeof navigator !== 'undefined' && navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        success = true;
+      }
     } catch {}
+
+    // Robust fallback for older browsers, HTTP dev, or restrictive permissions
+    if (!success && typeof document !== 'undefined') {
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.top = '-9999px';
+        textarea.setAttribute('readonly', '');
+        document.body.appendChild(textarea);
+        textarea.select();
+        success = document.execCommand('copy');
+        document.body.removeChild(textarea);
+      } catch {}
+    }
+
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    }
   };
 
   const handlePrint = () => {
-    window.print();
+    // On mobile devices, ensure preview tab is active before triggering print dialog
+    if (mobileTab === 'edit') {
+      setMobileTab('preview');
+      setTimeout(() => {
+        window.print();
+      }, 150);
+    } else {
+      window.print();
+    }
   };
 
   const handlePdfExport = async () => {
-    if (!printRef.current) return;
     setExportingPdf(true);
     setExportError(null);
     try {
+      // If mobile view was on edit tab, switch to preview so the DOM element is rendered and measurable
+      if (mobileTab === 'edit') {
+        setMobileTab('preview');
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
+
+      if (!printRef.current) {
+        throw new Error('Printable document ref not found');
+      }
+
       await exportElementToA4Pdf(
         printRef.current,
         `MyLaws_${docType.toUpperCase()}_Draft.pdf`
@@ -563,20 +606,33 @@ export default function DraftsPage() {
               </div>
             </div>
 
-            {/* A4 Document Paper Sheet */}
+            {/* Export Error Alert Banner */}
+            {exportError && (
+              <div className="no-print p-3.5 rounded-2xl border border-red-200 bg-red-50 text-red-800 text-xs flex items-center justify-between gap-3 shadow-xs animate-in fade-in duration-200">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-red-600 shrink-0" />
+                  <span className="font-hind">{exportError}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setExportError(null)}
+                  className="text-red-600 hover:text-red-900 text-xs font-bold px-2 py-0.5 rounded cursor-pointer"
+                  aria-label="Dismiss error"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* A4 Document Paper Sheet (Authentic Bangladesh Legal Format with Zero Watermarks) */}
             <div
               ref={printRef}
-              className="printable-document bg-white text-neutral-900 p-6 sm:p-14 rounded-2xl border border-border-light shadow-xl min-h-[650px] sm:min-h-[820px] font-bangla text-sm leading-relaxed space-y-5 overflow-x-auto relative"
+              className="printable-document bg-white text-neutral-950 p-6 sm:p-14 rounded-2xl border border-border-light shadow-xl min-h-[650px] sm:min-h-[820px] font-bangla text-[13.5px] sm:text-[14.5px] leading-[1.85] space-y-5 overflow-x-auto relative"
             >
-              {/* Document Header Watermark / Seal Accent */}
-              <div className="no-print absolute top-4 right-4 opacity-10 pointer-events-none">
-                <Scale className="h-28 w-28 text-neutral-900" />
-              </div>
-
               {/* Document Paragraphs */}
               <div className="space-y-4 relative z-10">
                 {doc.paragraphs.map((p, idx) => (
-                  <div key={idx} className="whitespace-pre-line leading-relaxed">
+                  <div key={idx} className="whitespace-pre-line leading-[1.85]">
                     {p}
                   </div>
                 ))}

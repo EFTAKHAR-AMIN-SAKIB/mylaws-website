@@ -27,8 +27,9 @@ export function BrandLogo({
         <Image
           src="/images/logo-stacked.png"
           alt="MyLaws"
-          width={1357}
-          height={1270}
+          width={180}
+          height={168}
+          style={{ width: 'auto', height: 'auto', maxHeight: '96px' }}
           className="w-auto h-20 sm:h-24 object-contain transition-transform duration-300 group-hover:scale-[1.02]"
           priority
         />
@@ -47,6 +48,12 @@ export function BrandLogo({
     lg: 'h-10 sm:h-12',
   };
 
+  const pixelHeights = {
+    sm: 32,
+    md: 36,
+    lg: 48,
+  };
+
   // When showSubtitle is true (e.g. in Footer), use the precision lockup
   // where "LEGAL ASSISTANT" is perfectly aligned directly under the "MYLAWS" wordmark.
   const logoSrc = showSubtitle
@@ -60,6 +67,8 @@ export function BrandLogo({
   };
 
   const activeHeight = showSubtitle ? subtitleHeights[size] : heights[size];
+  const targetHeightPx = showSubtitle ? Math.round(pixelHeights[size] * 1.25) : pixelHeights[size];
+  const targetWidthPx = Math.round(targetHeightPx * (1919 / 787));
 
   return (
     <Link
@@ -67,12 +76,18 @@ export function BrandLogo({
       className={`inline-flex items-center group transition-opacity hover:opacity-95 ${className}`}
       aria-label="MyLaws Home"
     >
-      <div className="relative flex items-center">
+      <div className="relative flex items-center" style={{ maxHeight: `${targetHeightPx}px` }}>
         <Image
           src={logoSrc}
           alt="MyLaws"
-          width={1919}
-          height={787}
+          width={targetWidthPx}
+          height={targetHeightPx}
+          style={{
+            height: '100%',
+            maxHeight: `${targetHeightPx}px`,
+            width: 'auto',
+            maxWidth: `${targetWidthPx}px`,
+          }}
           className={`${activeHeight} w-auto object-contain transform transition-transform duration-300 group-hover:scale-[1.02]`}
           priority
         />

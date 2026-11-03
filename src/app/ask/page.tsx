@@ -26,6 +26,7 @@ import { createLegalWorkflow } from '@/lib/workflow';
 import { detectDraftType, DRAFT_CATALOG } from '@/lib/drafts';
 import { provisions } from '@/data/legal';
 import { FormattedMessageText } from '@/components/FormattedMessageText';
+import { LegalReasoningIndicator } from '@/components/LegalReasoningIndicator';
 import {
   saveConversation,
   findStoredConversation,
@@ -880,17 +881,17 @@ function AskContent() {
                     USER MESSAGE BUBBLE
                     ------------------------------------------------------ */}
                 {turn.role === 'user' && (
-                  <div className="flex items-start justify-end gap-3 max-w-2xl ml-auto animate-in slide-in-from-right-2 duration-150">
+                  <div className="flex items-start justify-end gap-3 max-w-2xl ml-auto animate-message-in">
                     <div className="space-y-1.5 text-right">
                       <div className="flex items-center justify-end gap-2 text-[10px] text-secondary-light font-hind">
                         <span>{new Date(turn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         <span className="font-semibold text-primary-light">{user?.displayName || t('আপনি', 'You')}</span>
                       </div>
-                      <div className="p-4 sm:p-5 rounded-2xl rounded-tr-xs bg-accent-light text-white font-hind text-sm shadow-sm leading-relaxed text-left whitespace-pre-wrap">
+                      <div className="p-4 sm:p-5 rounded-2xl rounded-tr-xs bg-accent-light text-white font-hind text-sm shadow-sm leading-relaxed text-left whitespace-pre-wrap transition-transform duration-200 hover:scale-[1.005]">
                         {turn.content}
                       </div>
                     </div>
-                    <div className="h-8 w-8 rounded-full bg-accent-light/20 border border-accent-light/40 flex items-center justify-center shrink-0 mt-4 text-accent-light">
+                    <div className="h-8 w-8 rounded-full bg-accent-light/20 border border-accent-light/40 flex items-center justify-center shrink-0 mt-4 text-accent-light shadow-2xs">
                       <User className="h-4 w-4" />
                     </div>
                   </div>
@@ -900,7 +901,7 @@ function AskContent() {
                     ASSISTANT MESSAGE WITH CANONICAL 4-STEP CARDS
                     ------------------------------------------------------ */}
                 {turn.role === 'assistant' && (
-                  <div className="space-y-6 animate-in slide-in-from-left-2 duration-200">
+                  <div className="space-y-6 animate-message-in">
                     {/* Top Assistant Persona Banner & Quick Copy / Translate Action Bar */}
                     <div className="flex items-center justify-between gap-2.5 pb-1">
                       {/* Left: Persona Identity & Timestamp */}
@@ -1497,19 +1498,9 @@ function AskContent() {
               </div>
             ))}
 
-            {/* In-flight Analyzing / Typing Indicator */}
+            {/* In-flight Animated Multi-Stage Legal Reasoning Indicator */}
             {(status === 'submitted' || status === 'finding_sources') && (
-              <div className="flex items-center gap-3 p-4 sm:p-5 rounded-2xl border border-accent-light/30 bg-surface-cardLight shadow-sm text-xs text-primary-light animate-pulse">
-                <Loader2 className="h-5 w-5 animate-spin text-accent-light" />
-                <div className="space-y-0.5">
-                  <span className="font-bold font-anek block text-sm">
-                    {t('আইন, গেজেট ও বিধিবদ্ধ সমাধান বিশ্লেষণ করা হচ্ছে...', 'Analyzing statutes, official gazettes & statutory solutions...')}
-                  </span>
-                  <span className="text-[11px] text-secondary-light font-hind">
-                    {t('আপনার প্রশ্নের প্রেক্ষিতে ৪-ধাপ আইনি রোডম্যাপ তৈরি হচ্ছে...', 'Building canonical 4-step legal guidance for your case...')}
-                  </span>
-                </div>
-              </div>
+              <LegalReasoningIndicator />
             )}
 
             {/* Scroll Anchor */}

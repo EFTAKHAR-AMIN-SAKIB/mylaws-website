@@ -161,7 +161,7 @@ export function Header() {
               >
                 {link.label}
                 {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-accent-light" />
+                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-accent-light via-accent-gold to-accent-light rounded-full shadow-[0_0_8px_rgba(154,111,50,0.6)] animate-in fade-in zoom-in-95 duration-200" />
                 )}
               </Link>
             );

@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from 'next';
+import React, { Suspense } from 'react';
 import './globals.css';
 import { AppProvider } from '@/components/AppContext';
 import { AuthProvider } from '@/components/AuthContext';
 import { AuthModal } from '@/components/AuthModal';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { NavigationProgressBar } from '@/components/NavigationProgressBar';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -45,12 +47,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="bn" suppressHydrationWarning>
-      <body className="min-h-screen bg-bg-light text-primary-light dark:bg-bg-dark dark:text-primary-dark transition-colors duration-200">
+      <body className="min-h-screen bg-bg-light text-primary-light transition-colors duration-200 relative selection:bg-accent-light/20 selection:text-primary-light">
         <AppProvider>
           <AuthProvider>
-            <div className="min-h-screen flex flex-col pb-16 md:pb-0">
+            {/* Top Navigation Loading Bar for Moving Between Pages */}
+            <Suspense fallback={null}>
+              <NavigationProgressBar />
+            </Suspense>
+
+            {/* Main Application Shell */}
+            <div className="min-h-screen flex flex-col pb-16 md:pb-0 relative z-10">
               {children}
             </div>
+
             <AuthModal />
             <MobileBottomNav />
           </AuthProvider>

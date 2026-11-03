@@ -137,9 +137,9 @@ export const applicationPageContent: ApplicationPageContent = {
     headlineBn: 'ইন্টারনেট ছাড়াই আপনার আইনি অধিকার, এবার আপনার পকেটে।',
     headlineEn: 'Instant Legal Answers, Even Completely Offline. In Your Pocket.',
     descriptionBn:
-      'কম র‍্যামের যে কোনো সাধারণ অ্যান্ড্রয়েড ফোনে চলবে MyLaws অ্যাপ। ইন্টারনেট সংযোগ ছাড়াই মৌলিক ২৫৫টি আইনি বিধান, করণীয় চেকলিস্ট ও জিডি/অভিযোগ নির্দেশিকা জানুন ঘরে বসেই। ইতিমধ্যে ৪৫% কাজ সম্পন্ন—খুব দ্রুতই উন্মুক্ত করা হচ্ছে।',
+      'কম র‍্যামের যে কোনো সাধারণ অ্যান্ড্রয়েড ফোনে চলবে MyLaws অ্যাপ। ইন্টারনেট সংযোগ ছাড়াই মৌলিক ১,০৪৬টি আইনি বিধান, করণীয় চেকলিস্ট ও ১০টি প্রমিত ড্রাফট নির্দেশিকা জানুন ঘরে বসেই। ইতিমধ্যে ৪৫% কাজ সম্পন্ন—খুব দ্রুতই উন্মুক্ত করা হচ্ছে।',
     descriptionEn:
-      'Engineered to run lightning-fast on any Android smartphone, even entry-level low-RAM devices. Access 255 verified provisions, evidence checklists, and draft templates completely offline with zero internet. Already 45% built and launching soon.',
+      'Engineered to run lightning-fast on any Android smartphone, even entry-level low-RAM devices. Access 1,046 verified provisions across 49 acts, evidence checklists, and 10 statutory draft templates completely offline with zero internet. Already 45% built and launching soon.',
     availabilityNoteBn: 'ওয়েবসাইট এখনই অনলাইনে ব্যবহার করা যাচ্ছে। অফলাইন সুবিধা ও অ্যান্ড্রয়েড অ্যাপের ৪৫% কাজ সম্পন্ন এবং দ্রুত এগিয়ে চলেছে।',
     availabilityNoteEn: 'Website is live today. The full offline Android app is already 45% built and moving rapidly towards launch.',
     primaryCtaBn: 'অনলাইন সহকারী ব্যবহার করুন',
@@ -177,8 +177,8 @@ export const applicationPageContent: ApplicationPageContent = {
         id: 'offline_answers',
         titleBn: 'সম্পূর্ণ অফলাইনে আইনি উত্তর ও অন-ডিভাইস ইনডেক্স',
         titleEn: 'Full Offline Legal Answers & On-Device Search',
-        descriptionBn: 'ইন্টারনেট ডাটা ছাড়াই ২৫৫টি আইনি ধারার সমাধান, সময়সীমা ও ধারাভিত্তিক সার্চ তাৎক্ষণিক ব্রাউজ করার শক্তিশালী ইন-ডিভাইস ইঞ্জিন।',
-        descriptionEn: 'High-speed in-device FTS search over 255 verified provisions, statutory deadlines, and guidance with zero internet required.',
+        descriptionBn: 'ইন্টারনেট ডাটা ছাড়াই ১,০৪৬টি আইনি ধারার সমাধান, সময়সীমা ও ধারাভিত্তিক সার্চ তাৎক্ষণিক ব্রাউজ করার শক্তিশালী ইন-ডিভাইস ইঞ্জিন।',
+        descriptionEn: 'High-speed in-device FTS search over 1,046 verified provisions across 49 acts, statutory deadlines, and guidance with zero internet required.',
         status: 'in_progress',
       },
       {
@@ -270,9 +270,9 @@ export const applicationPageContent: ApplicationPageContent = {
         titleBn: 'ইন্টারনেট ছাড়াই সম্পূর্ণ আইনি উত্তর',
         titleEn: '100% Offline Legal Intelligence',
         descriptionBn:
-          'গ্রামাঞ্চলে বা ভ্রমণের সময় ইন্টারনেট ডাটা প্যাক না থাকলেও সমস্যা নেই। ২৫৫টি আইনি ধারার সমাধান ও নির্দেশিকা ফোনের ভেতরেই তৈরি থাকবে।',
+          'গ্রামাঞ্চলে বা ভ্রমণের সময় ইন্টারনেট ডাটা প্যাক না থাকলেও সমস্যা নেই। ১,০৪৬টি আইনি ধারার সমাধান ও নির্দেশিকা ফোনের ভেতরেই তৈরি থাকবে।',
         descriptionEn:
-          'No data pack needed. Verified statutory solutions, legal time limits, and action plans are stored locally on your device for instant offline access.',
+          'No data pack needed. 1,046 verified statutory solutions across 49 acts, legal time limits, and action plans are stored locally on your device for instant offline access.',
         badgeBn: 'প্রধান সুবিধা',
         badgeEn: 'Core Feature',
         iconName: 'HardDrive',
@@ -284,7 +284,7 @@ export const applicationPageContent: ApplicationPageContent = {
         descriptionBn:
           'কোনো ৪ জিবি র‍্যামের প্রয়োজন নেই। মাত্র ১০ এমবির হালকা অ্যাপটি ১ জিবি বা ২ জিবি র‍্যামের যে কোনো কমদামি বাজেট স্মার্টফোনেও মাখনের মতো চলবে।',
         descriptionEn:
-          'No 4 GB RAM requirement. Ultra-optimized under 10 MB, engineered to run smoothly on any budget phone with just 1 GB or 2 GB RAM.',
+          'No 4 GB RAM requirement. Ultra-optimized under 10.3 MB, engineered to run smoothly on any budget phone with just 1 GB or 2 GB RAM.',
         badgeBn: 'সুপার লাইট',
         badgeEn: 'Featherlight',
         iconName: 'Cpu',
@@ -303,12 +303,12 @@ export const applicationPageContent: ApplicationPageContent = {
       },
       {
         id: 'prepare_draft',
-        titleBn: 'থানার জিডি ও শ্রম অভিযোগের খসড়া তৈরি',
-        titleEn: 'Instant Formal Legal Drafts',
+        titleBn: '১০টি প্রমিত আইনি আবেদন ও জিডি খসড়া প্রস্তুত',
+        titleEn: '10 Instant Formal Legal Drafts & GDs',
         descriptionBn:
-          'আইনি প্রমাণ সংরক্ষণের চেকলিস্ট দেখে নিয়ে সঠিক আইনি ফরম্যাটে জিডি কিংবা শ্রম পরিদর্শকের কাছে অভিযোগপত্রের খসড়া ফোনে প্রস্তুত করে সেভ বা প্রিন্ট করুন।',
+          'আইনি প্রমাণ সংরক্ষণের চেকলিস্ট দেখে নিয়ে সঠিক আইনি ফরম্যাটে থানার জিডি, পারিবারিক আদালত, যৌতুক নিরোধ, ভূমি অপরাধ ২০২৩, নামজারি কিংবা শ্রম অভিযোগের খসড়া ফোনে প্রস্তুত করে সেভ বা প্রিন্ট করুন।',
         descriptionEn:
-          'Follow grounded evidence checklists and generate formal Police GDs or Labour complaint drafts ready for review, saving or print.',
+          'Follow grounded evidence checklists and generate 10 formal statutory drafts including Police GD, Family Court, Land Crime, and Labour complaint drafts ready for review, saving or print.',
         badgeBn: 'প্রিন্ট প্রস্তুত',
         badgeEn: 'Ready to Print',
         iconName: 'FileText',
@@ -324,9 +324,9 @@ export const applicationPageContent: ApplicationPageContent = {
         questionBn: 'অ্যাপটি কি ইন্টারনেট ছাড়া সম্পূর্ণ অফলাইনে আইনি উত্তর দেবে?',
         questionEn: 'Will the app provide answers completely offline?',
         answerBn:
-          'হ্যাঁ! এটিই MyLaws মোবাইল অ্যাপের সবচেয়ে বড় বিশেষত্ব। বাংলাদেশের ২৫৫টি গুরুত্বপূর্ণ আইনি বিধান, মামলা দায়েরের সময়সীমা, বিনামূল্যে আইনি সহায়তার তথ্য (১৬৬৯৯) এবং প্রমাণ সংগ্রহের চেকলিস্ট সম্পূর্ণ অফলাইনে আপনার ডিভাইসেই থাকবে। ফলে ইন্টারনেট বন্ধ থাকলেও বা প্রত্যন্ত অঞ্চলে আপনি তাৎক্ষণিক আইনি সুরক্ষা পাবেন। নতুন সরকারি গেজেট ও আইন এলে ইন্টারনেট সংযোগের মাধ্যমে স্বয়ংক্রিয়ভাবে সিঙ্ক হয়ে যাবে।',
+          'হ্যাঁ! এটিই MyLaws মোবাইল অ্যাপের সবচেয়ে বড় বিশেষত্ব। বাংলাদেশের ১,০৪৬টি গুরুত্বপূর্ণ আইনি বিধান, মামলা দায়েরের সময়সীমা, বিনামূল্যে আইনি সহায়তার তথ্য (১৬৪৩০ / ১৬৬৯৯) এবং প্রমাণ সংগ্রহের চেকলিস্ট সম্পূর্ণ অফলাইনে আপনার ডিভাইসেই থাকবে। ফলে ইন্টারনেট বন্ধ থাকলেও বা প্রত্যন্ত অঞ্চলে আপনি তাৎক্ষণিক আইনি সুরক্ষা পাবেন। নতুন সরকারি গেজেট ও আইন এলে ইন্টারনেট সংযোগের মাধ্যমে স্বয়ংক্রিয়ভাবে সিঙ্ক হয়ে যাবে।',
         answerEn:
-          'Yes! That is the core pillar of the MyLaws mobile app. All 255 statutory provisions, procedural deadlines, free legal aid helpline details (16699), and evidence checklists are packaged on-device. Even with zero internet or in remote areas, you get instant legal answers. When online, it seamlessly syncs new gazettes and amendments.',
+          'Yes! That is the core pillar of the MyLaws mobile app. All 1,046 statutory provisions across 49 acts, procedural deadlines, free legal aid helpline details (16430 / 16699), and evidence checklists are packaged on-device. Even with zero internet or in remote areas, you get instant legal answers. When online, it seamlessly syncs new gazettes and amendments.',
       },
       {
         id: 'supported_phones',
@@ -351,9 +351,9 @@ export const applicationPageContent: ApplicationPageContent = {
         questionBn: 'অ্যাপ উন্মুক্ত হওয়ার আগে আজই আমি কী সুবিধা ব্যবহার করতে পারব?',
         questionEn: 'What features can I use today on the website?',
         answerBn:
-          'আজই আপনি আমাদের ওয়েবসাইটের সম্পূর্ণ অনলাইন সংস্করণ (https://mylaws-bd.vercel.app/ask) বিনামূল্যে ব্যবহার করতে পারেন। সেখানে ৭টি ক্যাটাগরির ২৫৫টি ধারার ভিত্তিতে তাৎক্ষণিক প্রশ্ন করতে পারবেন এবং ড্রাফটস এডিটরে গিয়ে থানার জিডি বা লিখিত অভিযোগ তৈরি করে A4 PDF ডাউনলোড করতে পারবেন।',
+          'আজই আপনি আমাদের ওয়েবসাইটের সম্পূর্ণ অনলাইন সংস্করণ (https://mylaws-bd.vercel.app/ask) বিনামূল্যে ব্যবহার করতে পারেন। সেখানে ৭টি ক্যাটাগরির ১,০৪৬টি ধারার ভিত্তিতে তাৎক্ষণিক প্রশ্ন করতে পারবেন এবং ড্রাফটস এডিটরে গিয়ে ১০টি প্রমিত আইনি আবেদন ও থানার জিডি তৈরি করে A4 PDF ডাউনলোড করতে পারবেন।',
         answerEn:
-          'You can use the complete online version of MyLaws right now at /ask for 255 verified provisions, and use /drafts to generate customized complaint documents and print-ready A4 PDFs completely free.',
+          'You can use the complete online version of MyLaws right now at /ask for 1,046 verified provisions across 49 acts, and use /drafts to generate 10 customized complaint documents and print-ready A4 PDFs completely free.',
       },
     ],
   },

@@ -27,8 +27,8 @@ export function Footer() {
               <ShieldCheck className="h-3.5 w-3.5" />
               <span className="font-hind">
                 {t(
-                  'উৎস নিরীক্ষা: ২৬ অক্টোবর ২০২৬ · ৬টি মৌলিক আইনের ২৩টি নির্বাচিত বিধান',
-                  'Corpus checked: 26 October 2026 · 23 provisions across 6 statutes'
+                  'উৎস নিরীক্ষা: নভেম্বর ২০২৬ · ৪৯টি আইনের ১,০৪৬টি যাচাইকৃত বিধান ও ১০টি প্রমিত খসড়া',
+                  'Corpus verified: November 2026 · 1,046 provisions across 49 statutes & 10 statutory drafts'
                 )}
               </span>
             </div>
