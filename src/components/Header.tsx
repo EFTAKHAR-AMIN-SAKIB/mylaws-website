@@ -101,7 +101,7 @@ export function Header() {
     { href: '/download', label: t('অ্যাপ্লিকেশন', 'APPLICATION'), icon: Smartphone },
   ];
 
-  const dailyLimit = quota?.dailyLimit || 30;
+  const dailyLimit = quota?.dailyLimit || 10;
   const remainingQuota = quota ? quota.remaining : dailyLimit;
   const formattedRemaining = `${remainingQuota}`;
   const formattedDailyLimit = `${dailyLimit}`;
@@ -112,11 +112,14 @@ export function Header() {
     setMobileProfileOpen(false);
     try {
       sessionStorage.removeItem('mylaws_pending_draft');
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.removeItem('mylaws_active_conversation_id');
+      }
     } catch {}
     if (pathname === '/ask') {
-      window.location.href = '/ask';
+      window.location.href = '/ask?new=1';
     } else {
-      router.push('/ask');
+      router.push('/ask?new=1');
     }
   };
 
@@ -166,17 +169,18 @@ export function Header() {
         </nav>
 
         {/* Right Section: Desktop Controls */}
-        <div className="hidden sm:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3">
           {/* Language Switch */}
           <button
             onClick={() => setLang(lang === 'bn' ? 'en' : 'bn')}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium tracking-wider rounded border border-border-light bg-surface-light text-secondary-light hover:border-accent-light hover:text-primary-light transition-all shadow-2xs ${
-              lang === 'bn' ? 'font-hind font-semibold' : 'font-cinzel'
+              lang === 'bn' ? 'font-cinzel' : 'font-hind font-semibold'
             }`}
-            title={t('Switch to English', 'বাংলায় পরিবর্তন করুন')}
+            title={lang === 'bn' ? 'Switch to English' : 'বাংলা সংস্করণে যান'}
+            aria-label={lang === 'bn' ? 'Switch to English' : 'Switch to Bangla'}
           >
             <Globe className="h-3 w-3 text-accent-light" />
-            <span>{lang === 'bn' ? 'ENGLISH' : 'বাংলা'}</span>
+            <span>{lang === 'bn' ? 'English' : 'বাংলা'}</span>
           </button>
 
           {/* User Auth Section & Signature Bracketed Action */}
@@ -297,26 +301,19 @@ export function Header() {
           )}
         </div>
 
-        {/* Mobile Right Controls: New Case (+) + Language + Profile */}
+        {/* Mobile Right Controls: Language + Profile */}
         <div className="flex md:hidden items-center gap-2">
-          {/* Quick "New Case" button on mobile for /ask page */}
-          {pathname === '/ask' && (
-            <button
-              onClick={handleStartNewCase}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium font-cinzel rounded-lg border border-accent-light/30 bg-accent-light/10 text-accent-light active-press transition-all"
-              title={t('নতুন কেস শুরু করুন', 'Start New Case')}
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span>{t('নতুন', 'New')}</span>
-            </button>
-          )}
-
           {/* Mobile Language Switcher */}
           <button
             onClick={() => setLang(lang === 'bn' ? 'en' : 'bn')}
-            className="px-2 py-1 text-[11px] font-cinzel rounded-lg border border-border-light bg-surface-light text-secondary-light font-bold active-press transition-all"
+            className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg border border-border-light bg-surface-light text-secondary-light hover:border-accent-light hover:text-primary-light active-press transition-all shadow-2xs ${
+              lang === 'bn' ? 'font-cinzel font-semibold' : 'font-hind font-bold'
+            }`}
+            title={lang === 'bn' ? 'Switch to English' : 'বাংলা সংস্করণে পরিবর্তন করুন'}
+            aria-label={lang === 'bn' ? 'Switch to English' : 'Switch to Bangla'}
           >
-            {lang === 'bn' ? 'EN' : 'বাং'}
+            <Globe className="h-3 w-3 text-accent-light shrink-0" />
+            <span>{lang === 'bn' ? 'English' : 'বাংলা'}</span>
           </button>
 
           {/* User Profile Avatar Trigger (Opens Dedicated Mobile Profile Sheet) */}
@@ -438,7 +435,7 @@ export function Header() {
                       recentQueries.map((item) => (
                         <Link
                           key={item.id}
-                          href={`/ask?prompt=${encodeURIComponent(item.question)}`}
+                          href={`/ask?id=${encodeURIComponent(item.id)}&prompt=${encodeURIComponent(item.question)}`}
                           onClick={() => setMobileOpen(false)}
                           className="flex items-start gap-2 p-2 rounded-lg text-xs text-primary-light hover:bg-bg-light transition-colors"
                         >

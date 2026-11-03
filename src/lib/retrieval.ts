@@ -347,6 +347,11 @@ export function searchVariant(text: string): string {
     res += ' general diary police act 44 crpc 155';
   }
 
+  // Inheritance, Demise & Succession Expansions
+  if (/\b(mara\s*geche|mara\s*gese|marageche|death|died|deceased|babar\s*jomi|bap\s*er\s*jomi|warish|warishan|uttoradhikar|uttaradhikar|namjari|mutation|heir|inheritance)\b|মারা\s*গেছেন|মারা\s*গেছে|মৃত্যু|ওয়ারিশ|ওয়ারিশ|উত্তরাধিকার|নামজারি|খারিজ|পৈতৃক\s*জমি/i.test(text)) {
+    res += ' land mutation succession act 1925 warish inheritance khatian partition deed ac land sra 8';
+  }
+
   // Land & Property Expansions
   if (/\b(jomi|jami|dalil|namjari|khatian|porcha|kharid|bayna|utched|dokhol|bedokhol|dag|eviction|evict|evicted|kicked\s*out|ancestral|house|homestead|property|land|dispossess|dispossessed|possession|boundary|tenant|landlord)\b|জমি|দলিল|নামজারি|খতিয়ান|পর্চা|বায়না|উচ্ছেদ|দখল|বেদখল|বাড়িওয়ালা|ভাড়াটিয়া|বাড়ি|বাড়ি|বসতবাড়ি|বসতবাড়ি|পৈত্রিক|পৈতৃক|সম্পত্তি/i.test(text)) {
     res += ' land property title deed specific relief 8 9 39 registration 17 rent control 18 land crime 2023 land crime 8 executive magistrate';

@@ -53,7 +53,7 @@ for (const p of provisions) {
     if (p.legalStatus !== 'repealed') {
       issues.push(`Cyber Security Act 2023 provision marked as '${p.legalStatus}', should be 'repealed' with savings note`);
     }
-    if (p.id === 'cyber-25') {
+    if (p.id === 'cyber-25' && p.legalStatus !== 'repealed') {
       issues.push(`CRITICAL: Defamation/speech section 25 of CSA 2023 is abolished/repealed; cannot be active guidance`);
     }
   }

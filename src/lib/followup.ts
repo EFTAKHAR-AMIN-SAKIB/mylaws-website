@@ -57,28 +57,58 @@ export function toEnglishNum(text: string | null | undefined): string {
 }
 
 /**
+ * Canonical suggested legal topics for conversational exploration.
+ */
+export const DEFAULT_SUGGESTED_TOPICS = {
+  bn: [
+    { title: '💼 বকেয়া বেতন ও চাকরি', query: 'আমার বকেয়া বেতন ও চাকরির অধিকার সম্পর্কে জানতে চাই' },
+    { title: '🏡 জমি ও ফ্ল্যাট বিরোধ', query: 'জমির দলিল জালিয়াতি বা দখলের আইনি প্রতিকার কী?' },
+    { title: '🛡️ সাইবার ব্ল্যাকমেইল ও ছবি ফাঁস', query: 'অনলাইনে ছবি দিয়ে ব্ল্যাকমেইল করলে কীভাবে জিডি করব?' },
+    { title: '🛒 ভোক্তা প্রতারণা ও ভেজাল', query: 'অনলাইনে পণ্য প্রতারণা বা মেয়াদোত্তীর্ণ পণ্যে কীভাবে অভিযোগ করব?' },
+    { title: '⚖️ পারিবারিক অধিকার ও দেনমোহর', query: 'পারিবারিক আদালতে দেনমোহর ও ভরণপোষণের নিয়ম কী?' },
+  ],
+  en: [
+    { title: '💼 Unpaid Wages & Employment', query: 'How to recover unpaid salary under Bangladesh Labour Act?' },
+    { title: '🏡 Land Fraud & Property Disputes', query: 'What is the legal remedy for land grabbing or forged deeds?' },
+    { title: '🛡️ Cyber Blackmail & Fake Accounts', query: 'How to report fake Facebook accounts or online blackmail?' },
+    { title: '🛒 Consumer Fraud & Expired Goods', query: 'How to file a consumer complaint for defective products?' },
+    { title: '⚖️ Family Rights & Maintenance', query: 'What are the legal procedures for child maintenance and dower?' },
+  ],
+};
+
+/**
  * Detects whether the query is a friendly greeting or salutation.
  */
 export function isGreetingQuery(text: string): boolean {
   const normalized = text.trim().toLowerCase();
-  const clean = normalized.replace(/[!?.,।\-]+$/, '').trim();
+  const clean = normalized.replace(/[^\p{L}\p{M}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
+  if (!clean) return false;
 
-  const greetingPhrases = [
-    'hi', 'hello', 'hey', 'hiya', 'hola', 'heya', 'yo',
-    'salam', 'assalam', 'assalamu alaikum', 'assalamualaikum', 'slm', 'as-salamu alaykum',
+  const hasSubstantiveLegalTerms =
+    /\b(lawyer|advocate|court|legal\s*aid|16699|arrest|bail|remand|wage\w*|salary|salaries|beton|land|jomi|stolen|theft|churi|cori|fraud|consumer|police|thana|gd|fir|murder|threat\w*|humki|assault|beating|bhoronposhon|denmohor|talaq)\b/i.test(clean) ||
+    /আইনজীবী|উকিল|আদালত|লিগ্যাল এইড|১৬৬৯৯|গ্রেফতার|জামিন|রিমান্ড|বেতন|মজুরি|চাকরি|জমি|দখল|মারধর|হুমকি|চুরি|ছিনতাই|ওষুধ|ভোক্তা|খোরপোষ|দেনমোহর|তালাক|পুলিশ|থানা|জিডি|এজাহার|মামলা/u.test(clean);
+
+  if (hasSubstantiveLegalTerms) return false;
+
+  const exactGreetings = [
+    'hi', 'hello', 'hey', 'hiya', 'hola', 'heya', 'yo', 'salam', 'assalam', 'assalamu alaikum', 'assalamualaikum', 'slm', 'as-salamu alaykum',
     'good morning', 'good afternoon', 'good evening', 'good day', 'good night',
-    'kemon acho', 'kemon achen', 'kemon achos', 'ki khobor', 'ki obostha',
+    'how are you', 'how are u', 'how r u', 'how are you doing', 'how do you do', 'how is it going', 'hows it going', 'whats up', 'what is up', 'sup',
+    'hey how are you', 'hi how are you', 'hello how are you', 'hey how are you doing', 'hi how are you doing', 'hello how are you doing',
+    'hey there', 'hi there', 'hello there',
+    'kemon acho', 'kemon achen', 'kemon achos', 'kemon asen', 'kemon aso', 'ki khobor', 'ki obostha', 'bhalo achen', 'bhalo acho', 'valo achen', 'valo acho',
     'সালাম', 'আসসালামু আলাইকুম', 'আসসালামুআলাইকুম',
     'হ্যালো', 'হাই', 'হে', 'শুভ সকাল', 'শুভ দুপুর', 'শুভ সন্ধ্যা', 'শুভ রাত্রি',
-    'কেমন আছেন', 'কেমন আছো', 'কেমন আছিস', 'কি অবস্থা', 'কী অবস্থা', 'কি খবর', 'কী খবর'
+    'কেমন আছেন', 'কেমন আছো', 'কেমন আছিস', 'কি অবস্থা', 'কী অবস্থা', 'কি খবর', 'কী খবর', 'ভালো আছেন', 'ভালো আছো'
   ];
 
-  if (greetingPhrases.includes(clean)) return true;
+  if (exactGreetings.includes(clean)) return true;
 
-  const words = clean.split(/\s+/);
-  if (words.length <= 3 && words.some((w) => ['hi', 'hello', 'hey', 'salam', 'হ্যালো', 'হাই'].includes(w))) {
-    const hasLegalKeyword = /stolen|theft|cori|churi|beton|salary|police|court|gd|fir|threat|land|marpeet|টাকা|বেতন|চুরি|থানা/i.test(clean);
-    return !hasLegalKeyword;
+  const greetingPattern = /^(hi|hello|hey|hiya|yo|salam|assalamu\s*alaikum|halo|হ্যালো|হাই|সালাম)\b/i;
+  const howAreYouPattern = /\b(how\s+are\s+(you|u)|how\s+do\s+you\s+do|how\s+is\s+it\s+going|hows\s+it\s+going|whats\s+up|kemon\s+(achen|acho|achos|asen|aso)|ki\s+(khobor|obostha)|কেমন\s+(আছেন|আছো|আছিস)|কি\s+(খবর|অবস্থা)|কী\s+(খবর|অবস্থা))\b/i;
+
+  if (howAreYouPattern.test(clean) || (greetingPattern.test(clean) && clean.split(/\s+/).length <= 7)) {
+    return true;
   }
 
   return false;
@@ -191,11 +221,31 @@ export function isPrimaryLegalInquiry(text: string): boolean {
 /**
  * Generates an empathetic, friendly greeting response.
  */
-export function generateGreetingResponse(language: 'en' | 'bn'): FollowUpResponse {
+export function generateGreetingResponse(
+  language: 'en' | 'bn',
+  query?: string
+): FollowUpResponse {
   const isBn = language === 'bn';
-  return {
-    directAnswer: isBn
-      ? `হ্যালো! আমি **MyLaws**, বাংলাদেশের আইন ও নাগরিক অধিকার বিষয়ক আপনার এআই আইনি সহকারী।
+  const clean = (query || '').toLowerCase().trim();
+
+  const isAskingHowAreYou =
+    /\b(how\s+are\s+(you|u)|how\s+do\s+you\s+do|how\s+is\s+it\s+going|hows\s+it\s+going|whats\s+up|kemon\s+(achen|acho|achos|asen|aso)|ki\s+(khobor|obostha)|valo\s+(achen|acho)|bhalo\s+(achen|acho))\b/i.test(clean) ||
+    /কেমন\s*(আছেন|আছো|আছিস)|কি\s*(খবর|অবস্থা)|কী\s*(খবর|অবস্থা)|ভালো\s*(আছেন|আছো)/u.test(clean);
+
+  const directAnswer = isAskingHowAreYou
+    ? isBn
+      ? `আমি ভালো আছি, ধন্যবাদ! আমি **MyLaws**, বাংলাদেশের সংবিধিবদ্ধ আইন ও নাগরিক অধিকার বিষয়ক আপনার এআই আইনি সহকারী।
+
+সবকিছু ঠিকঠাক চলছে তো? আপনার যদি চাকরি ও বকেয়া বেতন, জমিজমা বিরোধ, সাইবার ব্ল্যাকমেইল, ভোক্তা প্রতারণা কিংবা পারিবারিক কোনো আইনি বিষয়ে প্রশ্ন থাকে—আমি আপনাকে সঠিক আইন, করণীয় ধাপ ও ড্রাফট তৈরিতে সাহায্য করতে প্রস্তুত।
+
+আজ আপনাকে কীভাবে সাহায্য করতে পারি?`
+      : `I'm doing well, thank you! I am **MyLaws**, your dedicated AI legal assistant for Bangladesh law and citizen rights.
+
+Everything going smoothly with you? Whether you have questions about unpaid salaries, property disputes, online harassment, consumer fraud, or family matters—I am right here to help you with verified laws, checklists, and legal drafts.
+
+How can I assist you today?`
+    : isBn
+    ? `হ্যালো! আমি **MyLaws**, বাংলাদেশের আইন ও নাগরিক অধিকার বিষয়ক আপনার এআই আইনি সহকারী।
 
 যেকোনো আইনি সংকটে আপনাকে সঠিক আইনি দিকনির্দেশনা, পর্যায়ক্রমিক অ্যাকশন চেকলিস্ট এবং সরাসরি প্রিন্টযোগ্য আবেদনপত্র (থানা জিডি/মামলার খসড়া) তৈরিতে সাহায্য করতে আমি প্রস্তুত।
 
@@ -208,7 +258,7 @@ export function generateGreetingResponse(language: 'en' | 'bn'): FollowUpRespons
 • **পারিবারিক ও নারী-শিশু সুরক্ষা:** ভরণপোষণ, পারিবারিক সহিংসতা ও সরকারি ফ্রি লিগ্যাল এইড (১৬৬৯৯)।
 
 আজ আপনাকে কীভাবে সাহায্য করতে পারি?`
-      : `Hello! I am **MyLaws**, your dedicated AI legal assistant for Bangladesh.
+    : `Hello! I am **MyLaws**, your dedicated AI legal assistant for Bangladesh.
 
 I can guide you through your legal rights, provide step-by-step action roadmaps, and instantly generate ready-to-print legal drafts (Police GD, Criminal Complaints, Legal Notices).
 
@@ -220,7 +270,10 @@ You can describe any situation or ask any question, such as:
 • **Consumer Protection:** Counterfeit products, overcharging, or delivery fraud.
 • **Family & Domestic:** Maintenance, domestic violence protection, and free legal aid (16699).
 
-How can I assist you today?`,
+How can I assist you today?`;
+
+  return {
+    directAnswer,
     keyPoints: isBn
       ? [
           'সংবিধিবদ্ধ আইনি ব্যাখ্যা: সরকারি গেজেট ও আইনের সুনির্দিষ্ট ধারার ব্যাখ্যা।',
@@ -235,9 +288,104 @@ How can I assist you today?`,
           'Official Helplines: National Legal Aid 16699 and Emergency 999.',
         ],
     suggestedNextStep: isBn
-      ? 'আপনার পরিস্থিতি বা যে কোনো প্রশ্ন সরাসরি নিচে লিখুন (বাংলা, ইংরেজি বা বাংলিশে)।'
-      : 'Simply type your situation or question below in your preferred language.',
+      ? 'আপনার পরিস্থিতি বা যেকোনো প্রশ্ন নিচে লিখুন, অথবা নিচের প্রস্তাবিত আইনি বিষয়গুলো দেখতে পারেন।'
+      : 'Type your question below, or select any of the suggested topics to explore.',
+    suggestedTopics: DEFAULT_SUGGESTED_TOPICS[language],
     sourceIds: ['constitution-31', 'legalaid-16'],
+  };
+}
+
+/**
+ * Detects whether the query is a casual, general, or out-of-scope inquiry (e.g. cooking, coding, jokes, weather, science, general chat).
+ */
+export function isGeneralOrIrrelevantQuery(text: string): boolean {
+  const clean = text.trim().toLowerCase().replace(/[^\p{L}\p{M}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
+  if (!clean) return false;
+
+  if (isGreetingQuery(text) || isCapabilityQuery(text)) return false;
+
+  // Broad legal terminology check in English and Bengali
+  const legalKeywords =
+    /\b(law|laws|legal|lawyer|advocate|court|magistrate|police|thana|gd|fir|jail|bail|remand|arrest|warrant|custody|habeas|section|act|ordinance|statute|penal|crpc|constitution|rights?|fundamental|aid|16699|999|salary|wage|wages|employer|employee|worker|boss|fired|termination|dismiss|retrench|resignation|gratuity|provident|overtime|maternity|dife|land|property|deed|khatian|mutation|namjari|dalil|tenant|landlord|rent|evict|eviction|topsoil|dredger|boundary|dispossess|possession|consumer|dncrp|customer|shop|seller|vendor|mrp|expired|expiry|adulterat|short\s*weight|counterfeit|refund|daraz|delivery|threat\w*|intimidation|extort\w*|blackmail\w*|assault\w*|hurt|injury|beating|kill\w*|murder\w*|theft|stolen|thief|churi|cori|snatch\w*|robbery|bike|motorcycle|phone|mobile|cyber|hack\w*|fb|facebook|fake\s*id|intimate|viral|leak\w*|photo\w*|picture\w*|pornography|family|marriage|divorce|talaq|talak|dower|mahr|mohor|maintenance|khorposh|bhoronposhon|custody|child|dowry|joutuk|domestic\s*violence|parents\s*care|succession|inheritance|heir|will|probate|wronged|injustice|justice|dispute|claim)\b/i;
+
+  const bnLegalKeywords =
+    /আইন|আইনি|আইনজীবী|উকিল|আদালত|ম্যাজিস্ট্রেট|পুলিশ|থানা|জিডি|এজাহার|মামলা|জেল|হাজত|জামিন|রিমান্ড|গ্রেফতার|গ্রেপ্তার|ওয়ারেন্ট|ধারা|সংবিধান|মৌলিক অধিকার|লিগ্যাল এইড|১৬৬৯৯|৯৯৯|বেতন|মজুরি|মালিক|কর্মকর্তা|কর্মচারী|শ্রমিক|চাকরি|ছাঁটাই|বরখাস্ত|ইস্তফা|ছুটি|মাতৃত্বকালীন|ওভারটাইম|কলকারখানা|ডিআইএফই|জমি|দলিল|খতিয়ান|নামজারি|পর্চা|ভাড়াটিয়া|বাড়িওয়ালা|বাড়িভাড়া|উচ্ছেদ|দখল|বেদখল|টপসয়েল|ড্রেজার|সীমানা|ভোক্তা|ক্রেতা|দোকান|বিক্রেতা|মেয়াদোত্তীর্ণ|ভেজাল|ওজনে কম|নকল|রিফান্ড|ডেলিভারি|হুমকি|ভীতি|চাঁদাবাজি|ব্ল্যাকমেইল|মারধর|আঘাত|হত্যা|খুন|চুরি|ছিনতাই|পকেটমার|হারানো|বাইক|মোটরসাইকেল|ফোন|মোবাইল|সাইবার|হ্যাক|ফেসবুক|আইডি|ছবি ফাঁস|পর্নোগ্রাফি|পরিবার|বিয়ে|বিবাহ|ডিভোর্স|তালাক|দেনমোহর|মোহরানা|ভরণপোষণ|খোরপোষ|সন্তান|হেফাজত|যৌতুক|সহিংসতা|পিতা-মাতা|উত্তরাধিকার|ওয়ারিশ|অন্যায়|অবিচার|বিচার|বিপদ|সমস্যা|প্রতিকার|ভাতা|বকেয়া|সরকারি|প্রাথমিক|শিক্ষক|খাদ্য|খাবার|হোটেল|রেস্তোরাঁ|বিষাক্ত|রাসায়নিক|নিষিদ্ধ|উপাদান|মেশানো|পরিমাপ|মিটার|কারচুপি|লিটার|পেট্রোল|পাম্প/u;
+
+  if (legalKeywords.test(clean) || bnLegalKeywords.test(clean)) {
+    return false;
+  }
+
+  const generalPatterns = [
+    /\b(bake|cake|recipe|cook|cooking|curry|tea|coffee|biryani|kitchen|pasta|food|ranna|banabo)\b/i,
+    /রান্না|কেক|রেসিপি|চা বানাব|বিরিয়ানি|তরকারি/u,
+    /\b(python|javascript|react|code|coding|algorithm|html|css|function|program|programming)\b/i,
+    /কোড|প্রোগ্রামিং|পাইথন/u,
+    /\b(weather|temperature|physics|chemistry|biology|photosynthesis|gravity|planet|speed\s+of\s+light|capital\s+of|highest\s+mountain|math|calculate)\b/i,
+    /আবহাওয়া|বিজ্ঞান|তাপমাত্রা|রাজধানী|গণিত/u,
+    /\b(tell\s+me\s+a\s+joke|joke|poem|write\s+a\s+poem|story|funny|who\s+won|football|cricket|messi|ronaldo|movie|song)\b/i,
+    /কৌতুক|জোকস|কবিতা|গান|সিনেমা|খেলা|ফুটবল|ক্রিকেট/u,
+  ];
+
+  return generalPatterns.some((pattern) => pattern.test(clean));
+}
+
+/**
+ * Generates a warm, conversational answer to an out-of-scope query, with a smooth bridge to Bangladesh legal guidance.
+ */
+export function generateGeneralConversationalResponse(
+  query: string,
+  language: 'en' | 'bn'
+): FollowUpResponse {
+  const isBn = language === 'bn';
+  const clean = query.trim().toLowerCase();
+
+  let directAnswer = '';
+
+  // 1. Joke or Humor
+  if (/joke|funny|কৌতুক|জোকস/i.test(clean)) {
+    directAnswer = isBn
+      ? `একটি মজার কৌতুক শুনুন:\n\nশিক্ষক: মন্টু, বলো তো পৃথিবীর সবচেয়ে চালাক প্রাণী কোনটি?\nমন্টু: মানুষ স্যার, কারণ মানুষ নিজের জালে নিজেই আটকে যায় আর হাসিমুখে বলে "সব ঠিক আছে!"\n\n😄 হাসি-ঠাট্টা তো চললই, তবে জীবনে সিরিয়াস কোনো আইনি সংকটে পড়লে কিন্তু MyLaws সব সময় আপনার পাশে আছে। চাকরি, জমিজমা, সাইবার নিরাপত্তা, ভোক্তা অধিকার কিংবা পারিবারিক বিষয়ে কোনো আইনি প্রশ্ন বা পরামর্শ লাগলে আমাকে নির্দ্বিধায় জানাতে পারেন!`
+      : `Here's a lighthearted joke for you:\n\nWhy do programmers prefer dark mode?\nBecause light attracts bugs!\n\n😄 All jokes aside, whenever you face a serious situation involving Bangladesh law—such as workplace wage disputes, property fraud, online blackmail, or consumer issues—I'm right here to guide you with verified legal provisions.`;
+  }
+  // 2. Cooking / Food / Recipes
+  else if (/bake|cake|recipe|cook|curry|tea|coffee|biryani|kitchen|pasta|food|রান্না|কেক|রেসিপি|বিরিয়ানি/i.test(clean)) {
+    directAnswer = isBn
+      ? `সুস্বাদু রান্নার রেসিপি বা খাবারের আইডিয়া চমৎকার একটি বিষয়! ভালো খাবার মন ভালো রাখে।\n\nতবে রান্নার বাইরে দৈনন্দিন জীবনের ভোক্তা অধিকার (যেমন: প্যাকেটজাত পণ্যে ওজন কম দেয়া, মেয়াদোত্তীর্ণ জিনিস বিক্রি বা খাবারে ক্ষতিকর ভেজাল মেশানো) কিংবা অন্য যেকোনো আইনি প্রয়োজনে কিন্তু আমি আপনাকে পূর্ণ আইনি সুরক্ষা দিতে পারি।\n\nআপনি কি বাংলাদেশ ভোক্তা অধিকার সংরক্ষণ আইন বা অন্য কোনো আইনি বিষয়ে জানতে চান?`
+      : `Cooking and good recipes are always wonderful! Good food certainly makes every day better.\n\nWhile I can appreciate culinary questions, my core specialty is protecting your citizen rights in Bangladesh—including Consumer Protection laws against adulterated food, expired products, or false weight, as well as employment and property matters.\n\nWould you like to know more about consumer rights or any other legal protection?`;
+  }
+  // 3. Coding / Tech / Programming
+  else if (/python|javascript|react|code|coding|algorithm|program|কোড|প্রোগ্রামিং/i.test(clean)) {
+    directAnswer = isBn
+      ? `টেক ও প্রোগ্রামিংয়ের জগতে সমস্যা সমাধান করতে ভালোই লাগে!\n\nতবে কোডিংয়ের বাইরে প্রযুক্তি সংক্রান্ত আইনি বিষয়—যেমন: বাংলাদেশে সাইবার নিরাপত্তা আইন, অনলাইনে ছবি বা তথ্য ফাঁসের বিরুদ্ধে জিডি, ফ্রিল্যান্সারদের পারিশ্রমিক চুক্তি কিংবা সফটওয়্যার কপিরাইট সংক্রান্ত যেকোনো আইনি সহায়তার জন্য আমি সব সময় প্রস্তুত।\n\nপ্রযুক্তি বা সাধারণ আইনের কোনো বিষয়ে আপনার কি কোনো প্রশ্ন আছে?`
+      : `Tech and programming problem-solving is always exciting!\n\nBeyond coding logic, I specialize in the legal frameworks surrounding technology and daily life in Bangladesh—such as Cyber Security laws against blackmail or fake profiles, freelance contract disputes, or property and labour rights.\n\nDo you have any legal questions you'd like guidance on?`;
+  }
+  // 4. Default / General Casual Conversation
+  else {
+    directAnswer = isBn
+      ? `আপনার প্রশ্নটি আমি বুঝতে পেরেছি। তবে একজন এআই সহকারী হিসেবে আমার প্রধান লক্ষ্য ও বিশেষ প্রশিক্ষণ হলো বাংলাদেশের সংবিধিবদ্ধ আইন ও নাগরিক অধিকার নিয়ে সাধারণ মানুষকে সহজ ভাষায় সাহায্য করা।\n\nআপনার কি চাকরি ও বকেয়া বেতন, জমিজমা ও বাড়িভাড়া বিরোধ, সাইবার নিরাপত্তা ও ব্ল্যাকমেইল, ভোক্তা প্রতারণা কিংবা পারিবারিক আইন সংক্রান্ত কোনো বিষয় জানার আছে? নিচে কিছু জনপ্রিয় বিষয় দেয়া হলো—যেকোনোটিতে ক্লিক করে আপনি সরাসরি জানতে পারেন:`
+      : `I hear you! While I'm happy to chat casually, my primary expertise and focus is helping citizens navigate Bangladesh statutory law, citizen rights, and formal legal filing procedures.\n\nIf you or someone you know is dealing with workplace wage issues, land disputes, online harassment, consumer fraud, or family matters, I can provide immediate, verified statutory guidance and ready-to-use legal drafts. You can explore our main legal categories below:`;
+  }
+
+  return {
+    directAnswer,
+    keyPoints: isBn
+      ? [
+          'চাকরি ও বকেয়া বেতন: শ্রম আইন ২০০৬ অনুযায়ী বকেয়া আদায় ও বরখাস্তের প্রতিকার।',
+          'জমিজমা ও দলিল: ভূমি অপরাধ প্রতিরোধ ও প্রতিকার আইন ২০২৩ অনুযায়ী ব্যবস্থা।',
+          'সাইবার নিরাপত্তা: পর্নোগ্রাফি নিয়ন্ত্রণ আইন ও সাইবার সুরক্ষা অধ্যাদেশ।',
+          'ভোক্তা অধিকার: ভোক্তা-অধিকার সংরক্ষণ আইন ২০০৯ (২৫% পুরস্কার ও ক্ষতিপূরণ)।',
+        ]
+      : [
+          'Labour & Wages: Labour Act 2006 for unpaid salary and termination relief.',
+          'Land & Property: Land Crime Prevention Act 2023 for grabbing & forged deeds.',
+          'Cyber & Privacy: Pornography Control Act & Cyber Security laws.',
+          'Consumer Protection: Consumers Rights Act 2009 (25% fine reward & remedies).',
+        ],
+    suggestedNextStep: isBn
+      ? 'নিচের যেকোনো বিষয় নির্বাচন করুন অথবা আপনার পরিস্থিতি সংক্ষেপে লিখে পাঠান।'
+      : 'Select any topic below or describe your situation in your own words.',
+    suggestedTopics: DEFAULT_SUGGESTED_TOPICS[language],
+    sourceIds: ['constitution-31'],
   };
 }
 

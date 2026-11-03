@@ -11,6 +11,7 @@ import { Footer } from '@/components/Footer';
 import { Checklist } from '@/components/Checklist';
 import { SourceDrawer, findProvision } from '@/components/SourceDrawer';
 import { OfficeModal } from '@/components/OfficeModal';
+import { QuotaExceededModal } from '@/components/QuotaExceededModal';
 import type {
   AnswerRequest,
   AnswerResult,
@@ -22,7 +23,16 @@ import type {
 import type { SavedUserQuery } from '@/lib/userDb';
 import { detectInputLanguage, toEnglishNum } from '@/lib/followup';
 import { createLegalWorkflow } from '@/lib/workflow';
+import { detectDraftType, DRAFT_CATALOG } from '@/lib/drafts';
 import { provisions } from '@/data/legal';
+import { FormattedMessageText } from '@/components/FormattedMessageText';
+import {
+  saveConversation,
+  findStoredConversation,
+  getActiveConversation,
+  setActiveConversationId,
+  clearActiveConversationSession,
+} from '@/lib/conversations';
 import {
   Send,
   Loader2,
@@ -37,6 +47,7 @@ import {
   Cpu,
   BookmarkCheck,
   FileText,
+  Languages,
   History,
   X,
   Clock,
@@ -46,6 +57,7 @@ import {
   CheckCircle2,
   ArrowUp,
   ChevronDown,
+  Layers,
   Plus,
   Scale,
   Copy,
@@ -90,11 +102,110 @@ function AskContent() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyItems, setHistoryItems] = useState<SavedUserQuery[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [quotaModalOpen, setQuotaModalOpen] = useState(false);
 
   // Clarification answers keyed by fieldId
   const [clarificationAnswers, setClarificationAnswers] = useState<Record<string, string>>({});
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [copiedTurnId, setCopiedTurnId] = useState<string | null>(null);
+  const [translatedTurns, setTranslatedTurns] = useState<
+    Record<
+      string,
+      {
+        isTranslated: boolean;
+        isLoading: boolean;
+        targetLang: 'bn' | 'en';
+        translatedMeaning?: string;
+        translatedWhatToDoNext?: string;
+        translatedUnderstanding?: string;
+        translatedDirectAnswer?: string;
+      }
+    >
+  >({});
+
+  const handleToggleTranslate = async (turnId: string, result: AnswerResult) => {
+    const current = translatedTurns[turnId];
+    if (current?.isTranslated) {
+      setTranslatedTurns((prev) => ({
+        ...prev,
+        [turnId]: { ...prev[turnId], isTranslated: false },
+      }));
+      return;
+    }
+
+    if (current?.translatedMeaning || current?.translatedDirectAnswer) {
+      setTranslatedTurns((prev) => ({
+        ...prev,
+        [turnId]: { ...prev[turnId], isTranslated: true },
+      }));
+      return;
+    }
+
+    const sampleText =
+      result.followUpResponse?.directAnswer ||
+      result.plainLanguageExplanation?.meaning ||
+      result.problemSummary?.understanding ||
+      '';
+    const hasBengali = /[\u0980-\u09FF]/.test(sampleText);
+    const targetLang = hasBengali ? 'en' : 'bn';
+
+    setTranslatedTurns((prev) => ({
+      ...prev,
+      [turnId]: { isTranslated: false, isLoading: true, targetLang },
+    }));
+
+    try {
+      const payloads: Array<{ key: string; text: string }> = [];
+      if (result.plainLanguageExplanation?.meaning) {
+        payloads.push({ key: 'meaning', text: result.plainLanguageExplanation.meaning });
+      }
+      if (result.plainLanguageExplanation?.whatToDoNext) {
+        payloads.push({ key: 'whatToDoNext', text: result.plainLanguageExplanation.whatToDoNext });
+      }
+      if (result.problemSummary?.understanding) {
+        payloads.push({ key: 'understanding', text: result.problemSummary.understanding });
+      }
+      if (result.followUpResponse?.directAnswer) {
+        payloads.push({ key: 'directAnswer', text: result.followUpResponse.directAnswer });
+      }
+
+      const translatedResults = await Promise.all(
+        payloads.map(async (p) => {
+          const res = await fetch('/api/translate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: p.text, targetLang }),
+          });
+          const data = await res.json();
+          return { key: p.key, text: data.translatedText || p.text };
+        })
+      );
+
+      const resultMap: Record<string, string> = {};
+      translatedResults.forEach((r) => {
+        resultMap[r.key] = r.text;
+      });
+
+      setTranslatedTurns((prev) => ({
+        ...prev,
+        [turnId]: {
+          isTranslated: true,
+          isLoading: false,
+          targetLang,
+          translatedMeaning: resultMap.meaning,
+          translatedWhatToDoNext: resultMap.whatToDoNext,
+          translatedUnderstanding: resultMap.understanding,
+          translatedDirectAnswer: resultMap.directAnswer,
+        },
+      }));
+    } catch (err) {
+      console.error('Translation error:', err);
+      setTranslatedTurns((prev) => ({
+        ...prev,
+        [turnId]: { isTranslated: false, isLoading: false, targetLang },
+      }));
+    }
+  };
 
   const handleCopyTurn = async (turnId: string, content: string) => {
     try {
@@ -206,13 +317,6 @@ function AskContent() {
     };
   }, []);
 
-  // Pre-fill from query parameter if present, without auto-submitting
-  useEffect(() => {
-    const p = searchParams.get('prompt');
-    if (p && p.trim()) {
-      setInput(p.trim());
-    }
-  }, [searchParams]);
 
   // Smooth scroll to bottom whenever a new turn is added or status changes
   useEffect(() => {
@@ -307,6 +411,8 @@ function AskContent() {
     setStatus('ready');
     setErrorMsg(null);
     setClarificationAnswers({});
+    setHistoryOpen(false);
+    clearActiveConversationSession();
     try {
       sessionStorage.removeItem('mylaws_pending_draft');
     } catch {}
@@ -331,6 +437,12 @@ function AskContent() {
     const token = await getIdToken();
     if (!token) {
       router.push(`/login?redirect=/ask&prompt=${encodeURIComponent(questionToAsk.trim())}`);
+      return;
+    }
+
+    // Check if user has already exceeded their daily limit
+    if (quota && quota.remaining <= 0) {
+      setQuotaModalOpen(true);
       return;
     }
 
@@ -427,7 +539,7 @@ function AskContent() {
 
       if (res.status === 429) {
         const errJson = await res.json().catch(() => ({}));
-        const activeLimit = errJson.userQuota?.dailyLimit || quota?.dailyLimit || 30;
+        const activeLimit = errJson.userQuota?.dailyLimit || quota?.dailyLimit || 10;
         const formattedLimit = `${activeLimit}`;
         const quotaError =
           errJson.message ||
@@ -438,7 +550,17 @@ function AskContent() {
         setErrorMsg(quotaError);
         if (errJson.userQuota) {
           setQuota(errJson.userQuota);
+        } else {
+          setQuota({
+            dailyLimit: activeLimit,
+            usedToday: activeLimit,
+            remaining: 0,
+            canQuery: false,
+          });
         }
+
+        // Open the dedicated Quota Exceeded Modal
+        setQuotaModalOpen(true);
 
         const assistantErrorTurn: ChatTurn = {
           id: `assistant-err-${currentRequestId}`,
@@ -532,7 +654,7 @@ function AskContent() {
     handleAsk(followUpMessage, answeredFacts, lang);
   };
 
-  const handleGoToDraft = (docType: string, turnResult?: AnswerResult) => {
+  const handleGoToDraft = (docType: string, turnResult?: AnswerResult, stepContext?: string) => {
     const activeResult = turnResult || [...chatTurns].reverse().find((t) => t.result)?.result;
     if (!activeResult) return;
 
@@ -541,6 +663,8 @@ function AskContent() {
       type: docType,
       facts: activeResult.userFacts,
       query: lastUserTurn?.content || '',
+      stepContext: stepContext || '',
+      issueTitle: activeResult.problemSummary?.identifiedIssue || '',
     };
     try {
       sessionStorage.setItem('mylaws_pending_draft', JSON.stringify(draftPayload));
@@ -548,8 +672,71 @@ function AskContent() {
     router.push('/drafts');
   };
 
+  // Reference to prevent duplicate URL triggers
+  const hasHandledUrlRef = useRef<string | null>(null);
+
+  // Persist conversation turns to localStorage whenever they update
+  useEffect(() => {
+    if (chatTurns.length > 0 && !chatTurns[0]?.id?.startsWith('turn-demo-')) {
+      saveConversation(chatTurns);
+    }
+  }, [chatTurns]);
+
+  // Handle URL query parameters (?prompt=..., ?q=..., ?id=..., ?new=1) and session restoration
+  useEffect(() => {
+    const isNew = searchParams.get('new') === '1';
+    const targetId = searchParams.get('id');
+    const targetPrompt = searchParams.get('prompt') || searchParams.get('q');
+
+    if (isNew) {
+      if (hasHandledUrlRef.current === 'new') return;
+      hasHandledUrlRef.current = 'new';
+      clearActiveConversationSession();
+      setChatTurns([]);
+      setInput('');
+      setStatus('ready');
+      window.history.replaceState({}, '', '/ask');
+      return;
+    }
+
+    if (targetId || targetPrompt) {
+      const key = `${targetId || ''}:${targetPrompt || ''}`;
+      if (hasHandledUrlRef.current === key) return;
+      hasHandledUrlRef.current = key;
+
+      // 1. Try to restore previous conversation from local storage
+      const cached = findStoredConversation(targetId, targetPrompt);
+      if (cached && cached.turns && cached.turns.length > 0) {
+        setChatTurns(cached.turns);
+        setActiveConversationId(cached.id);
+        setStatus('ready');
+        setInput('');
+        window.history.replaceState({}, '', '/ask');
+        return;
+      }
+
+      // 2. If not cached, execute the inquiry automatically to display the conversation
+      if (targetPrompt && targetPrompt.trim()) {
+        handleAsk(targetPrompt.trim());
+        window.history.replaceState({}, '', '/ask');
+        return;
+      }
+    }
+
+    // 3. Fallback: on fresh page load without URL parameters, restore the active conversation if available
+    if (chatTurns.length === 0 && !hasHandledUrlRef.current) {
+      hasHandledUrlRef.current = 'initial';
+      const active = getActiveConversation();
+      if (active && active.turns && active.turns.length > 0) {
+        setChatTurns(active.turns);
+        setStatus('ready');
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, chatTurns.length]);
+
   const latestResult = [...chatTurns].reverse().find((t) => t.result)?.result;
-  const dailyLimit = quota?.dailyLimit || 30;
+  const dailyLimit = quota?.dailyLimit || 10;
   const remainingQuestions = quota ? quota.remaining : dailyLimit;
   const formattedRemaining = `${remainingQuestions}`;
   const formattedDailyLimit = `${dailyLimit}`;
@@ -605,9 +792,23 @@ function AskContent() {
                 />
 
                 <div className="flex items-center justify-between pt-1">
-                  <span className="hidden md:inline text-[11px] text-secondary-light/70 font-hind">
-                    {t('Enter চাপলে উত্তর আসবে', 'Press Enter to submit')}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {/* New Conversation Button */}
+                    <button
+                      type="button"
+                      onClick={handleClearCase}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 text-xs font-semibold font-cinzel rounded-xl border border-accent-light/30 bg-accent-light/10 text-accent-light hover:bg-accent-light/20 hover:border-accent-light/60 transition-all active:scale-95 cursor-pointer shadow-2xs"
+                      title={t('নতুন কথোপকথন শুরু করুন', 'Start New Conversation')}
+                      aria-label={t('নতুন কথোপকথন', 'New Conversation')}
+                    >
+                      <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
+                      <span>{t('নতুন কথোপকথন', 'New Conversation')}</span>
+                    </button>
+
+                    <span className="hidden md:inline text-[11px] text-secondary-light/70 font-hind">
+                      {t('Enter চাপলে উত্তর আসবে', 'Press Enter to submit')}
+                    </span>
+                  </div>
 
                   <button
                     type="button"
@@ -701,10 +902,11 @@ function AskContent() {
                     ------------------------------------------------------ */}
                 {turn.role === 'assistant' && (
                   <div className="space-y-6 animate-in slide-in-from-left-2 duration-200">
-                    {/* Top Assistant Persona Banner & Quick Copy Action */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className="h-8 w-8 rounded-full bg-accent-light/15 border border-accent-light/30 p-1.5 flex items-center justify-center shrink-0 shadow-2xs">
+                    {/* Top Assistant Persona Banner & Quick Copy / Translate Action Bar */}
+                    <div className="flex items-center justify-between gap-2.5 pb-1">
+                      {/* Left: Persona Identity & Timestamp */}
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="h-8 w-8 rounded-full bg-accent-light/15 border border-accent-light/30 p-1 flex items-center justify-center shrink-0 shadow-2xs">
                           <Image
                             src="/images/mylaws-assistant-avatar.png"
                             alt="MyLaws"
@@ -714,40 +916,105 @@ function AskContent() {
                             priority
                           />
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-cinzel text-xs font-bold text-primary-light tracking-wide">
+                        <div className="flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-2 min-w-0">
+                          <span className="font-cinzel text-xs font-bold text-primary-light tracking-wide truncate">
                             {t('MyLaws আইনি সহকারী', 'MyLaws Legal Assistant')}
                           </span>
-                          <span className="text-[10px] text-secondary-light font-hind">
+                          <span className="text-[10px] text-secondary-light/70 font-hind whitespace-nowrap shrink-0">
                             {new Date(turn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
                       </div>
 
+                      {/* Right: Cohesive Micro-Action Toolbar (Translate & Copy) */}
                       {turn.result && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const copyText =
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {(() => {
+                            const transState = translatedTurns[turn.id];
+                            const sampleText =
                               turn.result?.followUpResponse?.directAnswer ||
-                              `${turn.result?.problemSummary?.understanding || ''}\n\n${turn.result?.plainLanguageExplanation?.meaning || ''}`;
-                            handleCopyTurn(turn.id, copyText.trim());
-                          }}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-hind border border-border-light bg-surface-light text-secondary-light hover:text-primary-light active-press shadow-2xs transition-all"
-                          title={t('উত্তর কপি করুন', 'Copy response')}
-                        >
-                          {copiedTurnId === turn.id ? (
-                            <>
-                              <Check className="h-3 w-3 text-emerald-600" />
-                              <span className="text-emerald-700 font-semibold">{t('কপি হয়েছে', 'Copied')}</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="h-3 w-3 text-accent-light" />
-                              <span>{t('কপি', 'Copy')}</span>
-                            </>
-                          )}
-                        </button>
+                              turn.result?.plainLanguageExplanation?.meaning ||
+                              '';
+                            const isBn = /[\u0980-\u09FF]/.test(sampleText);
+                            const targetLabel = isBn ? 'English' : 'বাংলা';
+
+                            return (
+                              <button
+                                type="button"
+                                onClick={() => handleToggleTranslate(turn.id, turn.result!)}
+                                disabled={transState?.isLoading}
+                                className={`h-7 inline-flex items-center gap-1.5 px-2.5 sm:px-3 rounded-lg text-xs font-hind font-semibold border transition-all active:scale-95 cursor-pointer shadow-2xs ${
+                                  transState?.isTranslated
+                                    ? 'border-accent-light bg-accent-light text-white font-bold ring-2 ring-accent-light/25 shadow-xs'
+                                    : 'border-accent-light/40 bg-accent-light/10 text-accent-light hover:bg-accent-light hover:text-white'
+                                }`}
+                                title={
+                                  transState?.isTranslated
+                                    ? t('মূল লেখা দেখুন', 'Show original text')
+                                    : t(`${targetLabel} অনুবাদ`, `Translate to ${targetLabel}`)
+                                }
+                              >
+                                {transState?.isLoading ? (
+                                  <>
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin text-accent-light" />
+                                    <span className="text-[11px] whitespace-nowrap">{t('অনুবাদ হচ্ছে...', 'Translating...')}</span>
+                                  </>
+                                ) : transState?.isTranslated ? (
+                                  <>
+                                    <Languages className="h-3.5 w-3.5" />
+                                    <span className="text-[11px] font-bold whitespace-nowrap">{t('মূল লেখা', 'Original')}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Languages className="h-3.5 w-3.5 stroke-[2.2] shrink-0" />
+                                    <span className="text-[11px] font-bold tracking-wide whitespace-nowrap">
+                                      {targetLabel}
+                                      <span className="hidden sm:inline"> {t('অনুবাদ', 'Translation')}</span>
+                                    </span>
+                                  </>
+                                )}
+                              </button>
+                            );
+                          })()}
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const transState = translatedTurns[turn.id];
+                              const activeMeaning = transState?.isTranslated && transState.translatedMeaning
+                                ? transState.translatedMeaning
+                                : turn.result?.plainLanguageExplanation?.meaning || '';
+                              const activeUnderstanding = transState?.isTranslated && transState.translatedUnderstanding
+                                ? transState.translatedUnderstanding
+                                : turn.result?.problemSummary?.understanding || '';
+                              const activeDirect = transState?.isTranslated && transState.translatedDirectAnswer
+                                ? transState.translatedDirectAnswer
+                                : turn.result?.followUpResponse?.directAnswer || '';
+
+                              const rawCopy = activeDirect || `${activeUnderstanding}\n\n${activeMeaning}`;
+                              const copyText = rawCopy.replace(/\*\*/g, '').trim();
+                              handleCopyTurn(turn.id, copyText);
+                            }}
+                            className={`h-7 inline-flex items-center gap-1.5 px-2.5 rounded-lg text-xs font-hind border transition-all active:scale-95 cursor-pointer shadow-2xs ${
+                              copiedTurnId === turn.id
+                                ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 font-bold'
+                                : 'border-border-light/80 bg-surface-cardLight text-secondary-light hover:text-primary-light hover:border-accent-light/40'
+                            }`}
+                            title={t('উত্তর কপি করুন', 'Copy response')}
+                          >
+                            {copiedTurnId === turn.id ? (
+                              <>
+                                <Check className="h-3.5 w-3.5 text-emerald-600" />
+                                <span className="text-emerald-700 font-semibold text-[11px] whitespace-nowrap">{t('কপি হয়েছে', 'Copied')}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="h-3.5 w-3.5 text-accent-light" />
+                                <span className="text-[11px] font-medium whitespace-nowrap">{t('কপি', 'Copy')}</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
                       )}
                     </div>
 
@@ -775,6 +1042,8 @@ function AskContent() {
                                     ? t('স্বাগতম ও পরিচিতি', 'Welcome & Introduction')
                                     : turn.result.isCapability
                                     ? t('MyLaws-এর সেবাসমূহ ও সক্ষমতা', 'MyLaws Capabilities & Services')
+                                    : turn.result.isOutOfScope
+                                    ? t('সাধারণ আলোচনা ও প্রশ্নোত্তর', 'General Conversation')
                                     : t('প্রাসঙ্গিক আইনি উত্তর ও বিশদ তথ্য', 'Contextual Legal Follow-Up')}
                                 </span>
                                 <span className="text-[11px] text-secondary-light font-hind">
@@ -782,6 +1051,8 @@ function AskContent() {
                                     ? t('আপনার আইনি সহকারী সেবায় প্রস্তুত', 'Your legal assistant is ready to help')
                                     : turn.result.isCapability
                                     ? t('যাচাইকৃত আইন, অ্যাকশন চেকলিস্ট ও ড্রাফট সেবা', 'Verified law, action checklists, and legal drafts')
+                                    : turn.result.isOutOfScope
+                                    ? t('সহায়তামূলক উত্তর ও আইনি সেবা সংযোগ', 'Helpful response and legal guidance connection')
                                     : t('সংক্ষিপ্ত ও কার্যকর আইনি ব্যাখ্যা', 'Focused answer based on your inquiry')}
                                 </span>
                               </div>
@@ -807,28 +1078,75 @@ function AskContent() {
                           <div className="p-4 sm:p-7 rounded-2xl sm:rounded-3xl border border-border-light bg-surface-cardLight shadow-sm space-y-4 sm:space-y-5">
                             {/* Direct Conversational Answer */}
                             <div className="space-y-2">
-                              <p className="font-hind text-sm sm:text-base text-primary-light font-medium leading-relaxed whitespace-pre-line">
-                                {toEnglishNum(turn.result.followUpResponse.directAnswer)}
-                              </p>
+                              <FormattedMessageText
+                                text={toEnglishNum(
+                                  translatedTurns[turn.id]?.isTranslated && translatedTurns[turn.id]?.translatedDirectAnswer
+                                    ? translatedTurns[turn.id]!.translatedDirectAnswer!
+                                    : turn.result.followUpResponse.directAnswer
+                                )}
+                              />
                             </div>
 
-                            {/* Structured Key Points / Documents / Steps */}
+                            {/* Structured Key Points / Documents / Steps - Collapsible Dropdown */}
                             {turn.result.followUpResponse.keyPoints && turn.result.followUpResponse.keyPoints.length > 0 && (
-                              <div className="space-y-2.5 pt-1">
-                                {turn.result.followUpResponse.keyPoints.map((point, pIdx) => (
-                                  <div
-                                    key={pIdx}
-                                    className="flex items-start gap-3 p-3.5 rounded-2xl bg-bg-light/80 border border-border-light/80 text-xs sm:text-sm font-hind text-primary-light leading-relaxed transition-all hover:bg-bg-light"
-                                  >
-                                    <div className="h-5 w-5 rounded-full bg-accent-light/15 text-accent-light flex items-center justify-center shrink-0 mt-0.5 font-bold text-[11px]">
-                                      {pIdx + 1}
+                              <details className="group rounded-2xl border border-border-light/80 bg-surface-light/60 hover:border-accent-light/40 transition-all shadow-2xs overflow-hidden">
+                                <summary className="flex items-center justify-between gap-3 p-3.5 sm:p-4 cursor-pointer select-none list-none text-xs sm:text-sm font-anek font-bold text-primary-light hover:bg-bg-light/60 transition-colors">
+                                  <div className="flex items-center gap-2.5">
+                                    <div className="h-6 w-6 rounded-lg bg-accent-light/10 text-accent-light flex items-center justify-center shrink-0">
+                                      <Layers className="h-3.5 w-3.5" />
                                     </div>
-                                    <div className="flex-1">
-                                      <span>{toEnglishNum(point)}</span>
-                                    </div>
+                                    <span className="font-semibold text-primary-light font-anek">
+                                      {turn.result.isGreeting || turn.result.isCapability
+                                        ? t('MyLaws কীভাবে সাহায্য করে (৪টি মূল স্তম্ভ দেখুন)', 'How MyLaws assists you (View 4 core pillars)')
+                                        : t('প্রাসঙ্গিক ধাপ ও দিকনির্দেশনা দেখুন', 'View relevant steps & guidance')}
+                                    </span>
+                                    <span className="text-[11px] font-normal text-secondary-light font-hind hidden sm:inline-block">
+                                      • {t('ক্লিক করে জানুন', 'Click to view')}
+                                    </span>
                                   </div>
-                                ))}
-                              </div>
+                                  <div className="flex items-center gap-1.5 text-accent-light shrink-0">
+                                    <span className="text-[11px] font-hind font-semibold group-open:hidden">
+                                      {t('দেখুন', 'Expand')}
+                                    </span>
+                                    <span className="text-[11px] font-hind font-semibold hidden group-open:inline">
+                                      {t('সংক্ষেপ করুন', 'Collapse')}
+                                    </span>
+                                    <ChevronDown className="h-4 w-4 transition-transform duration-200 group-open:rotate-180" />
+                                  </div>
+                                </summary>
+
+                                <div className="p-3.5 sm:p-4 pt-1 sm:pt-2 border-t border-border-light/40 space-y-2.5 bg-bg-light/30">
+                                  {turn.result.followUpResponse.keyPoints.map((point, pIdx) => {
+                                    const colonIdx = point.indexOf(':');
+                                    const hasColon = colonIdx > -1 && colonIdx < 45;
+                                    const title = hasColon ? point.slice(0, colonIdx + 1) : '';
+                                    const desc = hasColon ? point.slice(colonIdx + 1).trim() : point;
+
+                                    return (
+                                      <div
+                                        key={pIdx}
+                                        className="flex items-start gap-3 p-3 rounded-xl bg-surface-cardLight border border-border-light/70 text-xs sm:text-sm font-hind text-primary-light leading-relaxed transition-all hover:border-accent-light/30 shadow-2xs"
+                                      >
+                                        <div className="h-5 w-5 rounded-full bg-accent-light/15 text-accent-light flex items-center justify-center shrink-0 mt-0.5 font-bold font-anek text-[11px]">
+                                          {pIdx + 1}
+                                        </div>
+                                        <div className="flex-1 leading-relaxed">
+                                          {hasColon ? (
+                                            <>
+                                              <strong className="font-bold text-accent-light dark:text-accent-dark font-anek mr-1.5">
+                                                {toEnglishNum(title)}
+                                              </strong>
+                                              <span className="text-primary-light">{toEnglishNum(desc)}</span>
+                                            </>
+                                          ) : (
+                                            <FormattedMessageText text={toEnglishNum(point)} density="compact" />
+                                          )}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </details>
                             )}
 
                             {/* Suggested Next Step Callout */}
@@ -840,6 +1158,34 @@ function AskContent() {
                                   <p className="font-hind leading-relaxed">
                                     {toEnglishNum(turn.result.followUpResponse.suggestedNextStep)}
                                   </p>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Interactive Suggested Legal Topics */}
+                            {turn.result.followUpResponse.suggestedTopics && turn.result.followUpResponse.suggestedTopics.length > 0 && (
+                              <div className="pt-3 border-t border-border-light/60 space-y-2.5">
+                                <span className="text-[11px] font-hind text-secondary-light font-semibold flex items-center gap-1.5">
+                                  <Sparkles className="h-3 w-3 text-accent-light" />
+                                  {t('যেসব আইনি বিষয়ে জানতে পারেন:', 'Suggested legal topics to explore:')}
+                                </span>
+                                <div className="flex flex-wrap gap-2">
+                                  {turn.result.followUpResponse.suggestedTopics.map((topic, tIdx) => (
+                                    <button
+                                      key={tIdx}
+                                      type="button"
+                                      onClick={() => {
+                                        setInput(topic.query);
+                                        if (bottomInputRef.current) {
+                                          bottomInputRef.current.focus();
+                                        }
+                                      }}
+                                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-anek font-medium bg-bg-light/90 border border-border-light hover:border-accent-light/50 hover:bg-accent-light/10 text-primary-light transition-all cursor-pointer shadow-2xs group"
+                                    >
+                                      <span className="group-hover:text-accent-light transition-colors">{topic.title}</span>
+                                      <ArrowRight className="h-2.5 w-2.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 text-accent-light transition-all" />
+                                    </button>
+                                  ))}
                                 </div>
                               </div>
                             )}
@@ -924,12 +1270,17 @@ function AskContent() {
 
                           {/* 1. Conversational Understanding & Empathy */}
                           <div className="space-y-2">
-                            <p className="font-hind text-sm sm:text-base text-primary-light font-medium leading-relaxed">
-                              {toEnglishNum(turn.result.problemSummary?.understanding) || t(
-                                'আপনার বিষয়টি পর্যালোচনা করে এর সাথে প্রযোজ্য আইনি ক্ষেত্র চিহ্নিত করা হয়েছে।',
-                                'We have analyzed your situation and identified the applicable statutory legal path.'
+                            <FormattedMessageText
+                              text={toEnglishNum(
+                                (translatedTurns[turn.id]?.isTranslated && translatedTurns[turn.id]?.translatedUnderstanding
+                                  ? translatedTurns[turn.id]!.translatedUnderstanding
+                                  : turn.result.problemSummary?.understanding) ||
+                                  t(
+                                    'আপনার বিষয়টি পর্যালোচনা করে এর সাথে প্রযোজ্য আইনি ক্ষেত্র চিহ্নিত করা হয়েছে।',
+                                    'We have analyzed your situation and identified the applicable statutory legal path.'
+                                  )
                               )}
-                            </p>
+                            />
                           </div>
 
                           {/* Clarification Questions (if active in this turn) */}
@@ -1010,9 +1361,14 @@ function AskContent() {
                                 </h4>
                               </div>
 
-                              <p className="font-hind text-xs sm:text-sm text-secondary-light leading-relaxed whitespace-pre-line">
-                                {toEnglishNum(turn.result.plainLanguageExplanation.meaning)}
-                              </p>
+                              <FormattedMessageText
+                                text={toEnglishNum(
+                                  translatedTurns[turn.id]?.isTranslated && translatedTurns[turn.id]?.translatedMeaning
+                                    ? translatedTurns[turn.id]!.translatedMeaning!
+                                    : turn.result.plainLanguageExplanation.meaning
+                                )}
+                                className="text-secondary-light"
+                              />
 
                               {/* Clickable Statutory Sources (Source pills as drawn in user sketch) */}
                               {(() => {
@@ -1055,7 +1411,11 @@ function AskContent() {
                                   <div className="space-y-0.5">
                                     <span className="font-bold block">{t('জরুরি করণীয়:', 'What to do next:')}</span>
                                     <span className="font-hind leading-relaxed">
-                                      {toEnglishNum(turn.result.plainLanguageExplanation.whatToDoNext)}
+                                      {toEnglishNum(
+                                        translatedTurns[turn.id]?.isTranslated && translatedTurns[turn.id]?.translatedWhatToDoNext
+                                          ? translatedTurns[turn.id]!.translatedWhatToDoNext!
+                                          : turn.result.plainLanguageExplanation.whatToDoNext
+                                      )}
                                     </span>
                                   </div>
                                 </div>
@@ -1071,44 +1431,65 @@ function AskContent() {
                                 steps={turn.result.checklist}
                                 onOpenSource={(id: string) => setSelectedSourceId(id)}
                                 onOpenOffice={(id: string) => setSelectedOfficeId(id)}
+                                onStartDraft={(dType, sText) => handleGoToDraft(dType, turn.result, sText)}
                                 variant="lineByLine"
                               />
                             </div>
                           )}
 
                           {/* 4. Prepare Formal Draft (আনুষ্ঠানিক খসড়া তৈরি করুন) */}
-                          {turn.result.draftOffer && (
-                            <div className="pt-3 border-t border-border-light/60">
-                              <div className="p-4 sm:p-5 rounded-2xl bg-accent-light/5 border border-accent-light/25 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    <FileText className="h-4 w-4 text-accent-light shrink-0" />
-                                    <h4 className="font-anek font-bold text-sm sm:text-base text-primary-light">
-                                      {turn.result.draftOffer.documentTitle}
-                                    </h4>
-                                  </div>
-                                  <p className="font-hind text-xs text-secondary-light">
-                                    {turn.result.draftOffer.description}
-                                  </p>
-                                  {turn.result.draftOffer.missingDetails && turn.result.draftOffer.missingDetails.length > 0 && (
-                                    <p className="text-[11px] text-secondary-light/90 font-hind pt-1">
-                                      <span className="font-semibold">{t('প্রয়োজনীয় তথ্য: ', 'Details needed: ')}</span>
-                                      {turn.result.draftOffer.missingDetails.join(' • ')}
-                                    </p>
-                                  )}
-                                </div>
+                          {(() => {
+                            const offer = turn.result.draftOffer || (() => {
+                              const dType = detectDraftType(
+                                `${turn.result.problemSummary?.identifiedIssue || ''} ${turn.result.checklist?.map((c) => c.text).join(' ') || ''}`
+                              );
+                              if (!dType) return null;
+                              const meta = DRAFT_CATALOG.find((d) => d.id === dType);
+                              if (!meta) return null;
+                              return {
+                                documentType: dType,
+                                documentTitle: t(meta.titleBn, meta.titleEn),
+                                description: t(meta.shortDescBn, meta.shortDescEn),
+                                prompt: t('আপনি কি এই ঘটনার প্রেক্ষিতে একটি আনুষ্ঠানিক আইনি খসড়া প্রস্তুত করতে চান?', 'Would you like to generate a formal legal draft for this issue?'),
+                                missingDetails: [] as string[],
+                              };
+                            })();
 
-                                <button
-                                  type="button"
-                                  onClick={() => handleGoToDraft(turn.result!.draftOffer!.documentType, turn.result)}
-                                  className="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-accent-light text-white text-xs sm:text-sm font-cinzel font-bold tracking-wider hover:opacity-90 transition-all cursor-pointer shadow hover:shadow-md"
-                                >
-                                  <span>{t('আনুষ্ঠানিক খসড়া তৈরি করুন', 'PREPARE A FORMAL DRAFT')}</span>
-                                  <ArrowRight className="h-4 w-4" />
-                                </button>
+                            if (!offer) return null;
+
+                            return (
+                              <div className="pt-3 border-t border-border-light/60">
+                                <div className="p-4 sm:p-5 rounded-2xl bg-accent-light/5 border border-accent-light/25 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-2">
+                                      <FileText className="h-4 w-4 text-accent-light shrink-0" />
+                                      <h4 className="font-anek font-bold text-sm sm:text-base text-primary-light">
+                                        {offer.documentTitle}
+                                      </h4>
+                                    </div>
+                                    <p className="font-hind text-xs text-secondary-light">
+                                      {offer.description}
+                                    </p>
+                                    {offer.missingDetails && offer.missingDetails.length > 0 && (
+                                      <p className="text-[11px] text-secondary-light/90 font-hind pt-1">
+                                        <span className="font-semibold">{t('প্রয়োজনীয় তথ্য: ', 'Details needed: ')}</span>
+                                        {offer.missingDetails.join(' • ')}
+                                      </p>
+                                    )}
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleGoToDraft(offer.documentType, turn.result)}
+                                    className="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-accent-light text-white text-xs sm:text-sm font-cinzel font-bold tracking-wider hover:opacity-90 transition-all cursor-pointer shadow hover:shadow-md active-press"
+                                  >
+                                    <span>{t('আনুষ্ঠানিক খসড়া তৈরি করুন', 'PREPARE A FORMAL DRAFT')}</span>
+                                    <ArrowRight className="h-4 w-4" />
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            );
+                          })()}
                         </div>
                       )
                     ) : null}
@@ -1212,9 +1593,22 @@ function AskContent() {
                     <span>{t('ইতিহাস', 'History')}</span>
                   </button>
                   <span className="text-border-light/60">•</span>
-                  <span className="font-hind text-secondary-light/80 text-[10px] sm:text-[11px]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (remainingQuestions <= 0) {
+                        setQuotaModalOpen(true);
+                      }
+                    }}
+                    className={`font-hind text-[10px] sm:text-[11px] transition-colors ${
+                      remainingQuestions <= 0
+                        ? 'text-amber-600 dark:text-amber-400 font-bold hover:underline cursor-pointer'
+                        : 'text-secondary-light/80'
+                    }`}
+                    title={remainingQuestions <= 0 ? t('কোটার বিস্তারিত দেখুন', 'View quota details') : undefined}
+                  >
                     {t(`কোটা: ${formattedRemaining}/${formattedDailyLimit}`, `Quota: ${formattedRemaining}/${formattedDailyLimit} left`)}
-                  </span>
+                  </button>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -1299,8 +1693,15 @@ function AskContent() {
                       key={item.id}
                       className="rounded-xl border border-border-light bg-bg-light/60 p-3.5 space-y-2 hover:border-accent-light/50 transition-all cursor-pointer"
                       onClick={() => {
-                        handleAsk(item.question);
                         setHistoryOpen(false);
+                        const cached = findStoredConversation(item.id, item.question);
+                        if (cached && cached.turns && cached.turns.length > 0) {
+                          setChatTurns(cached.turns);
+                          setActiveConversationId(cached.id);
+                          setStatus('ready');
+                          return;
+                        }
+                        handleAsk(item.question);
                       }}
                     >
                       <div className="flex items-center justify-between text-[10px] text-secondary-light">
@@ -1350,6 +1751,13 @@ function AskContent() {
       <OfficeModal
         officeId={selectedOfficeId}
         onClose={() => setSelectedOfficeId(null)}
+      />
+
+      {/* Quota Exceeded Pop-up Modal */}
+      <QuotaExceededModal
+        isOpen={quotaModalOpen}
+        onClose={() => setQuotaModalOpen(false)}
+        dailyLimit={dailyLimit}
       />
     </div>
   );

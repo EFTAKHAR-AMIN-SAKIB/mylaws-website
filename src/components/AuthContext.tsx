@@ -72,10 +72,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const auth = getFirebaseAuth();
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
       if (currentUser) {
+        setUser(currentUser);
         await syncUserToD1(currentUser);
+      } else if (process.env.NODE_ENV === 'development') {
+        // In local development, provide fallback test session so local testing is never blocked
+        const devUser = {
+          uid: 'test_uid_123',
+          email: 'sakib@mylaws.bd',
+          displayName: 'Sakib',
+          photoURL: null,
+          getIdToken: async () => 'test_dev_sakib_token',
+        } as unknown as User;
+        setUser(devUser);
+        setQuota({
+          dailyLimit: 10,
+          usedToday: 0,
+          remaining: 10,
+          canQuery: true,
+        });
       } else {
+        setUser(null);
         setQuota(null);
       }
       setLoading(false);
@@ -138,8 +155,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const getIdToken = async (): Promise<string | null> => {
-    if (!user) return null;
-    return await user.getIdToken();
+    if (!user) {
+      if (process.env.NODE_ENV === 'development') {
+        return 'test_dev_sakib_token';
+      }
+      return null;
+    }
+    try {
+      return await user.getIdToken(true);
+    } catch {
+      return await user.getIdToken();
+    }
   };
 
   return (

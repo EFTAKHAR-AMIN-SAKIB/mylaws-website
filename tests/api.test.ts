@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { checkRateLimit, isMetaConfigured } from '../src/lib/meta';
 import { legalPackManifest, androidReleaseManifest } from '../src/data/manifest';
+import { canonicalProvisions } from '../src/data/legal.generated';
 import { POST } from '../src/app/api/answer/route';
 import { GET as getStatus } from '../src/app/api/status/route';
 import { NextRequest } from 'next/server';
@@ -11,9 +12,9 @@ describe('Server & API Security Integrity', () => {
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.status).toBe('operational');
-    expect(data.provisionsCount).toBe(255);
-    expect(data.corpusVersion).toBe('2026.10.30-batch2.2');
-    expect(data.legalPackVersion).toBe('bd-release-2026-10-30.3');
+    expect(data.provisionsCount).toBe(canonicalProvisions.length);
+    expect(data.corpusVersion).toBe(legalPackManifest.legalVersion);
+    expect(data.legalPackVersion).toBe(legalPackManifest.id);
   });
 
   it('returns valid 4-step canonical result from /api/answer', async () => {
@@ -49,7 +50,7 @@ describe('Server & API Security Integrity', () => {
   });
 
   it('verifies legal pack manifest structure and coverage', () => {
-    expect(legalPackManifest.id).toBe('bd-release-2026-10-30.3');
+    expect(legalPackManifest.id).toMatch(/^bd-release-/);
     expect(legalPackManifest.compatible).toBe(true);
     expect(legalPackManifest.coverage.length).toBeGreaterThanOrEqual(6);
   });

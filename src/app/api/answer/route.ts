@@ -7,15 +7,18 @@ import {
   generateFollowUpResponse,
   isGreetingQuery,
   isCapabilityQuery,
+  isGeneralOrIrrelevantQuery,
   detectInputLanguage,
   isPrimaryLegalInquiry,
   generateGreetingResponse,
   generateCapabilityResponse,
+  generateGeneralConversationalResponse,
 } from '@/lib/followup';
 import {
   checkRateLimit,
   isMetaConfigured,
   generateMetaVerifiedAnswer,
+  generateMetaConversationalAnswer,
 } from '@/lib/meta';
 import { isCloudflareConfigured } from '@/lib/cloudflare';
 import {
@@ -34,11 +37,17 @@ export async function POST(req: NextRequest) {
 
     let verifiedUser: { uid: string; email: string | null; displayName: string | null } | null = null;
 
-    if ((process.env.NODE_ENV === 'test' || process.env.VITEST === 'true' || Boolean(process.env.VITEST)) && !token) {
+    const isProduction =
+      process.env.NODE_ENV === 'production' ||
+      process.env.VERCEL === '1' ||
+      process.env.VERCEL_ENV === 'production';
+    const isLocalDevOrTest = !isProduction;
+
+    if (isLocalDevOrTest && !token) {
       verifiedUser = {
-        uid: `test_uid_${crypto.randomUUID()}`,
-        email: 'test@example.com',
-        displayName: 'Test User',
+        uid: 'test_uid_123',
+        email: 'sakib@mylaws.bd',
+        displayName: 'Sakib',
       };
     } else {
       if (!token) {
@@ -54,19 +63,27 @@ export async function POST(req: NextRequest) {
 
       verifiedUser = await verifyFirebaseToken(token);
       if (!verifiedUser) {
-        return NextResponse.json(
-          {
-            error: 'unauthorized',
-            message: 'আপনার লগইন সেশনের মেয়াদ শেষ হয়েছে। দয়া করে পুনরায় সাইন ইন করুন।',
-            messageEn: 'Your session has expired. Please sign in again.',
-          },
-          { status: 401, headers: { 'Cache-Control': 'no-store, max-age=0' } }
-        );
+        if (isLocalDevOrTest) {
+          verifiedUser = {
+            uid: 'test_uid_123',
+            email: 'sakib@mylaws.bd',
+            displayName: 'Sakib',
+          };
+        } else {
+          return NextResponse.json(
+            {
+              error: 'unauthorized',
+              message: 'আপনার লগইন সেশনের মেয়াদ শেষ হয়েছে। দয়া করে পুনরায় সাইন ইন করুন।',
+              messageEn: 'Your session has expired. Please sign in again.',
+            },
+            { status: 401, headers: { 'Cache-Control': 'no-store, max-age=0' } }
+          );
+        }
       }
     }
 
-    // 2. Check User Daily Quota in Cloudflare D1 (30 queries/day for real users; high limit for test staging)
-    const DAILY_LIMIT = verifiedUser.uid.startsWith('test_') ? 1000 : parseInt(process.env.DAILY_QUERY_LIMIT || '30', 10);
+    // 2. Check User Daily Quota in Cloudflare D1 (10 queries/day for all users)
+    const DAILY_LIMIT = parseInt(process.env.DAILY_QUERY_LIMIT || '10', 10);
     const quotaCheck = await getUserQuotaStatus(verifiedUser.uid, DAILY_LIMIT);
     if (!quotaCheck.canQuery) {
       return NextResponse.json(
@@ -82,10 +99,6 @@ export async function POST(req: NextRequest) {
 
     // 3. Fallback IP rate limiting (to avoid rapid accidental spam)
     const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
-    const isProduction =
-      process.env.NODE_ENV === 'production' ||
-      process.env.VERCEL === '1' ||
-      process.env.VERCEL_ENV === 'production';
     const isLocalTestRunner = (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true') && !isProduction;
     const isStagingAudit = isLocalTestRunner && authHeader.includes('test_staging_token');
     if (!isStagingAudit && !checkRateLimit(ip)) {
@@ -178,7 +191,7 @@ export async function POST(req: NextRequest) {
 
     // Check Greeting Intent
     if (isGreetingQuery(originalMessage)) {
-      const greetingRes = generateGreetingResponse(effectiveLanguage);
+      const greetingRes = generateGreetingResponse(effectiveLanguage, originalMessage);
       const answerResult: AnswerResult = {
         schemaVersion: 1,
         answerId: requestId,
@@ -246,6 +259,66 @@ export async function POST(req: NextRequest) {
         engineProvenance: isMetaConfigured() ? 'online_meta' : 'online_guided_fallback',
         status: 'completed',
         responseSnippet: capabilityRes.directAnswer,
+        dailyLimit: DAILY_LIMIT,
+      });
+      answerResult.userQuota = recordRes.quota;
+      return NextResponse.json(answerResult, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
+    }
+
+    // Check General / Casual Out-of-Scope Intent
+    if (isGeneralOrIrrelevantQuery(originalMessage)) {
+      let generalRes = generateGeneralConversationalResponse(originalMessage, effectiveLanguage);
+      let provenance: 'online_meta' | 'online_guided_fallback' = 'online_guided_fallback';
+
+      if (isMetaConfigured()) {
+        try {
+          const metaConvRes = await generateMetaConversationalAnswer(
+            originalMessage,
+            effectiveLanguage,
+            sanitizedHistory
+          );
+          generalRes = {
+            directAnswer: metaConvRes.answer,
+            keyPoints: generalRes.keyPoints,
+            suggestedNextStep: generalRes.suggestedNextStep,
+            suggestedTopics: metaConvRes.suggestedTopics,
+            sourceIds: ['constitution-31'],
+          };
+          provenance = 'online_meta';
+        } catch (metaErr) {
+          console.warn('Meta conversational answering failed; falling back to curated response:', metaErr);
+        }
+      }
+
+      const answerResult: AnswerResult = {
+        schemaVersion: 1,
+        answerId: requestId,
+        mode: 'online',
+        engineProvenance: provenance,
+        status: 'completed',
+        questions: [],
+        userFacts: sanitizedFacts,
+        checklist: [],
+        explanation: [],
+        limitations: [],
+        sourcePackVersion: isCloudflareConfigured() ? `${CORPUS_VERSION} · Cloudflare D1` : CORPUS_VERSION,
+        allowedDraftOptions: [],
+        isFollowUp: true,
+        isOutOfScope: true,
+        followUpResponse: generalRes,
+        problemSummary: {
+          identifiedIssue: effectiveLanguage === 'bn' ? 'সাধারণ আলোচনা ও আইনি সেবা সংযোগ' : 'General Conversation & Legal Guidance',
+          understanding: generalRes.directAnswer,
+        },
+      };
+
+      const recordRes = await consumeQuotaAndRecordQuery({
+        userId: verifiedUser.uid,
+        question: originalMessage,
+        language: effectiveLanguage,
+        engineProvenance: provenance,
+        status: 'completed',
+        responseSnippet: generalRes.directAnswer,
         dailyLimit: DAILY_LIMIT,
       });
       answerResult.userQuota = recordRes.quota;
@@ -325,7 +398,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. If Meta API is configured and inquiry is concrete, attempt model-assisted verification
-    if (isMetaConfigured() && candidateProvisions.length > 0 && workflowResult.status !== 'clarifying') {
+    if (isMetaConfigured() && workflowResult.status !== 'clarifying') {
       try {
         const metaRes = await generateMetaVerifiedAnswer(
           request.originalMessage,
@@ -351,6 +424,41 @@ export async function POST(req: NextRequest) {
           // Enrich the plainLanguageExplanation so model output is prominent
           if (workflowResult.plainLanguageExplanation) {
             workflowResult.plainLanguageExplanation.meaning = metaRes.answer;
+            if (metaRes.whatToDoNext && metaRes.whatToDoNext.length > 0) {
+              workflowResult.plainLanguageExplanation.whatToDoNext = metaRes.whatToDoNext;
+            }
+          }
+
+          // If Meta returned tailored checklist steps, use them
+          if (metaRes.checklist && metaRes.checklist.length > 0) {
+            workflowResult.checklist = metaRes.checklist.map((step, idx) => ({
+              id: `meta-step-${idx + 1}`,
+              text: step.text,
+              condition: step.condition,
+              sourceIds: step.sourceIds || [],
+            }));
+          }
+
+          // Ensure explanation & source pills accurately match Meta citations
+          if (metaRes.sourceIds.length === 0) {
+            workflowResult.explanation = [
+              {
+                text: metaRes.answer,
+                sourceIds: [],
+              },
+            ];
+            // Clear irrelevant canned candidate provisions if Meta verified no direct statute applies
+            workflowResult.relevantProvisions = [];
+          } else {
+            workflowResult.explanation = [
+              {
+                text: metaRes.answer,
+                sourceIds: metaRes.sourceIds,
+              },
+            ];
+            workflowResult.relevantProvisions = candidateProvisions.filter((p) =>
+              metaRes.sourceIds.includes(p.id)
+            );
           }
 
           // Dynamically reflect model-tailored issue title & understanding

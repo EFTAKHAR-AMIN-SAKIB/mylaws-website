@@ -36,7 +36,17 @@ export type Verification = 'illustrative' | 'authoritative' | 'needs_verificatio
 
 export type FactStatus = 'user_reported' | 'user_confirmed' | 'inferred' | 'unknown';
 
-export type DocumentType = 'gd' | 'dife' | 'dncrp';
+export type DocumentType =
+  | 'gd'
+  | 'dife'
+  | 'dncrp'
+  | 'domestic_violence'
+  | 'family_maintenance'
+  | 'land_mutation'
+  | 'land_crime_complaint'
+  | 'possession_recovery'
+  | 'cheque_dishonour'
+  | 'bail_petition';
 
 export type ReviewStatus = 'incomplete' | 'needs_review' | 'reviewed';
 
@@ -89,6 +99,8 @@ export interface ChecklistStep {
   completed?: boolean;
   requiredDocuments?: string[];
   helpfulEvidence?: string[];
+  draftType?: DocumentType;
+  draftLabel?: { bn: string; en: string };
 }
 
 export interface Claim {
@@ -137,6 +149,7 @@ export interface FollowUpResponse {
   suggestedNextStep?: string;
   sourceIds?: string[];
   updatedFact?: { fieldId: string; value: string };
+  suggestedTopics?: Array<{ title: string; query: string }>;
 }
 
 export interface AnswerResult {

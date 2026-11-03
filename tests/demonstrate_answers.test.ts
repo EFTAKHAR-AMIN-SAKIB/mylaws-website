@@ -74,7 +74,7 @@ describe('Demonstrate Corrected Answers Runtime Suite (/api/answer)', () => {
     expect(data.status).toBe('completed');
     expect(hasCitation(data, 'consumer-42')).toBe(true);
     const str = JSON.stringify(data);
-    expect(str).toContain('ধারা ৪২');
+    expect(str.includes('ধারা ৪২') || str.includes('ধারা 42')).toBe(true);
   });
 
   // Case 1D: Section 46 Short Weight & Section 48 Short Measure

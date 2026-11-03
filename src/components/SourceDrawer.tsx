@@ -16,11 +16,7 @@ export function findProvision(sourceId: string | null | undefined): Provision | 
   const raw = sourceId.trim();
   const lower = raw.toLowerCase();
 
-  // 1. Direct match (exact or case-insensitive)
-  let found = provisions.find((p) => p.id === raw || p.id.toLowerCase() === lower);
-  if (found) return found;
-
-  // 2. Known alias mappings
+  // 1. Known alias mappings (takes precedence for legacy redirected citation keys)
   const ALIAS_MAP: Record<string, string> = {
     'family-court-2023-5': 'family-court-2023-5',
     'family-court-2023-4': 'family-court-2023-5',
@@ -34,9 +30,13 @@ export function findProvision(sourceId: string | null | undefined): Provision | 
 
   const aliasTarget = ALIAS_MAP[lower];
   if (aliasTarget) {
-    found = provisions.find((p) => p.id === aliasTarget || p.id.toLowerCase() === aliasTarget.toLowerCase());
+    const found = provisions.find((p) => p.id === aliasTarget || p.id.toLowerCase() === aliasTarget.toLowerCase());
     if (found) return found;
   }
+
+  // 2. Direct match (exact or case-insensitive)
+  let found = provisions.find((p) => p.id === raw || p.id.toLowerCase() === lower);
+  if (found) return found;
 
   // 3. Fallback: stripped dashes/underscores
   const stripped = lower.replace(/[-_]/g, '');

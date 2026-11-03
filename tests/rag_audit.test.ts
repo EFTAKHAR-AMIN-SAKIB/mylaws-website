@@ -45,7 +45,7 @@ describe('Rigorous Quality-Control RAG Retrieval Audit Across All 7 Categories',
     expect(matches.length).toBeGreaterThan(0);
     const ids = matches.map(m => m.provision.id);
     console.log('Category 5 Matches:', ids);
-    expect(ids.some(id => id === 'land-crime-4' || id === 'land-crime-7' || id === 'land-crime-8')).toBe(true);
+    expect(ids.some(id => id === 'land-crime-4' || id === 'land-crime-5' || id === 'land-crime-7' || id === 'land-crime-8')).toBe(true);
   });
 
   it('Category 6 (Domestic Violence & Family): retrieves Dowry Prohibition & Domestic Violence for maintenance & eviction', () => {

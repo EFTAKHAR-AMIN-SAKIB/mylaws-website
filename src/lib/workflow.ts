@@ -3,8 +3,10 @@ import { nationalLegalAid, difeOffice, policeGdOffice, dncrpOffice } from '../da
 import {
   isGreetingQuery,
   isCapabilityQuery,
+  isGeneralOrIrrelevantQuery,
   generateGreetingResponse,
   generateCapabilityResponse,
+  generateGeneralConversationalResponse,
 } from './followup';
 import type {
   ChecklistStep,
@@ -103,14 +105,12 @@ export function isAmbiguousOrVagueQuery(text: string): boolean {
 
   const specificTerms = /জমি|বেতন|চাকরি|ভাড়া|বাড়ি|দখল|মারধর|চুরি|ছিনতাই|পণ্য|ওষুধ|টাকা|চেক|ডিভোর্স|দেনমোহর|ভরণপোষণ|পুলিশ|জিডি|সাইবার|হ্যাক|দোকান|ক্যাশ|মেমো|আইনজীবী|উকিল|লিগ্যাল এইড|১৬৬৯৯|আইনগত সহায়তা|আইনি সহায়তা|অসচ্ছল|blackmail|theft|salary|rent|land|evict|assault|cheating|fraud|wage|stolen|arrest|bail|lawyer|advocate|legal aid|16699|indigent/u;
 
-  if (vaguePhrases.some((p) => clean.includes(p.toLowerCase()))) {
-    return !specificTerms.test(clean);
+  if (isGreetingQuery(text) || isCapabilityQuery(text) || isGeneralOrIrrelevantQuery(text)) {
+    return false;
   }
 
-  if (words.length <= 6 && !specificTerms.test(clean)) {
-    if (!isGreetingQuery(text) && !isCapabilityQuery(text)) {
-      return true;
-    }
+  if (vaguePhrases.some((p) => clean.includes(p.toLowerCase()))) {
+    return !specificTerms.test(clean);
   }
 
   return false;
@@ -158,7 +158,7 @@ export function createLegalWorkflow(
 
   // 0. Greeting & Salutation Intent Handling
   if (isGreetingQuery(originalMessage)) {
-    const greetingRes = generateGreetingResponse(language);
+    const greetingRes = generateGreetingResponse(language, originalMessage);
     return {
       schemaVersion: 1,
       answerId: request.requestId,
@@ -202,6 +202,31 @@ export function createLegalWorkflow(
       problemSummary: {
         identifiedIssue: isBn ? 'MyLaws-এর সেবাসমূহ ও সক্ষমতা' : 'MyLaws Capabilities & Services',
         understanding: capRes.directAnswer,
+      },
+    };
+  }
+
+  // 0.6 General / Casual Out-of-Scope Handling
+  if (isGeneralOrIrrelevantQuery(originalMessage)) {
+    const generalRes = generateGeneralConversationalResponse(originalMessage, language);
+    return {
+      schemaVersion: 1,
+      answerId: request.requestId,
+      mode,
+      status: 'completed',
+      questions: [],
+      userFacts: accumulatedFacts,
+      checklist: [],
+      explanation: [],
+      limitations: [],
+      sourcePackVersion: SOURCE_VERSION,
+      allowedDraftOptions: [],
+      isFollowUp: true,
+      isOutOfScope: true,
+      followUpResponse: generalRes,
+      problemSummary: {
+        identifiedIssue: isBn ? 'সাধারণ আলোচনা ও আইনি সেবা সংযোগ' : 'General Conversation & Legal Guidance',
+        understanding: generalRes.directAnswer,
       },
     };
   }
@@ -399,9 +424,9 @@ export function createLegalWorkflow(
 
   const isRights =
     !isLegalAid &&
-    (candidateProvisions.some((p) => (p.category === 'rights' || p.categories?.includes('rights')) && !p.id?.startsWith('legalaid-')) ||
-    /\b(arrest|without\s+warrant|lockup|24\s+hours|48\s+hours|magistrate|remand|bail|custody|habeas|illegal\s+detention)\b/i.test(effectiveQuery) ||
-    /গ্রেফতার|ওয়ারেন্ট|ওয়ারেন্ট ছাড়া|লকআপ|২৪ ঘণ্টা|৪৮ ঘণ্টা|ম্যাজিস্ট্রেট|রিমান্ড|জামিন|হেবিয়াস করপাস|আটক/u.test(effectiveQuery));
+    (/\b(arrest|without\s+warrant|lockup|24\s+hours|48\s+hours|magistrate|remand|bail|custody|habeas|illegal\s+detention)\b/i.test(effectiveQuery) ||
+    /গ্রেফতার|ওয়ারেন্ট|ওয়ারেন্ট ছাড়া|লকআপ|২৪ ঘণ্টা|৪৮ ঘণ্টা|ম্যাজিস্ট্রেট|রিমান্ড|জামিন|হেবিয়াস করপাস|আটক|হাজত/u.test(effectiveQuery) ||
+    candidateProvisions.some((p) => (p.id === 'const-33-arrest' || p.id === 'crpc-61') && !/\b(jomi|land|baba|mara|property|khotian|mutation)\b/i.test(effectiveQuery) && !/জমি|বাবা|মারা|সম্পত্তি|খতিয়ান|নামজারি/u.test(effectiveQuery)));
 
   const isFamily =
     !isLegalAid && !isRights &&
@@ -2017,6 +2042,113 @@ export function createLegalWorkflow(
   // DOMAIN 4: LAND & PROPERTY (Land Crime Prevention Act 2023, SRA 1877)
   // -------------------------------------------------------------
   if (isLand) {
+    const isInheritanceMutation =
+      /বাবা\s*মারা|পিতা\s*মারা|মারা\s*গেছেন?|ওয়ারিশ|ওয়ারিশান|নামজারি|মিউটেশন|উত্তরাধিকার|খতিয়ান\s*সংশোধন|বণ্টননামা|inheritance|mutation|heir|successor|passed\s*away|deceased\s*father/i.test(effectiveQuery) ||
+      (/\b(mara\s*geche|mara\s*gese|babar\s*jomi|jomi\s*nijer\s*name)\b/i.test(effectiveQuery));
+
+    if (isInheritanceMutation) {
+      return {
+        schemaVersion: 1,
+        answerId: request.requestId,
+        mode,
+        status: 'completed',
+        questions: [],
+        userFacts: [
+          ...accumulatedFacts,
+          { fieldId: 'issue_type', value: 'land_inheritance_mutation', status: 'user_confirmed', provenance: 'intent_classification' },
+        ],
+        checklist: [
+          {
+            id: 'step-mut-1',
+            text: isBn
+              ? 'বাবার মৃত্যু নিবন্ধন সম্পন্ন করে ইউনিয়ন পরিষদ, পৌরসভা বা সিটি কর্পোরেশন থেকে মূল মৃত্যু সনদ (Death Certificate) সংগ্রহ করুন।'
+              : 'Obtain official Death Certificate from the local Union Parishad, Municipality, or City Corporation.',
+            sourceIds: [],
+            condition: isBn ? 'মৃত্যু সনদ সংগ্রহ' : 'Obtain Death Certificate',
+          },
+          {
+            id: 'step-mut-2',
+            text: isBn
+              ? 'বাবার সকল বৈধ ওয়ারিশগণের (স্ত্রী, পুত্র, কন্যা প্রমুখ) নাম ও জাতীয় পরিচয়পত্রসহ ইউনিয়ন পরিষদ/পৌরসভা থেকে ওয়ারিশান সনদ গ্রহণ করুন।'
+              : 'Collect Warishan (Succession) Certificate listing all legal heirs with NID verification.',
+            sourceIds: [],
+            condition: isBn ? 'ওয়ারিশান সনদ গ্রহণ' : 'Collect Warishan Certificate',
+          },
+          {
+            id: 'step-mut-3',
+            text: isBn
+              ? 'একাধিক ওয়ারিশ থাকলে নিজেদের মধ্যে আপসে সম্পত্তি বণ্টন চূড়ান্ত করে রেজিস্ট্রি বণ্টননামা দলিল করে নিন (একক ওয়ারিশ হলে প্রয়োজন নেই)।'
+              : 'Execute an amicable registered partition deed if multiple heirs exist.',
+            sourceIds: ['sra-8'],
+          },
+          {
+            id: 'step-mut-4',
+            text: isBn
+              ? 'উপজেলা সহকারী কমিশনার (ভূমি) / AC Land অফিসে বা অনলাইনে mutation.land.gov.bd পোর্টালে ই-নামজারির আবেদন দাখিল করুন।'
+              : 'Apply for online e-mutation at mutation.land.gov.bd or the Assistant Commissioner (Land) office.',
+            sourceIds: [],
+          },
+          {
+            id: 'step-mut-5',
+            text: isBn
+              ? 'শুনানি ও সরেজমিন তদন্তের পর নতুন খতিয়ান (পর্চা) সংগ্রহ করুন এবং নিজের নামে ভূমি উন্নয়ন কর (খাজনা) পরিশোধ করুন।'
+              : 'Collect the updated mutated Khatiyan and pay Land Development Tax (Dakhila) under the new name.',
+            sourceIds: [],
+          },
+        ],
+        explanation: [
+          {
+            text: isBn
+              ? 'বাংলাদেশে পিতার মৃত্যুর পর তার নামীয় স্থাবর সম্পত্তির মালিকানা ওয়ারিশগণের নামে স্থানান্তর করতে হলে প্রথমে ওয়ারিশান সনদ নিতে হয় এবং পরবর্তীতে ভূমি সহকারী কমিশনার (এসি ল্যান্ড) অফিসে নামজারি (Mutation) বাধ্যতামূলক।'
+              : 'Under Bangladesh land administration, upon the demise of a landowner, the legal heirs must obtain a Warishan Certificate and apply for mutation before the Assistant Commissioner (Land) to record their names in the revenue khatiyan.',
+            sourceIds: [],
+          },
+          {
+            text: isBn
+              ? 'নামজারি সম্পন্ন না করে পিতার নামীয় জমি বৈধভাবে হস্তান্তর, বিক্রি বা নিজ নামে খাজনা দাখিলা নেওয়া যায় না। ই-নামজারি (mutation.land.gov.bd) ওয়েবসাইটের মাধ্যমে ঘরে বসেই আবেদন করা যায়।'
+              : 'Without mutation, inherited land cannot be formally conveyed, alienated, or assessed for revenue under the heirs’ names. Online e-mutation can be lodged at mutation.land.gov.bd.',
+            sourceIds: [],
+          },
+        ],
+        limitations: [
+          isBn
+            ? 'সকল ওয়ারিশের পারস্পরিক সম্মতি না থাকলে বা বণ্টন নিয়ে বিরোধ থাকলে দেওয়ানি আদালতে বণ্টন মামলা (Partition Suit) দায়ের করতে হতে পারে।'
+            : 'If heirs dispute the division, a formal partition suit must be instituted before the competent Civil Court.',
+        ],
+        sourcePackVersion: SOURCE_VERSION,
+        allowedDraftOptions: [],
+        problemSummary: {
+          identifiedIssue: isBn ? 'বাবার জমি ওয়ারিশ সূত্রে নামজারি' : 'Inheritance Land Mutation & Title Transfer',
+          understanding: isBn
+            ? 'আমরা আপনার বিষয়টি পর্যালোচনা করেছি: বাবার মৃত্যুর পর তার নামীয় জমি ওয়ারিশ হিসেবে নিজেদের নামে রেকর্ড ও নামজারি করার আইনি প্রক্রিয়া জানতে চেয়েছেন।'
+            : 'We have reviewed your inquiry: following the demise of your father, you wish to mutate and register the inherited land in the names of the legal heirs.',
+          additionalInfoNeeded: [],
+        },
+        plainLanguageExplanation: {
+          heading: isBn
+            ? 'ওয়ারিশান সূত্রে জমির নামজারি ও রেকর্ড হালনাগাদ প্রক্রিয়া'
+            : 'Land Mutation & Inheritance Title Registration Procedure',
+          meaning: isBn
+            ? 'সহজ কথায়, ঘাবড়ানোর কিছু নেই। বাবার জমি নিজের বা ওয়ারিশদের নামে আনতে হলে মূল ৫টি ধাপ অনুসরণ করতে হবে: প্রথমে ইউনিয়ন পরিষদ বা পৌরসভা থেকে বাবার মৃত্যু সনদ ও ওয়ারিশান সনদ তুলবেন। এরপর ওয়ারিশরা মিলে বণ্টন চূড়ান্ত করবেন। এরপর mutation.land.gov.bd ওয়েবসাইটে অনলাইনে বা এসি ল্যান্ড অফিসে নামজারির আবেদন করবেন। শুনানি শেষে আপনার নামে নতুন খতিয়ান তৈরি হবে এবং আপনি নিজের নামে খাজনা দিতে পারবেন।'
+            : 'In plain terms, to transfer your late father’s land to your name, follow 5 key steps: 1) Obtain the official Death Certificate and Warishan (Succession) Certificate from your Union Parishad or Municipality. 2) Agree on partition among all legal heirs. 3) Apply for online e-mutation at mutation.land.gov.bd or the Upazila AC Land office. 4) Attend the hearing and submit original documents. 5) Receive your updated Khatiyan and pay land taxes in your name.',
+          userRightsAndOptions: isBn
+            ? [
+                'আইনগত ওয়ারিশ হিসেবে বাবার সম্পত্তির বৈধ হিস্যা পাওয়ার পূর্ণ অধিকার।',
+                'অনলাইনে (mutation.land.gov.bd) ঘরে বসেই নামজারি ও জমাভাগ আবেদনের সুবিধা।',
+                'কোনো জটিলতা দেখা দিলে জেলা লিগ্যাল এইড (১৬৬৯৯) বা সহকারী কমিশনারের (ভূমি) পরামর্শ নেওয়ার সুযোগ।'
+              ]
+            : [
+                'Statutory right as a legal heir to inherited share under succession law.',
+                'Online e-mutation facility at mutation.land.gov.bd without visiting offices in advance.',
+                'Access to Legal Aid (16699) or AC Land office if disputes arise.'
+              ],
+          whatToDoNext: isBn
+            ? 'সংশ্লিষ্ট ইউনিয়ন পরিষদ বা পৌরসভা থেকে বাবার মৃত্যু সনদ ও ওয়ারিশান সনদ সংগ্রহ করে অনলাইনে mutation.land.gov.bd ওয়েবসাইটে ই-নামজারির আবেদন করুন।'
+            : 'Collect your late father’s Death Certificate and Warishan Certificate from the local authority, and file for online e-mutation at mutation.land.gov.bd.'
+        }
+      };
+    }
+
     const isSoilCutting = /মাটি কাটা|ড্রেজার|টপসয়েল|মাটি ভরাট|বালু ভরাট|soil\s*cutting|dredg|topsoil/i.test(originalMessage);
 
     if (isSoilCutting) {

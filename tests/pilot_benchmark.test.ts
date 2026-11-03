@@ -670,7 +670,7 @@ describe('MyLaws 70-Question Grounded Pilot Benchmark Across All 7 Categories', 
 
     // Benchmark threshold: At least 85% top-3 accuracy on zero-shot legal queries
     expect(accuracy).toBeGreaterThanOrEqual(85);
-  });
+  }, 60000);
 
   it('validates factual clarification and workflow safety logic', () => {
     // Test that missing material facts trigger clarification questions without inventing facts

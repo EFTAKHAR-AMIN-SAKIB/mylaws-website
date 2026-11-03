@@ -26,7 +26,7 @@ export interface SavedUserQuery {
   createdAt: string;
 }
 
-export const DEFAULT_DAILY_LIMIT = parseInt(process.env.DAILY_QUERY_LIMIT || '30', 10);
+export const DEFAULT_DAILY_LIMIT = parseInt(process.env.DAILY_QUERY_LIMIT || '10', 10);
 
 /**
  * Verifies a client-provided Firebase ID token using Google's Identity Toolkit REST API
@@ -49,9 +49,14 @@ export async function verifyFirebaseToken(idToken: string): Promise<VerifiedUser
     }
   }
 
-  // Support mock token strictly in designated offline test environments (Vitest unit tests)
-  const isLocalTest = (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true') && !isProduction;
-  if (isLocalTest) {
+  // Support mock token strictly in designated offline test or local development environments
+  const isLocalDevOrTest =
+    (process.env.NODE_ENV === 'test' ||
+      process.env.NODE_ENV === 'development' ||
+      process.env.VITEST === 'true') &&
+    !isProduction;
+
+  if (isLocalDevOrTest) {
     if (idToken.startsWith('test_staging_token_')) {
       return {
         uid: 'test_uid_staging_123',
@@ -66,7 +71,7 @@ export async function verifyFirebaseToken(idToken: string): Promise<VerifiedUser
       return {
         uid: 'test_uid_123',
         email: 'test@example.com',
-        displayName: 'Test Citizen',
+        displayName: 'Sakib',
         photoUrl: null,
         provider: 'test',
       };
@@ -95,6 +100,24 @@ export async function verifyFirebaseToken(idToken: string): Promise<VerifiedUser
     );
 
     if (!res.ok) {
+      if (isLocalDevOrTest) {
+        // In local development/testing, if Firebase token expired, decode claims so local testing is never blocked
+        try {
+          const parts = idToken.split('.');
+          if (parts.length === 3) {
+            const claims = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+            if (claims && (claims.user_id || claims.sub)) {
+              return {
+                uid: claims.user_id || claims.sub,
+                email: claims.email || 'sakib@mylaws.bd',
+                displayName: claims.name || 'Sakib',
+                photoUrl: claims.picture || null,
+                provider: claims.firebase?.sign_in_provider || 'google.com',
+              };
+            }
+          }
+        } catch {}
+      }
       return null;
     }
 

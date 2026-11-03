@@ -48,7 +48,7 @@ for (const p of provisions) {
 const sorted = [...provisions].sort((a, b) => a.id.localeCompare(b.id));
 const releaseHash = sha256(sorted.map(p => `${p.id}:${p.contentHash}`).join('||'));
 
-const CORPUS_VERSION = '2026.10.30-batch2.2';
+const CORPUS_VERSION = '2026.11.01-fundamental-rights-whistleblower-complete';
 const PUBLISHED_AT = new Date().toISOString();
 
 // 3. Update provisions.json
@@ -74,7 +74,7 @@ const code = `/**
 export type Lang = 'en' | 'bn';
 export type Category = 'work' | 'threats' | 'digital' | 'consumer' | 'land' | 'family' | 'rights';
 export type LegalStatus = 'active' | 'amended' | 'repealed' | 'transitional';
-export type ReviewStatus = 'draft' | 'auto_checked' | 'human_reviewed';
+export type ReviewStatus = 'draft' | 'auto_checked' | 'human_reviewed' | 'verified';
 
 export interface ActMetadata {
   id: string;

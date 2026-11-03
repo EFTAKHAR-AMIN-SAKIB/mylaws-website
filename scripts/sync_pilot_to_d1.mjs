@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const workspaceDir = 'E:/vibe coding/POIDH/MyLaws Website';
+const workspaceDir = process.cwd();
 const env = fs.readFileSync(path.join(workspaceDir, '.env'), 'utf-8');
 const accountId = env.match(/CLOUDFLARE_ACCOUNT_ID=([^\r\n]+)/)?.[1];
 const token = env.match(/CLOUDFLARE_API_TOKEN=([^\r\n]+)/)?.[1];
@@ -60,11 +60,12 @@ async function sync() {
   const moduleData = await import(
     'file:///' + path.join(workspaceDir, 'src/data/legal.generated.ts').replace(/\\/g, '/')
   );
+  const versionInfo = JSON.parse(fs.readFileSync(path.join(workspaceDir, 'src/data/corpus/version.json'), 'utf8'));
   const provisions = moduleData.provisions;
   const acts = moduleData.canonicalActs || moduleData.acts || [];
-  const CORPUS_VERSION = moduleData.CORPUS_VERSION;
-  const CORPUS_PUBLISHED_AT = moduleData.CORPUS_PUBLISHED_AT || moduleData.PUBLISHED_AT;
-  const CORPUS_HASH = moduleData.CORPUS_HASH;
+  const CORPUS_VERSION = versionInfo.corpusVersion;
+  const CORPUS_PUBLISHED_AT = versionInfo.publishedAt;
+  const CORPUS_HASH = versionInfo.contentHash;
 
   console.log(`2. Syncing ${acts.length} acts into D1 table "acts"...`);
   for (const act of acts) {
@@ -84,12 +85,12 @@ async function sync() {
     );
   }
 
-  console.log(`3. Syncing ${provisions.length} canonical pilot provisions in batches of 10...`);
+  console.log(`3. Syncing ${provisions.length} canonical provisions in concurrent batches of 10...`);
   const batchSize = 10;
   for (let i = 0; i < provisions.length; i += batchSize) {
     const batch = provisions.slice(i, i + batchSize);
-    for (const p of batch) {
-      await executeSql(
+    await Promise.all(batch.map(p =>
+      executeSql(
         `INSERT OR REPLACE INTO provisions (
           id, act_id, section_number, title_bn, title_en,
           verbatim_quote_bn, plain_explanation_bn, plain_explanation_en,
@@ -115,8 +116,8 @@ async function sync() {
           p.reviewStatus || 'auto_checked',
           p.legalStatus || 'active',
         ]
-      );
-    }
+      )
+    ));
     process.stdout.write(`  Synced ${Math.min(i + batchSize, provisions.length)} / ${provisions.length}\r`);
   }
   console.log(`\nAll ${provisions.length} provisions synced successfully!`);

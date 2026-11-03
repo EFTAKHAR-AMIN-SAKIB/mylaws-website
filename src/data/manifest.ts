@@ -1,26 +1,26 @@
 import type { AndroidReleaseManifest, PackState } from '@/types/contracts';
 
 export const legalPackManifest: PackState = {
-  id: 'bd-release-2026-10-30.3',
+  id: 'bd-release-2026-11-01.1',
   modelVersion: 'deterministic-statutory-v2',
-  legalVersion: '2026.10.30-batch2.2',
+  legalVersion: '2026.11.01-fundamental-rights-whistleblower-complete',
   indexVersion: 'fts-bm25-v2',
   templateVersion: 'templates-v2',
   status: 'ready',
   compatible: true,
   coverage: [
-    'Selected 255 statutory provisions across 7 core categories from 31 Bangladesh statutes',
-    'Labour Act, 2006 (Wages, weekly holidays, termination, maternity, compensation)',
-    'The Penal Code, 1860 & Police Act, 1861 (GD, threats, extortion, hurt, unlawful assembly)',
-    'Cyber Protection Act 2026 & Pornography Control Act 2012 (Intimate extortion, hacking, ID fraud)',
-    'Consumers’ Right Protection Act, 2009 (Adulteration, fake goods, expired goods, 30-day limit, 25% reward)',
-    'Land Crime Act 2023 & Specific Relief Act 1877 (Dispossession, topsoil cutting, bailable status, SRA 8/9)',
-    'Family Courts Act, 2023 (Act No. 26 of 2023) & MFLO 1961 (Dower, maintenance, custody, divorce)',
-    'Constitution of Bangladesh 1972 & Legal Aid Services Act 2000 (Art 33 24hr limit, 16699 legal aid)'
+    '1,046 statutory provisions across 7 core categories from 49 Bangladesh statutes',
+    'Labour Act 2006, Labour Rules 2015 & RMG Minimum Wages (Wages, retrenchment, maternity, working hours)',
+    'The Penal Code 1860, CrPC 1898, Police Act 1861, Arms Act 1878 & Narcotics 2018 (Crimes, GD, arrest, bail)',
+    'Cyber Protection Act 2026, Pornography Control Act 2012, Copyright Act 2023 & BTRC Directives (Cyber extortion, piracy, telecom)',
+    'Consumers’ Right Protection Act 2009, Food Safety Act 2013, BSTI Act 2018, Drugs Control 1982 & E-commerce Guidelines 2021',
+    'Land Crime Act 2023, SRA 1877, Rent Control 1991, Real Estate Act 2010, Acquisition 2017 & Partition Act 1893',
+    'Family Courts Act 2023, MFLO 1961, Domestic Violence Act 2010, Dowry 2018, Parents Care 2013, Children Act 2013, Succession 1925 & Special Marriage 1872',
+    'Constitution of Bangladesh 1972 (Fundamental Rights), Legal Aid Act 2000, Whistleblower Protection Act 2011 & Supreme Court BLAST Guidelines'
   ],
-  sizeBytes: 450000,
-  freeBytesRequired: 1500000,
-  completedBytes: 450000,
+  sizeBytes: 2500000,
+  freeBytesRequired: 5000000,
+  completedBytes: 2500000,
   error: null,
 };
 

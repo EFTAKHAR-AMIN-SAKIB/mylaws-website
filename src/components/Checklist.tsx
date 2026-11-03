@@ -2,26 +2,27 @@
 
 import React, { useState } from 'react';
 import { useApp } from './AppContext';
-import type { ChecklistStep } from '@/types/contracts';
+import type { ChecklistStep, DocumentType } from '@/types/contracts';
 import { toEnglishNum } from '@/lib/followup';
-import { CheckCircle2, Shield, Building, HelpCircle } from 'lucide-react';
+import { detectDraftType } from '@/lib/drafts';
+import { CheckCircle2, Shield, Building, HelpCircle, FileText, ArrowRight } from 'lucide-react';
 
 interface ChecklistProps {
   caseId?: string;
   steps: ChecklistStep[];
   onOpenSource: (sourceId: string) => void;
   onOpenOffice: (officeId: string) => void;
+  onStartDraft?: (draftType: DocumentType, stepText: string) => void;
   variant?: 'cards' | 'lineByLine';
   hideHeader?: boolean;
 }
-
-
 
 export function Checklist({
   caseId,
   steps,
   onOpenSource,
   onOpenOffice,
+  onStartDraft,
   variant = 'cards',
   hideHeader = false,
 }: ChecklistProps) {
@@ -60,6 +61,8 @@ export function Checklist({
           {steps.map((step, idx) => {
             const isDone = !!completed[step.id];
             const numLabel = `${idx + 1}.`;
+            const stepDraftType = step.draftType || detectDraftType(step.text);
+
             return (
               <div
                 key={step.id}
@@ -151,6 +154,21 @@ export function Checklist({
                         )}
                       </div>
                     ) : null}
+
+                    {/* Actionable Draft Trigger */}
+                    {stepDraftType && onStartDraft && (
+                      <div className="pt-2">
+                        <button
+                          type="button"
+                          onClick={() => onStartDraft(stepDraftType, step.text)}
+                          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-accent-light/10 hover:bg-accent-light text-accent-light hover:text-white transition-all text-xs font-semibold font-anek border border-accent-light/25 shadow-2xs cursor-pointer group active-press"
+                        >
+                          <FileText className="h-3.5 w-3.5 text-accent-light group-hover:text-white transition-colors" />
+                          <span>{t('এই আবেদনের খসড়া তৈরি করুন', 'Draft This Application')}</span>
+                          <ArrowRight className="h-3 w-3 opacity-70 group-hover:translate-x-0.5 transition-transform" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -176,6 +194,8 @@ export function Checklist({
       <div className="space-y-3">
         {steps.map((step) => {
           const isDone = !!completed[step.id];
+          const stepDraftType = step.draftType || detectDraftType(step.text);
+
           return (
             <div
               key={step.id}
@@ -219,7 +239,7 @@ export function Checklist({
                       <button
                         key={srcId}
                         onClick={() => onOpenSource(srcId)}
-                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-accent-light/10 dark:bg-accent-dark/15 text-accent-light dark:text-accent-dark border border-accent-light/20 dark:border-accent-dark/30 hover:underline font-cinzel font-medium tracking-wide"
+                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-accent-light/10 dark:bg-accent-dark/15 text-accent-light dark:text-accent-dark border border-accent-light/20 dark:border-accent-dark/30 hover:underline font-cinzel font-medium tracking-wide cursor-pointer"
                       >
                         <Shield className="h-3 w-3" />
                         <span>{srcId}</span>
@@ -230,7 +250,7 @@ export function Checklist({
                     {step.officeId && (
                       <button
                         onClick={() => onOpenOffice(step.officeId!)}
-                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-accent-light/10 dark:bg-accent-dark/15 text-accent-light dark:text-accent-dark border border-accent-light/20 dark:border-accent-dark/30 hover:underline font-medium"
+                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-accent-light/10 dark:bg-accent-dark/15 text-accent-light dark:text-accent-dark border border-accent-light/20 dark:border-accent-dark/30 hover:underline font-medium cursor-pointer"
                       >
                         <Building className="h-3 w-3" />
                         <span>{t('সরকারি দপ্তর ও হেল্পলাইন', 'Verified Office')}</span>
@@ -259,6 +279,21 @@ export function Checklist({
                       )}
                     </div>
                   ) : null}
+
+                  {/* Actionable Draft Trigger */}
+                  {stepDraftType && onStartDraft && (
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        onClick={() => onStartDraft(stepDraftType, step.text)}
+                        className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-accent-light/10 hover:bg-accent-light text-accent-light hover:text-white transition-all text-xs font-semibold font-anek border border-accent-light/25 shadow-2xs cursor-pointer group active-press"
+                      >
+                        <FileText className="h-3.5 w-3.5 text-accent-light group-hover:text-white transition-colors" />
+                        <span>{t('এই আবেদনের খসড়া তৈরি করুন', 'Draft This Application')}</span>
+                        <ArrowRight className="h-3 w-3 opacity-70 group-hover:translate-x-0.5 transition-transform" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
