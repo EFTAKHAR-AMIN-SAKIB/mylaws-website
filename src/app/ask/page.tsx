@@ -732,7 +732,6 @@ function AskContent() {
         setStatus('ready');
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, chatTurns.length]);
 
   const latestResult = [...chatTurns].reverse().find((t) => t.result)?.result;
