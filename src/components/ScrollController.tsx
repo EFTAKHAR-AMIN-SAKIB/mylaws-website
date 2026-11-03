@@ -37,7 +37,7 @@ export function ScrollController() {
   if (!showScrollTop) return null;
 
   return (
-    <div className="no-print fixed bottom-6 right-6 z-40 transition-all duration-300 animate-in fade-in zoom-in-90">
+    <div className="no-print fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 transition-all duration-300 animate-in fade-in zoom-in-90">
       <button
         onClick={scrollToTop}
         className="group relative flex items-center justify-center h-12 w-12 rounded-full border border-border-light bg-surface-cardLight/95 text-primary-light shadow-lg backdrop-blur-sm hover:border-accent-light hover:bg-surface-light hover:shadow-xl transition-all active:scale-95"
