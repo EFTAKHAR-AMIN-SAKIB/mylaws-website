@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useApp } from '@/components/AppContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { InteractiveMobileDemo } from '@/components/InteractiveMobileDemo';
+import { CasePreview } from '@/components/CasePreview';
 import { TurntableScales } from '@/components/TurntableScales';
 import { TiltCard } from '@/components/TiltCard';
 import {
@@ -665,29 +665,29 @@ export default function HomePage() {
         </section>
 
         {/* ========================================================
-            INTERACTIVE CASE PREVIEW SECTION: 3D Interactive Mobile Demo
+            INTERACTIVE CASE PREVIEW SECTION: Hands-On Simulator
             ======================================================== */}
-        <section id="case-preview-section" className="py-14 sm:py-24 border-b border-border-light/80 bg-surface-light/40 scroll-mt-16 overflow-hidden">
+        <section id="case-preview-section" className="py-12 sm:py-20 border-b border-border-light/80 bg-surface-light/40 scroll-mt-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
               
-              <div className="lg:col-span-5 space-y-4 sm:space-y-6">
+              <div className="lg:col-span-5 space-y-4 sm:space-y-5">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-accent-light/10 text-accent-light">
                   <Sparkles className="h-3.5 w-3.5" />
-                  <span>{t('সরাসরি ৩ডি ইন্টারঅ্যাক্টিভ মোবাইল ডেমো', 'Live 3D Interactive Mobile Demo')}</span>
+                  <span>{t('সরাসরি ইন্টারঅ্যাক্টিভ ডেমো', 'Live Interactive Demo')}</span>
                 </div>
 
                 <h2 className="font-display text-2xl sm:text-4xl font-bold text-[#231F1C] tracking-tight">
                   {t(
-                    'বাস্তব পরিস্থিতিতে MyLaws কীভাবে কাজ করে দেখুন',
-                    'See How MyLaws Resolves Real Legal Situations'
+                    'বাস্তব পরিস্থিতিতে MyLaws পরীক্ষা করে দেখুন',
+                    'Test MyLaws in Real Legal Scenarios'
                   )}
                 </h2>
 
                 <p className="text-xs sm:text-sm text-[#5A534A] leading-relaxed font-hind">
                   {t(
-                    'পাশের ৩ডি ইন্টারঅ্যাক্টিভ মোবাইলে স্বয়ংক্রিয়ভাবে দেখুন কীভাবে একজন সাধারণ নাগরিকের প্রশ্ন থেকে মুহূর্তের মধ্যে সরকারি গেজেট ধারা, ধাপে ধাপে অ্যাকশন প্ল্যান এবং প্রিন্ট-রেডি দরখাস্ত তৈরি হয়। আপনি যেকোনো অপশনে ক্লিক করে নিজেই পরীক্ষা করতে পারেন।',
-                    'Watch our interactive 3D mobile assistant automatically demonstrate real legal workflows. From citizen inquiries to verbatim Bangladesh Code citations, prioritized checklists, and ready A4 complaint drafts.'
+                    'ডানপাশের সিমুলেটরটি ব্যবহার করে দেখুন। শ্রম অধিকার, পুলিশ জিডি, জমি বিরোধ কিংবা ভোক্তা প্রতারণার পরিস্থিতিতে MyLaws কীভাবে দ্রুত সঠিক গেজেট রেফারেন্স, অ্যাকশন চেকলিস্ট ও প্রমিত দরখাস্ত তৈরি করে।',
+                    'Try the interactive case simulator on the right. See how MyLaws generates verified gazette citations, action checklists, and formal drafts for real-world scenarios.'
                   )}
                 </p>
 
@@ -740,9 +740,8 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* RIGHT 7 COLUMNS: 3D Interactive Demo Mobile */}
-              <div className="lg:col-span-7 flex justify-center">
-                <InteractiveMobileDemo />
+              <div className="lg:col-span-7">
+                <CasePreview />
               </div>
             </div>
           </div>
