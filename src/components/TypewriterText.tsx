@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FormattedMessageText } from './FormattedMessageText';
 import { FastForward } from 'lucide-react';
 
@@ -19,16 +19,29 @@ interface TypewriterTextProps {
 }
 
 /**
+ * Balances unclosed Markdown bold tokens in partial streaming slices
+ * so bold words render progressively without raw asterisks flashing.
+ */
+function cleanStreamingMarkdown(raw: string): string {
+  if (!raw) return '';
+  const starMatches = raw.match(/\*\*/g);
+  if (starMatches && starMatches.length % 2 !== 0) {
+    return raw + '**';
+  }
+  return raw;
+}
+
+/**
  * TypewriterText:
- * Interactive word-by-word / token streaming animation for MyLaws AI assistant answers.
- * Animates text progressively ("one by one") with a pulsing cursor, matching LLM generation,
- * while preserving complete markdown, bold styling, and statutory pills.
+ * Elite-grade, letter-by-letter streaming animation matching ChatGPT, Claude, and Gemini.
+ * Progressively streams each character with a glowing inline amber cursor at the tip,
+ * while preserving complete typography, markdown bolding, and bullet parsing.
  */
 export function TypewriterText({
   text,
   isStreaming = false,
   waiting = false,
-  speedMs = 22,
+  speedMs = 15,
   className,
   density = 'normal',
   onComplete,
@@ -37,60 +50,70 @@ export function TypewriterText({
   skipLabelEn = 'Show full',
   isBn = true,
 }: TypewriterTextProps) {
-  // Tokenize text by words and whitespace delimiters to stream natural word-by-word tokens
-  const tokens = useMemo(() => {
-    if (!text) return [];
-    return text.split(/(\s+)/);
-  }, [text]);
-
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
 
   const onSkipRef = useRef(onSkip);
   onSkipRef.current = onSkip;
 
-  // If not streaming or currently waiting, initialize properly
-  const [tokenIndex, setTokenIndex] = useState<number>(() =>
-    isStreaming && !waiting ? 0 : waiting ? 0 : tokens.length
-  );
-  const [isTyping, setIsTyping] = useState<boolean>(() => isStreaming && !waiting);
+  const containerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Initialize character index based on streaming/waiting state
+  const [charIndex, setCharIndex] = useState<number>(() =>
+    isStreaming && !waiting ? 0 : waiting ? 0 : text.length
+  );
+  const [isTyping, setIsTyping] = useState<boolean>(() => isStreaming && !waiting);
+
   useEffect(() => {
+    // 1. If waiting (e.g. earlier phase is actively typing), hold at 0
     if (waiting) {
-      setTokenIndex(0);
+      setCharIndex(0);
       setIsTyping(false);
       if (timerRef.current) clearInterval(timerRef.current);
       return;
     }
 
+    // 2. If not streaming (historical turn or completed), show full text
     if (!isStreaming) {
-      setTokenIndex(tokens.length);
+      setCharIndex(text.length);
       setIsTyping(false);
       if (timerRef.current) clearInterval(timerRef.current);
       return;
     }
 
-    setTokenIndex(0);
+    // 3. Actively streaming letter-by-letter
+    setCharIndex(0);
     setIsTyping(true);
 
-    const totalTokens = tokens.length;
-    let currentIndex = 0;
+    const totalChars = text.length;
+    let currentIdx = 0;
 
-    // Advance 2 tokens per tick (1 word + 1 whitespace) for a natural, snappy cadence
-    // If the text is very long (> 160 tokens), advance by 4 tokens per tick
-    const tokenStep = totalTokens > 160 ? 4 : 2;
+    // Adaptive letter cadence:
+    // - Short text (< 180 chars): 1 letter per tick (~66 letters/sec -> ~2.5s)
+    // - Medium text (180 - 450 chars): 2 letters per tick (~133 letters/sec -> ~2.8s)
+    // - Long text (> 450 chars): 3 letters per tick (~200 letters/sec -> ~3.5s)
+    const charStep = totalChars > 450 ? 3 : totalChars > 180 ? 2 : 1;
 
     timerRef.current = setInterval(() => {
-      currentIndex += tokenStep;
-      if (currentIndex >= totalTokens) {
-        currentIndex = totalTokens;
-        setTokenIndex(totalTokens);
+      currentIdx += charStep;
+
+      // Periodic gentle scroll follow so bottom lines stay comfortably in view
+      if (currentIdx % 45 === 0 && typeof window !== 'undefined') {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (rect && rect.bottom > window.innerHeight - 140) {
+          window.scrollBy({ top: 35, behavior: 'smooth' });
+        }
+      }
+
+      if (currentIdx >= totalChars) {
+        currentIdx = totalChars;
+        setCharIndex(totalChars);
         setIsTyping(false);
         if (timerRef.current) clearInterval(timerRef.current);
         onCompleteRef.current?.();
       } else {
-        setTokenIndex(currentIndex);
+        setCharIndex(currentIdx);
       }
     }, speedMs);
 
@@ -99,62 +122,60 @@ export function TypewriterText({
         clearInterval(timerRef.current);
       }
     };
-  }, [tokens, isStreaming, speedMs, waiting]);
+  }, [text, isStreaming, speedMs, waiting]);
 
   const handleSkip = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
-    setTokenIndex(tokens.length);
+    setCharIndex(text.length);
     setIsTyping(false);
     onSkipRef.current?.();
     onCompleteRef.current?.();
   };
 
   if (waiting) {
-    return (
-      <div className="flex items-center gap-2 text-accent-light text-xs py-1 font-hind select-none">
-        <span className="inline-block h-2 w-2 rounded-full bg-accent-light animate-ping" />
-        <span className="text-[11px] text-secondary-light font-medium italic">
-          {isBn ? 'আইনি ধারা প্রস্তুত হচ্ছে...' : 'Formulating statutory analysis...'}
-        </span>
-      </div>
-    );
+    return null;
   }
 
-  const visibleText = isTyping
-    ? tokens.slice(0, tokenIndex).join('')
-    : text;
+  // Slice progressively letter-by-letter and ensure markdown bold pairs are balanced
+  const visibleRaw = isTyping ? text.slice(0, charIndex) : text;
+  const visibleText = isTyping ? cleanStreamingMarkdown(visibleRaw) : text;
+
+  // Inline cursor at the exact tip of the current character
+  const trailingCursorNode = isTyping ? (
+    <span
+      className="inline-block w-1.5 h-4 ml-1 bg-accent-light dark:bg-accent-dark animate-pulse align-middle rounded-xs shadow-2xs"
+      aria-hidden="true"
+    />
+  ) : null;
 
   return (
-    <div className="relative group/typewriter">
-      <div className="inline">
-        <FormattedMessageText
-          text={visibleText}
-          className={className}
-          density={density}
-        />
-        {isTyping && (
-          <span
-            className="inline-block w-1.5 h-4 ml-1 bg-accent-light dark:bg-accent-dark animate-pulse align-middle rounded-xs"
-            aria-hidden="true"
-          />
-        )}
-      </div>
+    <div ref={containerRef} className="relative group/typewriter">
+      <FormattedMessageText
+        text={visibleText}
+        className={className}
+        density={density}
+        trailingCursor={trailingCursorNode}
+      />
 
-      {/* Subtle Skip button while actively typing */}
-      {isTyping && tokenIndex > 6 && (
-        <button
-          onClick={handleSkip}
-          type="button"
-          className="inline-flex items-center gap-1 ml-2.5 px-2 py-0.5 rounded-full text-[10px] font-anek font-semibold bg-accent-light/10 text-accent-light hover:bg-accent-light/20 transition-all border border-accent-light/30 shadow-2xs cursor-pointer select-none align-middle"
-          title={isBn ? skipLabelBn : skipLabelEn}
-        >
-          <FastForward className="h-2.5 w-2.5" />
-          <span>{isBn ? skipLabelBn : skipLabelEn}</span>
-        </button>
+      {/* Instant Skip Button while actively typing */}
+      {isTyping && charIndex > 20 && (
+        <div className="pt-2 flex items-center justify-end">
+          <button
+            onClick={handleSkip}
+            type="button"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-anek font-semibold bg-accent-light/10 text-accent-light hover:bg-accent-light/20 transition-all border border-accent-light/30 shadow-2xs cursor-pointer select-none"
+            title={isBn ? skipLabelBn : skipLabelEn}
+          >
+            <FastForward className="h-3 w-3" />
+            <span>{isBn ? skipLabelBn : skipLabelEn}</span>
+          </button>
+        </div>
       )}
     </div>
   );
 }
+
+export default TypewriterText;

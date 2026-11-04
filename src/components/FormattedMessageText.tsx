@@ -4,6 +4,7 @@ interface FormattedMessageTextProps {
   text: string;
   className?: string;
   density?: 'normal' | 'compact';
+  trailingCursor?: React.ReactNode;
 }
 
 interface InlineSegment {
@@ -161,6 +162,7 @@ export function FormattedMessageText({
   text,
   className = '',
   density = 'normal',
+  trailingCursor,
 }: FormattedMessageTextProps) {
   if (!text) return null;
 
@@ -169,6 +171,8 @@ export function FormattedMessageText({
   return (
     <div className={`space-y-3 font-hind leading-relaxed ${className}`}>
       {blocks.map((block, bIdx) => {
+        const isLast = bIdx === blocks.length - 1;
+
         if (block.type === 'bullet') {
           return (
             <div
@@ -184,7 +188,10 @@ export function FormattedMessageText({
                     {block.title}{' '}
                   </strong>
                 )}
-                <span className="inline">{renderInline(block.body)}</span>
+                <span className="inline">
+                  {renderInline(block.body)}
+                  {isLast && trailingCursor}
+                </span>
               </div>
             </div>
           );
@@ -207,7 +214,10 @@ export function FormattedMessageText({
                     {block.title}{' '}
                   </strong>
                 )}
-                <span className="inline">{renderInline(block.body)}</span>
+                <span className="inline">
+                  {renderInline(block.body)}
+                  {isLast && trailingCursor}
+                </span>
               </div>
             </div>
           );
@@ -220,6 +230,7 @@ export function FormattedMessageText({
             className="text-sm sm:text-base text-primary-light font-hind leading-relaxed"
           >
             {renderInline(block.content)}
+            {isLast && trailingCursor}
           </p>
         );
       })}

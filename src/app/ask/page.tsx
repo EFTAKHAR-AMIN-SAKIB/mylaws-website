@@ -708,18 +708,21 @@ function AskContent() {
       if (hasHandledUrlRef.current === key) return;
       hasHandledUrlRef.current = key;
 
-      // 1. Try to restore previous conversation from local storage
-      const cached = findStoredConversation(targetId, targetPrompt);
-      if (cached && cached.turns && cached.turns.length > 0) {
-        setChatTurns(cached.turns);
-        setActiveConversationId(cached.id);
-        setStatus('ready');
-        setInput('');
-        window.history.replaceState({}, '', '/ask');
-        return;
+      // 1. Only restore from local storage if targetId is explicitly provided (clicking a history drawer item)
+      if (targetId) {
+        const cached = findStoredConversation(targetId, targetPrompt);
+        if (cached && cached.turns && cached.turns.length > 0) {
+          setChatTurns(cached.turns);
+          setActiveConversationId(cached.id);
+          setStatus('ready');
+          setInput('');
+          window.history.replaceState({}, '', '/ask');
+          return;
+        }
       }
 
-      // 2. If not cached, execute the inquiry automatically to display the conversation
+      // 2. If targetPrompt is passed (e.g. from home page prompt, chip, sample query, or search bar):
+      // ALWAYS execute handleAsk so the AI generates the answer with the live letter-by-letter animation!
       if (targetPrompt && targetPrompt.trim()) {
         handleAsk(targetPrompt.trim());
         window.history.replaceState({}, '', '/ask');
@@ -1095,7 +1098,7 @@ function AskContent() {
                             </div>
 
                             {/* Structured Key Points / Documents / Steps - Collapsible Dropdown */}
-                            {turn.result.followUpResponse.keyPoints && turn.result.followUpResponse.keyPoints.length > 0 && (
+                            {streamingTurnId !== turn.id && turn.result.followUpResponse.keyPoints && turn.result.followUpResponse.keyPoints.length > 0 && (
                               <details className="group rounded-2xl border border-border-light/80 bg-surface-light/60 hover:border-accent-light/40 transition-all shadow-2xs overflow-hidden">
                                 <summary className="flex items-center justify-between gap-3 p-3.5 sm:p-4 cursor-pointer select-none list-none text-xs sm:text-sm font-anek font-bold text-primary-light hover:bg-bg-light/60 transition-colors">
                                   <div className="flex items-center gap-2.5">
@@ -1198,7 +1201,7 @@ function AskContent() {
                             )}
 
                             {/* Clickable Statutory Citations */}
-                            {turn.result.followUpResponse.sourceIds && turn.result.followUpResponse.sourceIds.length > 0 && (
+                            {streamingTurnId !== turn.id && turn.result.followUpResponse.sourceIds && turn.result.followUpResponse.sourceIds.length > 0 && (
                               <div className="pt-2 flex flex-wrap items-center gap-2 border-t border-border-light/60">
                                 <span className="text-[11px] font-hind text-secondary-light flex items-center gap-1">
                                   <BookOpen className="h-3 w-3" />
@@ -1219,7 +1222,7 @@ function AskContent() {
                             )}
 
                             {/* Optional Draft Offer in follow-up if relevant */}
-                            {turn.result.draftOffer && (
+                            {streamingTurnId !== turn.id && turn.result.draftOffer && (
                               <div className="pt-3 border-t border-border-light/60 flex items-center justify-between gap-3 flex-wrap">
                                 <span className="text-xs text-secondary-light font-hind">
                                   {t('এই বিষয়ের আনুষ্ঠানিক আইনি খসড়া ও আবেদনপত্র প্রস্তুত করতে চান?', 'Ready to draft a formal legal petition or application?')}
@@ -1236,7 +1239,7 @@ function AskContent() {
                             )}
 
                             {/* Matched Verified Advocate Recommendation Widget */}
-                            {turn.result.followUpResponse.recommendedLawyers && turn.result.followUpResponse.recommendedLawyers.length > 0 ? (
+                            {streamingTurnId !== turn.id && (turn.result.followUpResponse.recommendedLawyers && turn.result.followUpResponse.recommendedLawyers.length > 0 ? (
                               <div className="pt-3 border-t border-border-light/70 space-y-3">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
@@ -1315,7 +1318,7 @@ function AskContent() {
                                   <ArrowRight className="h-3 w-3" />
                                 </Link>
                               </div>
-                            )}
+                            ))}
                           </div>
                         </div>
                       ) : (
@@ -1450,7 +1453,7 @@ function AskContent() {
                           )}
 
                           {/* 2. What the Law Says (আইনের মতে ও সংবিধিবদ্ধ বিধান) */}
-                          {turn.result.plainLanguageExplanation && (
+                          {turn.result.plainLanguageExplanation && (streamingTurnId !== turn.id || streamingStage !== 'understanding') && (
                             <div className="pt-2 border-t border-border-light/60 space-y-3">
                               <div className="flex items-center gap-2">
                                 <BookOpen className="h-4 w-4 text-accent-light shrink-0" />
@@ -1466,7 +1469,6 @@ function AskContent() {
                                     : turn.result.plainLanguageExplanation.meaning
                                 )}
                                 isStreaming={streamingTurnId === turn.id && streamingStage === 'meaning'}
-                                waiting={streamingTurnId === turn.id && streamingStage === 'understanding'}
                                 onComplete={() => {
                                   setStreamingStage('done');
                                   setStreamingTurnId(null);
@@ -1533,7 +1535,7 @@ function AskContent() {
                           )}
 
                           {/* 3. Action Steps (আপনি এখন যে পদক্ষেপ নিবেন:-) */}
-                          {turn.result.checklist && turn.result.checklist.length > 0 && (
+                          {(streamingTurnId !== turn.id || streamingStage === 'done') && turn.result.checklist && turn.result.checklist.length > 0 && (
                             <div className="pt-2 border-t border-border-light/60 space-y-3.5">
                               <Checklist
                                 caseId={turn.result.answerId}
@@ -1549,7 +1551,7 @@ function AskContent() {
                           )}
 
                           {/* 4. Prepare Formal Draft (আনুষ্ঠানিক খসড়া তৈরি করুন) */}
-                          {(() => {
+                          {(streamingTurnId !== turn.id || streamingStage === 'done') && (() => {
                             const offer = turn.result.draftOffer || (() => {
                               const dType = detectDraftType(
                                 `${turn.result.problemSummary?.identifiedIssue || ''} ${turn.result.checklist?.map((c) => c.text).join(' ') || ''}`
@@ -1603,7 +1605,7 @@ function AskContent() {
                           })()}
 
                           {/* Verified District Advocate Recommendation */}
-                          {turn.result.recommendedLawyers && turn.result.recommendedLawyers.length > 0 ? (
+                          {(streamingTurnId !== turn.id || streamingStage === 'done') && (turn.result.recommendedLawyers && turn.result.recommendedLawyers.length > 0 ? (
                             <div className="pt-3 border-t border-border-light/70 space-y-3">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -1690,7 +1692,7 @@ function AskContent() {
                                 <ArrowRight className="h-3 w-3" />
                               </Link>
                             </div>
-                          )}
+                          ))}
                         </div>
                       )
                     ) : null}
