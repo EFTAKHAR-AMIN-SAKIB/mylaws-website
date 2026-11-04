@@ -39,3 +39,5 @@ scripts/batch2_*.json
 src/data/legal.legacy.bak.ts
 
 backups/
+
+scratch/

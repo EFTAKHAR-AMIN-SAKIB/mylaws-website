@@ -150,6 +150,29 @@ export interface FollowUpResponse {
   sourceIds?: string[];
   updatedFact?: { fieldId: string; value: string };
   suggestedTopics?: Array<{ title: string; query: string }>;
+  recommendedLawyers?: Array<{
+    id: string;
+    nameBn: string;
+    nameEn: string;
+    titleBn: string;
+    titleEn: string;
+    barCouncilId: string;
+    barAssociationBn: string;
+    barAssociationEn: string;
+    courtLevel: 'district' | 'high_court' | 'appellate';
+    division: string;
+    district: string;
+    chamberAddressBn: string;
+    chamberAddressEn: string;
+    phone: string;
+    experienceYears: number;
+    specializations: string[];
+    isLegalAidPanel: boolean;
+    visitingHoursBn?: string;
+    visitingHoursEn?: string;
+  }>;
+  lawyerDomain?: string;
+  lawyerDistrict?: string;
 }
 
 export interface AnswerResult {
@@ -179,6 +202,27 @@ export interface AnswerResult {
   problemSummary?: ProblemSummary;
   plainLanguageExplanation?: PlainLanguageExplanation;
   draftOffer?: DraftOffer;
+  recommendedLawyers?: Array<{
+    id: string;
+    nameBn: string;
+    nameEn: string;
+    titleBn: string;
+    titleEn: string;
+    barCouncilId: string;
+    barAssociationBn: string;
+    barAssociationEn: string;
+    courtLevel: 'district' | 'high_court' | 'appellate';
+    division: string;
+    district: string;
+    chamberAddressBn: string;
+    chamberAddressEn: string;
+    phone: string;
+    experienceYears: number;
+    specializations: string[];
+    isLegalAidPanel: boolean;
+    visitingHoursBn?: string;
+    visitingHoursEn?: string;
+  }>;
   userQuota?: {
     dailyLimit: number;
     usedToday: number;

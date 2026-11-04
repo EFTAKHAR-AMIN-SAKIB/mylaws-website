@@ -17,9 +17,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'MyLaws — বাংলাদেশ আইনি তথ্য ও প্রস্তুতি সহকারী',
+  title: 'MyLaws — Intelligent Legal Assistance for Every Citizen of Bangladesh',
   description:
-    'সহজ বাংলায় আপনার অধিকার বুঝুন, যাচাইকৃত আইনি বিধান দেখুন, পরবর্তী করণীয় পদক্ষেপের তালিকা নিন এবং অভিযোগ বা জিডির খসড়া প্রস্তুত করুন।',
+    'Understand your rights, view verified statutory grounding, get clear action checklists, and prepare print-ready complaints and General Diary drafts.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -47,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="bn" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-bg-light text-primary-light transition-colors duration-200 relative selection:bg-accent-light/20 selection:text-primary-light">
         <AppProvider>
           <AuthProvider>

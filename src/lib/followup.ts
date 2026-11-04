@@ -1,3 +1,12 @@
+import {
+  LAWYERS,
+  filterLawyers,
+  rankLawyersForContext,
+  ALL_DISTRICTS,
+  LegalDomain,
+  LawyerProfile,
+  CourtLevel,
+} from '@/data/lawyers';
 import type { FactValue, FollowUpResponse, ChatHistoryMessage } from '@/types/contracts';
 import { provisions, type Provision } from '@/data/legal';
 
@@ -14,7 +23,7 @@ export interface FollowUpContext {
  * Intelligent Language Detector:
  * Identifies whether input is in Bengali (native script or Banglish) or English.
  */
-export function detectInputLanguage(text: string, fallbackLang: 'en' | 'bn' = 'bn'): 'en' | 'bn' {
+export function detectInputLanguage(text: string, fallbackLang: 'en' | 'bn' = 'en'): 'en' | 'bn' {
   const trimmed = text.trim();
   if (!trimmed) return fallbackLang;
 
@@ -482,6 +491,107 @@ export function isFollowUpQuery(query: string, historyLength: number): boolean {
  * Generates a focused, natural, conversational answer for follow-up questions.
  * Avoids dumping repetitive 4-section boilerplates.
  */
+
+/**
+ * Infers the closest LegalDomain based on query, conversation history, and issueType.
+ */
+export function inferDomainFromContext(query: string, historyText: string, issueType: string = ''): LegalDomain {
+  const text = `${query} ${historyText} ${issueType}`.toLowerCase();
+
+  if (
+    /salary|wages|wage|termination|dismissal|employer|employee|worker|overtime|dife|gratuity|retrenchment|factory|labour|বেতন|মজুরি|চাকরি|ছাঁটাই|বরখাস্ত|শ্রম|কলকারখানা|মালিক/i.test(text)
+  ) {
+    return 'work';
+  }
+
+  if (
+    /land|property|deed|dalil|khatian|mutation|namjari|boundary|tenant|rent|eviction|dispossess|topsoil|possession|porcha|জমি|দলিল|খতিয়ান|নামজারি|পর্চা|ভাড়াটিয়া|উচ্ছেদ|দখল|বেদখল|সীমানা/i.test(text)
+  ) {
+    return 'property';
+  }
+
+  if (
+    /theft|stolen|churi|cori|threat|humki|assault|beating|police|thana|gd|fir|bail|remand|arrest|cyber|blackmail|crime|criminal|মারধর|হুমকি|চুরি|ছিনতাই|পুলিশ|থানা|জিডি|এজাহার|জামিন|রিমান্ড/i.test(text)
+  ) {
+    return 'gd';
+  }
+
+  if (
+    /family|marriage|divorce|talaq|talak|dower|mahr|mohor|maintenance|khorposh|bhoronposhon|child|custody|dowry|joutuk|বিয়ে|তালাক|দেনমোহর|মোহরানা|ভরণপোষণ|খোরপোষ|সন্তান|যৌতুক/i.test(text)
+  ) {
+    return 'family';
+  }
+
+  if (
+    /consumer|customer|shop|seller|vendor|mrp|expired|adulterat|counterfeit|refund|daraz|dncrp|ভোক্তা|ক্রেতা|দোকান|বিক্রেতা|ভেজাল|ওজনে কম|নকল|রিফান্ড|প্রতারণা/i.test(text)
+  ) {
+    return 'consumer';
+  }
+
+  if (
+    /rights|constitution|legal\s*aid|16699|fundamental|writ|pil|high\s*court|মৌলিক অধিকার|লিগ্যাল এইড|সংবিধান|রিট|হাইকোর্ট/i.test(text)
+  ) {
+    return 'rights';
+  }
+
+  return 'work';
+}
+
+export const ALL_BANGLADESH_DISTRICT_MAP: Record<string, string> = {
+  // Bengali Unicode 64 Districts
+  'ঢাকা': 'Dhaka', 'গাজীপুর': 'Gazipur', 'নারায়ণগঞ্জ': 'Narayanganj', 'নারায়ণগঞ্জ': 'Narayanganj',
+  'নরসিংদী': 'Narsingdi', 'টাঙ্গাইল': 'Tangail', 'ফরিদপুর': 'Faridpur', 'মানিকগঞ্জ': 'Manikganj',
+  'মুন্সীগঞ্জ': 'Munshiganj', 'মাদারীপুর': 'Madaripur', 'গোপালগঞ্জ': 'Gopalganj', 'রাজবাড়ী': 'Rajbari',
+  'রাজবাড়ি': 'Rajbari', 'শরীয়তপুর': 'Shariatpur', 'শরীয়তপুর': 'Shariatpur', 'কিশোরগঞ্জ': 'Kishoreganj',
+  'চট্টগ্রাম': 'Chattogram', 'কক্সবাজার': "Cox's Bazar", 'কুমিল্লা': 'Cumilla', 'ব্রাহ্মণবাড়িয়া': 'Brahmanbaria',
+  'ব্রাহ্মণবাড়িয়া': 'Brahmanbaria', 'নোয়াখালী': 'Noakhali', 'নোয়াখালী': 'Noakhali', 'ফেনী': 'Feni',
+  'চাঁদপুর': 'Chandpur', 'লক্ষ্মীপুর': 'Lakshmipur', 'রাঙ্গামাটি': 'Rangamati', 'খাগড়াছড়ি': 'Khagrachhari',
+  'বান্দরবান': 'Bandarban', 'সিলেট': 'Sylhet', 'মৌলভীবাজার': 'Moulvibazar', 'হবিগঞ্জ': 'Habiganj',
+  'সুনামগঞ্জ': 'Sunamganj', 'রাজশাহী': 'Rajshahi', 'বগুড়া': 'Bogura', 'বগুড়া': 'Bogura', 'পাবনা': 'Pabna',
+  'সিরাজগঞ্জ': 'Sirajganj', 'নওগাঁ': 'Naogaon', 'নাটোর': 'Natore', 'চাঁপাইনবাবগঞ্জ': 'Chapainawabganj',
+  'জয়পুরহাট': 'Joypurhat', 'জয়পুরহাট': 'Joypurhat', 'খুলনা': 'Khulna', 'যশোর': 'Jashore',
+  'কুষ্টিয়া': 'Kushtia', 'কুষ্টিয়া': 'Kushtia', 'সাতক্ষীরা': 'Satkhira', 'বাগেরহাট': 'Bagerhat',
+  'ঝিনাইদহ': 'Jhenaidah', 'চুয়াডাঙ্গা': 'Chuadanga', 'চুয়াডাঙ্গা': 'Chuadanga', 'মাগুরা': 'Magura',
+  'মেহেরপুর': 'Meherpur', 'নড়াইল': 'Narail', 'নড়াইল': 'Narail', 'বরিশাল': 'Barishal', 'ভোলা': 'Bhola',
+  'পটুয়াখালী': 'Patuakhali', 'পটুয়াখালী': 'Patuakhali', 'পিরোজপুর': 'Pirojpur', 'বরগুনা': 'Barguna',
+  'ঝালকাঠি': 'Jhalokathi', 'রংপুর': 'Rangpur', 'দিনাজপুর': 'Dinajpur', 'গাইবান্ধা': 'Gaibandha',
+  'কুড়িগ্রাম': 'Kurigram', 'কুড়িগ্রাম': 'Kurigram', 'লালমনিরহাট': 'Lalmonirhat', 'নীলফামারী': 'Nilphamari',
+  'পঞ্চগড়': 'Panchagarh', 'পঞ্চগড়': 'Panchagarh', 'ঠাকুরগাঁও': 'Thakurgaon', 'ময়মনসিংহ': 'Mymensingh',
+  'ময়মনসিংহ': 'Mymensingh', 'জামালপুর': 'Jamalpur', 'নেত্রকোণা': 'Netrokona', 'নেত্রকোনা': 'Netrokona',
+  'শেরপুর': 'Sherpur',
+
+  // Prominent Upazilas / Thanas / Sub-regions
+  'মিরপুর': 'Dhaka', 'গুলশান': 'Dhaka', 'বনানী': 'Dhaka', 'উত্তরা': 'Dhaka', 'ধানমন্ডি': 'Dhaka',
+  'মতিঝিল': 'Dhaka', 'মোহাম্মদপুর': 'Dhaka', 'সাভার': 'Dhaka', 'কেরানীগঞ্জ': 'Dhaka', 'তেজগাঁও': 'Dhaka',
+  'আগ্রাবাদ': 'Chattogram', 'পাঁচলাইশ': 'Chattogram', 'কোতোয়ালী': 'Chattogram', 'পটিয়া': 'Chattogram',
+  'সীতাকুণ্ড': 'Chattogram', 'জিন্দাবাজার': 'Sylhet', 'আম্বরখানা': 'Sylhet', 'টঙ্গী': 'Gazipur',
+  'শ্রীমঙ্গল': 'Moulvibazar', 'টেকনাফ': "Cox's Bazar", 'দাউদকান্দি': 'Cumilla', 'লাকসাম': 'Cumilla',
+  'শিবগঞ্জ': 'Bogura', 'শেরপুর সদর': 'Sherpur',
+
+  // English thana tokens
+  'mirpur': 'Dhaka', 'gulshan': 'Dhaka', 'banani': 'Dhaka', 'uttara': 'Dhaka', 'dhanmondi': 'Dhaka',
+  'motijheel': 'Dhaka', 'mohammadpur': 'Dhaka', 'savar': 'Dhaka', 'agrabad': 'Chattogram',
+  'panchlaish': 'Chattogram', 'zindabazar': 'Sylhet', 'sreemangal': 'Moulvibazar', 'tongi': 'Gazipur'
+};
+
+/**
+ * Infers if a specific district is mentioned in context.
+ */
+export function inferDistrictFromContext(query: string, historyText: string): string | undefined {
+  const text = `${query} ${historyText}`.toLowerCase();
+  for (const dist of ALL_DISTRICTS) {
+    if (text.includes(dist.toLowerCase())) {
+      return dist;
+    }
+  }
+  for (const [key, enName] of Object.entries(ALL_BANGLADESH_DISTRICT_MAP)) {
+    if (text.includes(key.toLowerCase())) {
+      return enName;
+    }
+  }
+  return undefined;
+}
+
 export function generateFollowUpResponse(ctx: FollowUpContext): FollowUpResponse {
   const { query, language, facts, issueType = '', conversationHistory, candidateSources = [] } = ctx;
   const isBn = language === 'bn';
@@ -497,6 +607,59 @@ export function generateFollowUpResponse(ctx: FollowUpContext): FollowUpResponse
   if (isCapabilityQuery(query)) {
     return generateCapabilityResponse(language);
   }
+
+  // 0.3 LAWYER CONSULTATION & RECOMMENDATION INTENT
+  // Directly matches user queries asking if they need a lawyer or asking to find an advocate.
+  const isLawyerInquiry =
+    /\b(need.*(lawyer|advocate|attorney)|hire.*(lawyer|advocate)|talk.*to.*(lawyer|advocate)|find.*(lawyer|advocate)|recommend.*(lawyer|advocate)|lawyer.*needed|should\s+i\s+(get|hire|consult|talk)\s+(to\s+)?a?\s*(lawyer|advocate))\b/i.test(q) ||
+    /আইনজীবী|উকিল|আইনজীবি|উকিল.*লাগবে|আইনজীবী.*দরকার|উকিল.*দরকার|আইনজীবী.*নিয়োগ|চেম্বার|উকিল.*পাব|আইনজীবী.*পাব|আইনজীবী.*খুঁজে|উকিল.*খুঁজে/u.test(q) ||
+    (/\b(lawyer|advocate|attorney)\b/i.test(q) && /\b(need|should|help|how|where|find|get|list|recommend)\b/i.test(q));
+
+  if (isLawyerInquiry) {
+    const domain = inferDomainFromContext(query, fullContextText, issueType);
+    const district = inferDistrictFromContext(query, fullContextText);
+    const isLegalAidQuery = /বিনামূল্যে|লিগ্যাল এইড|free|legal aid|টাকা ছাড়া|টাকা নাই|গরিব|অসহায়/i.test(q);
+    const isHighCourtQuery = /হাইকোর্ট|সুপ্রিম কোর্ট|রিট|high court|supreme court|writ/i.test(q);
+    const courtLevelPreference: CourtLevel | undefined = isHighCourtQuery ? 'high_court' : undefined;
+
+    // Use intelligent multi-dimensional ranking
+    let recommendedLawyers = rankLawyersForContext({
+      domain,
+      district,
+      legalAidOnly: isLegalAidQuery,
+      courtLevel: courtLevelPreference,
+      limit: 2,
+    });
+
+    if (recommendedLawyers.length === 0) {
+      recommendedLawyers = LAWYERS.slice(0, 2);
+    }
+
+    return {
+      directAnswer: isBn
+        ? `আপনার পরিস্থিতিতে আইনজীবী প্রয়োজন কিনা, সে বিষয়ে স্পষ্ট দিকনির্দেশনা:\n\n১. প্রাথমিক অভিযোগ (যেমন: থানায় জিডি, ভোক্তা অধিকার অধিদপ্তরে অভিযোগ বা শ্রম অধিদপ্তরে মীমাংসার চিঠি) আপনি নিজেই MyLaws-এর তৈরি ড্রাফট নিয়ে সরাসরি দাখিল করতে পারেন; এর জন্য কোনো আইনজীবী নিয়োগের বাধ্যবাধকতা নেই।\n\n২. তবে বিষয়টি যদি শ্রম আদালত (Labour Court), জমিজমার দেওয়ানি মামলা, ফৌজদারি মামলায় নিয়মিত জামিন বা পারিবারিক আদালতে দেনমোহর আদায়ের মতো আনুষ্ঠানিক বিচারিক কার্যক্রমের দিকে যায়, তবে একজন বিজ্ঞ আইনজীবীর মাধ্যমে আদালতে মামলা পরিচালনা করা অত্যন্ত জরুরি।\n\nআপনার ঘটনার বিষয়বস্তু ও অবস্থানের ওপর ভিত্তি করে আমাদের যাচাইকৃত ডিরেক্টরি থেকে সেরা নির্বাচিত আইনজীবীদের বিবরণ নিচে দেওয়া হলো:`
+        : `Here is clear guidance on whether you require an advocate for your situation:\n\n1. Initial Pleading Stage: For preliminary complaints (e.g. Police GD, DNCRP consumer claims, or DIFE conciliation letters), you can submit your draft directly without mandatory legal representation.\n\n2. Formal Judicial Proceedings: If your dispute escalates to Labour Court, Civil Court (land title/injunction), Criminal Court (regular bail/sessions trial), or Family Court, engaging an enrolled advocate is critical and required for formal court advocacy.\n\nBased on your issue and location, here are verified advocates best matched from our directory:`,
+      keyPoints: isBn
+        ? [
+            'আইনজীবী বাছাইয়ের সময় তাঁর বাংলাদেশ বার কাউন্সিল সনদ নম্বর ও স্থায়ী চেম্বার ঠিকানা যাচাই করে নিন।',
+            'চেম্বারে যাওয়ার আগে জাতীয় পরিচয়পত্র ও প্রয়োজনীয় সব প্রমাণপত্রের ফটোকপি একসাথে প্রস্তুত রাখুন।',
+            'আর্থিক সমস্যা থাকলে জাতীয় আইনগত সহায়তা প্রদান সংস্থার টোল-ফ্রি ১৬৬৯৯ নম্বরে সরকারি প্যানেল আইনজীবী পেতে পারেন।',
+          ]
+        : [
+            'Verify the advocate’s Bar Council enrollment ID and permanent chamber location before meeting.',
+            'Carry your NID photocopy and all original documents/receipts to the chamber consultation.',
+            'If you have financial constraints, call 16699 (toll-free) for a free government-appointed legal aid lawyer.',
+          ],
+      suggestedNextStep: isBn
+        ? 'নিচে প্রদর্শিত আইনজীবীর চেম্বারে সরাসরি ফোন করে সাক্ষাতের সময় নিতে পারেন, অথবা পুরো ডিরেক্টরি ব্রাউজ করতে পারেন।'
+        : 'You may call the matched advocate directly to schedule a chamber consultation or browse the full directory.',
+      recommendedLawyers,
+      lawyerDomain: domain,
+      lawyerDistrict: district,
+      sourceIds: ['constitution-31'],
+    };
+  }
+
 
   // 0.5 DIFFERENCE BETWEEN GD AND FIR
   const isGdVsFirQuery =

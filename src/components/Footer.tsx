@@ -58,6 +58,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href="/lawyers"
+                  className="text-secondary-light hover:text-accent-light transition-colors"
+                >
+                  {t('আইনজীবী ও চেম্বার ডিরেক্টরি', 'Lawyers Directory')}
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/sources"
                   className="text-secondary-light hover:text-accent-light transition-colors"
                 >

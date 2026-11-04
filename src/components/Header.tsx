@@ -96,9 +96,9 @@ export function Header() {
   const navLinks = [
     { href: '/', label: t('হোম', 'HOME'), icon: Home },
     { href: '/ask', label: t('সহকারী', 'ASSISTANT'), icon: Sparkles },
+    { href: '/lawyers', label: t('আইনজীবী', 'LAWYERS'), icon: Scale },
     { href: '/drafts', label: t('খসড়া', 'DRAFTS'), icon: FileText },
     { href: '/sources', label: t('আইনি উৎস', 'SOURCES'), icon: BookOpen },
-    { href: '/download', label: t('অ্যাপ্লিকেশন', 'APPLICATION'), icon: Smartphone },
   ];
 
   const dailyLimit = quota?.dailyLimit || 10;
@@ -142,7 +142,7 @@ export function Header() {
         </div>
 
         {/* Center Nav Items (Desktop) */}
-        <nav className="hidden md:flex items-center gap-7" aria-label="Main Navigation">
+        <nav className="hidden md:flex items-center gap-7 lg:gap-9" aria-label="Main Navigation">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -152,16 +152,16 @@ export function Header() {
                 className={`transition-colors relative py-1 ${
                   lang === 'bn'
                     ? 'font-hind font-semibold text-[13px] tracking-wide'
-                    : 'font-cinzel text-xs tracking-[0.16em] uppercase'
+                    : 'font-cinzel text-xs tracking-[0.18em] uppercase'
                 } ${
                   isActive
-                    ? 'text-accent-light font-bold'
-                    : 'text-secondary-light/90 hover:text-primary-light'
+                    ? 'text-[#9A6F32] font-bold'
+                    : 'text-[#6E665A] dark:text-[#A89F91] hover:text-[#231F1C] dark:hover:text-[#F1EDE1]'
                 }`}
               >
                 {link.label}
                 {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-accent-light via-accent-gold to-accent-light rounded-full shadow-[0_0_8px_rgba(154,111,50,0.6)] animate-in fade-in zoom-in-95 duration-200" />
+                  <span className="absolute -bottom-1.5 left-0 right-0 h-[2px] bg-[#9A6F32]" />
                 )}
               </Link>
             );
@@ -169,63 +169,69 @@ export function Header() {
         </nav>
 
         {/* Right Section: Desktop Controls */}
-        <div className="hidden md:flex items-center gap-3">
-          {/* Language Switch */}
+        <div className="hidden md:flex items-center gap-3 shrink-0">
+          {/* 1. Offline App Download */}
+          <Link
+            href="/download"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border border-border-light bg-surface-light text-secondary-light hover:border-accent-light hover:text-primary-light transition-all shadow-2xs font-cinzel font-semibold tracking-wider uppercase"
+            title={t('অ্যান্ড্রয়েড অফলাইন অ্যাপ্লিকেশন', 'Download Android App')}
+          >
+            <Smartphone className="h-3.5 w-3.5 text-[#9A6F32]" />
+            <span>{t('GET APP', 'GET APP')}</span>
+          </Link>
+
+          {/* 2. Language Switch */}
           <button
             onClick={() => setLang(lang === 'bn' ? 'en' : 'bn')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium tracking-wider rounded border border-border-light bg-surface-light text-secondary-light hover:border-accent-light hover:text-primary-light transition-all shadow-2xs ${
-              lang === 'bn' ? 'font-cinzel' : 'font-hind font-semibold'
-            }`}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border border-border-light bg-surface-light text-secondary-light hover:border-accent-light hover:text-primary-light transition-all shadow-2xs cursor-pointer"
             title={lang === 'bn' ? 'Switch to English' : 'বাংলা সংস্করণে যান'}
             aria-label={lang === 'bn' ? 'Switch to English' : 'Switch to Bangla'}
           >
-            <Globe className="h-3 w-3 text-accent-light" />
-            <span>{lang === 'bn' ? 'English' : 'বাংলা'}</span>
+            <Globe className="h-3.5 w-3.5 text-[#9A6F32]" />
+            <span className={lang === 'bn' ? 'font-cinzel text-xs font-semibold tracking-wider' : 'font-hind font-semibold text-xs'}>
+              {lang === 'bn' ? 'ENGLISH' : 'বাংলা'}
+            </span>
           </button>
 
-          {/* User Auth Section & Signature Bracketed Action */}
+          {/* 3. Signature Bracketed Action: — ASK MYLAWS — */}
+          <Link
+            href="/ask"
+            className="bracket-btn text-primary-light hover:text-accent-light px-3.5 py-1.5 transition-colors cursor-pointer"
+          >
+            <span className="flex items-center gap-1.5 font-cinzel text-xs font-bold tracking-wider">
+              <span>—</span>
+              <span>{t('প্রশ্ন করুন', 'ASK MYLAWS')}</span>
+              <span>—</span>
+            </span>
+          </Link>
+
+          {/* 4. User Auth Section */}
           {!authLoading && (
             <>
               {user ? (
                 <div className="flex items-center gap-3">
-                  {/* If not already on /ask, show compact Assistant link */}
-                  {pathname !== '/ask' && (
-                    <Link
-                      href="/ask"
-                      className="bracket-btn text-primary-light hover:text-accent-light hidden lg:inline-flex"
-                    >
-                      <span className="flex items-center gap-1.5">
-                        <span>—</span>
-                        <span className={lang === 'bn' ? 'font-hind font-bold text-xs' : 'font-cinzel text-xs font-bold'}>
-                          {t('প্রশ্ন করুন', 'ASK MYLAWS')}
-                        </span>
-                        <span>—</span>
-                      </span>
-                    </Link>
-                  )}
-
                   {/* User Profile Dropdown Pill (Desktop) */}
                   <div className="relative" ref={userMenuRef}>
                     <button
                       onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                      className="flex items-center gap-2 rounded-full border border-amber-800/30 bg-amber-50/60 dark:bg-amber-950/20 px-2.5 py-1 text-xs text-primary-light hover:border-amber-700 transition-all cursor-pointer"
+                      className="flex items-center gap-2 rounded-full border border-border-light bg-surface-light px-2.5 py-1 text-xs text-primary-light hover:border-accent-light transition-all cursor-pointer shadow-2xs"
                     >
                       {user.photoURL ? (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                           src={user.photoURL}
                           alt={userDisplayName}
-                          className="h-5 w-5 rounded-full object-cover"
+                          className="h-5 w-5 rounded-full object-cover shrink-0"
                         />
                       ) : (
-                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-700 text-[10px] font-bold text-white uppercase">
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#0B57D0] text-[10px] font-bold text-white uppercase shrink-0">
                           {userDisplayName.charAt(0)}
                         </div>
                       )}
-                      <span className="max-w-[100px] truncate text-xs font-medium">
+                      <span className="font-bold text-xs uppercase tracking-wider font-cinzel text-primary-light max-w-[100px] truncate">
                         {userDisplayName}
                       </span>
-                      <span className="rounded bg-amber-200/60 dark:bg-amber-800/40 px-1.5 py-0.5 text-[10px] font-semibold text-amber-900 dark:text-amber-200">
+                      <span className="rounded-md bg-[#FDE68A]/70 dark:bg-amber-900/40 px-1.5 py-0.5 text-[10px] font-bold font-mono text-[#92400E] dark:text-amber-200">
                         {formattedRemaining}/{formattedDailyLimit}
                       </span>
                       <ChevronDown className="h-3 w-3 text-secondary-light" />
@@ -404,6 +410,21 @@ export function Header() {
                     </Link>
                   );
                 })}
+
+                <Link
+                  href="/download"
+                  onClick={() => setMobileOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium tracking-wide transition-all active-press ${
+                    pathname === '/download'
+                      ? 'bg-accent-light/15 text-accent-light font-bold'
+                      : 'text-primary-light hover:bg-bg-light'
+                  }`}
+                >
+                  <Smartphone className="h-4 w-4 shrink-0 text-accent-light" />
+                  <span className={lang === 'bn' ? 'font-hind font-semibold text-sm' : 'font-cinzel'}>
+                    {t('অ্যাপ্লিকেশন', 'APPLICATION')}
+                  </span>
+                </Link>
               </div>
 
               {/* Recent Question History Section */}

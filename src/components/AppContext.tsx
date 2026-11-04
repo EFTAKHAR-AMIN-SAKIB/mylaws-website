@@ -14,7 +14,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>('bn');
+  const [lang, setLangState] = useState<Lang>('en');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -29,11 +29,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const paramLang = urlParams.get('lang');
       if (paramLang === 'bn' || paramLang === 'en') {
         setLangState(paramLang);
+        localStorage.setItem('mylaws_lang_v2', paramLang);
         localStorage.setItem('mylaws_lang', paramLang);
       } else {
-        const savedLang = localStorage.getItem('mylaws_lang') as Lang;
+        const savedLang = localStorage.getItem('mylaws_lang_v2') as Lang;
         if (savedLang && (savedLang === 'bn' || savedLang === 'en')) {
           setLangState(savedLang);
+        } else {
+          setLangState('en');
         }
       }
     } catch {
@@ -45,6 +48,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const setLang = (newLang: Lang) => {
     setLangState(newLang);
     try {
+      localStorage.setItem('mylaws_lang_v2', newLang);
       localStorage.setItem('mylaws_lang', newLang);
     } catch {}
   };

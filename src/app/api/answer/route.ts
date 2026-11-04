@@ -13,7 +13,10 @@ import {
   generateGreetingResponse,
   generateCapabilityResponse,
   generateGeneralConversationalResponse,
+  inferDomainFromContext,
+  inferDistrictFromContext,
 } from '@/lib/followup';
+import { rankLawyersForContext } from '@/data/lawyers';
 import {
   checkRateLimit,
   isMetaConfigured,
@@ -121,7 +124,7 @@ export async function POST(req: NextRequest) {
     const {
       requestId = crypto.randomUUID(),
       originalMessage,
-      language = 'bn',
+      language = 'en',
       facts = [],
       conversationHistory = [],
       location = null,
@@ -410,8 +413,12 @@ export async function POST(req: NextRequest) {
         workflowResult.engineProvenance = 'online_meta';
 
         if (workflowResult.isFollowUp && workflowResult.followUpResponse) {
-          // If Meta returned a grounded answer, enhance directAnswer if meaningful
-          if (metaRes.answer && metaRes.answer.length > 30) {
+          // If Meta returned a grounded answer, enhance directAnswer if meaningful (preserving lawyer recommendations)
+          if (
+            metaRes.answer &&
+            metaRes.answer.length > 30 &&
+            !workflowResult.followUpResponse.recommendedLawyers
+          ) {
             workflowResult.followUpResponse.directAnswer = metaRes.answer;
           }
         } else {
@@ -521,6 +528,32 @@ export async function POST(req: NextRequest) {
         '',
       dailyLimit: DAILY_LIMIT,
     });
+
+    // 3.5 Ensure contextual lawyer recommendations are preserved and attached
+    if (workflowResult.followUpResponse?.recommendedLawyers) {
+      workflowResult.recommendedLawyers = workflowResult.followUpResponse.recommendedLawyers;
+    } else if (
+      /(?:\b(lawyer|advocate|attorney)\b|উকিল|আইনজীবী|আইনজীবি|চেম্বার)/i.test(request.originalMessage) ||
+      (/\b(lawyer|advocate)\b/i.test(request.originalMessage) && /\b(need|find|recommend|list|call)\b/i.test(request.originalMessage))
+    ) {
+      const primaryIssue = workflowResult.userFacts.find((f) => f.fieldId === 'issue_type')?.value || '';
+      const histText = sanitizedHistory.map((m) => m.content).join(' ');
+      const domain = inferDomainFromContext(request.originalMessage, histText, primaryIssue);
+      const district = inferDistrictFromContext(request.originalMessage, histText);
+      const isLegalAid = /বিনামূল্যে|লিগ্যাল এইড|free|legal aid|টাকা ছাড়া/i.test(request.originalMessage);
+      const isHighCourt = /হাইকোর্ট|সুপ্রিম কোর্ট|রিট|high court|supreme court|writ/i.test(request.originalMessage);
+      const matches = rankLawyersForContext({
+        domain,
+        district,
+        legalAidOnly: isLegalAid,
+        courtLevel: isHighCourt ? 'high_court' : undefined,
+        limit: 2,
+      });
+      console.log(`[API /answer] Primary lawyer match: domain=${domain}, district=${district}, matches=${matches.length}`);
+      if (matches.length > 0) {
+        workflowResult.recommendedLawyers = matches;
+      }
+    }
 
     workflowResult.userQuota = recordResult.quota;
 

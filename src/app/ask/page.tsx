@@ -26,6 +26,7 @@ import { createLegalWorkflow } from '@/lib/workflow';
 import { detectDraftType, DRAFT_CATALOG } from '@/lib/drafts';
 import { provisions } from '@/data/legal';
 import { FormattedMessageText } from '@/components/FormattedMessageText';
+import { TypewriterText } from '@/components/TypewriterText';
 import { LegalReasoningIndicator } from '@/components/LegalReasoningIndicator';
 import {
   saveConversation,
@@ -61,6 +62,9 @@ import {
   Layers,
   Plus,
   Scale,
+  Phone,
+  MapPin,
+  UserCheck,
   Copy,
   Check,
 } from 'lucide-react';
@@ -98,6 +102,8 @@ function AskContent() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
   const [selectedOfficeId, setSelectedOfficeId] = useState<string | null>(null);
+  const [streamingTurnId, setStreamingTurnId] = useState<string | null>(null);
+  const [streamingStage, setStreamingStage] = useState<'understanding' | 'meaning' | 'done'>('done');
 
   // History state
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -221,7 +227,6 @@ function AskContent() {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const activeRequestIdRef = useRef<string | null>(null);
-  const prevLangRef = useRef(lang);
 
   // Auto-resize textarea helper
   const handleTextareaInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
@@ -600,6 +605,16 @@ function AskContent() {
         };
 
         setChatTurns((prev) => [...prev, assistantTurn]);
+        setStreamingTurnId(assistantTurn.id);
+        if (data.isFollowUp && data.followUpResponse) {
+          setStreamingStage('done');
+        } else if (data.problemSummary?.understanding) {
+          setStreamingStage('understanding');
+        } else if (data.plainLanguageExplanation?.meaning) {
+          setStreamingStage('meaning');
+        } else {
+          setStreamingStage('done');
+        }
         setStatus(data.status);
       }
     } catch (err: any) {
@@ -622,18 +637,6 @@ function AskContent() {
     }
   };
 
-  // Re-fetch in the newly selected language when user toggles language switch
-  useEffect(() => {
-    if (prevLangRef.current !== lang) {
-      prevLangRef.current = lang;
-      const lastUserTurn = [...chatTurns].reverse().find((t) => t.role === 'user');
-      if (lastUserTurn && !searchParams.get('demo')) {
-        const lastResult = [...chatTurns].reverse().find((t) => t.result)?.result;
-        handleAsk(lastUserTurn.content, lastResult?.userFacts || [], lang);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lang]);
 
   const handleClarificationSubmit = (lastResult: AnswerResult) => {
     // Extract non-empty answers and map directly to canonical fieldIds
@@ -733,6 +736,7 @@ function AskContent() {
         setStatus('ready');
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, chatTurns.length]);
 
   const latestResult = [...chatTurns].reverse().find((t) => t.result)?.result;
@@ -1076,14 +1080,17 @@ function AskContent() {
 
                           {/* Main Focused Conversational Response Box */}
                           <div className="p-4 sm:p-7 rounded-2xl sm:rounded-3xl border border-border-light bg-surface-cardLight shadow-sm space-y-4 sm:space-y-5">
-                            {/* Direct Conversational Answer */}
+                            {/* Direct Conversational Answer with Letter-by-Letter Typewriter Animation */}
                             <div className="space-y-2">
-                              <FormattedMessageText
+                              <TypewriterText
                                 text={toEnglishNum(
                                   translatedTurns[turn.id]?.isTranslated && translatedTurns[turn.id]?.translatedDirectAnswer
                                     ? translatedTurns[turn.id]!.translatedDirectAnswer!
                                     : turn.result.followUpResponse.directAnswer
                                 )}
+                                isStreaming={streamingTurnId === turn.id}
+                                onComplete={() => setStreamingTurnId(null)}
+                                isBn={lang === 'bn'}
                               />
                             </div>
 
@@ -1227,6 +1234,88 @@ function AskContent() {
                                 </button>
                               </div>
                             )}
+
+                            {/* Matched Verified Advocate Recommendation Widget */}
+                            {turn.result.followUpResponse.recommendedLawyers && turn.result.followUpResponse.recommendedLawyers.length > 0 ? (
+                              <div className="pt-3 border-t border-border-light/70 space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Scale className="h-4 w-4 text-[#9A6F32]" />
+                                    <span className="font-anek font-bold text-xs sm:text-sm text-primary-light">
+                                      {t('আপনার ঘটনার জন্য সুপারিশকৃত যাচাইকৃত আইনজীবী:', 'Verified Advocates Matched for Your Situation:')}
+                                    </span>
+                                  </div>
+                                  <Link
+                                    href={turn.result.followUpResponse.lawyerDomain ? `/lawyers?topic=${turn.result.followUpResponse.lawyerDomain}` : '/lawyers'}
+                                    className="text-xs text-[#9A6F32] font-bold hover:underline font-anek inline-flex items-center gap-1"
+                                  >
+                                    <span>{t('সব দেখুন', 'View All')}</span>
+                                    <ArrowRight className="h-3 w-3" />
+                                  </Link>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                  {turn.result.followUpResponse.recommendedLawyers.map((lawyer) => (
+                                    <div
+                                      key={lawyer.id}
+                                      className="p-3 sm:p-3.5 rounded-2xl border border-[#DDD3C1] dark:border-[#38312B] bg-[#FAF7F0] dark:bg-[#1C1815] hover:border-[#9A6F32]/60 transition-all flex flex-col justify-between space-y-2.5 shadow-2xs"
+                                    >
+                                      <div className="space-y-1">
+                                        <div className="flex items-center justify-between gap-1.5">
+                                          <span className="text-[10px] font-bold font-anek px-2 py-0.5 rounded-full bg-[#9A6F32]/15 text-[#9A6F32]">
+                                            {lawyer.district}
+                                          </span>
+                                          <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-0.5">
+                                            <CheckCircle2 className="h-3 w-3" />
+                                            <span>{t('সনদ যাচাইকৃত', 'Verified')}</span>
+                                          </span>
+                                        </div>
+
+                                        <h5 className="font-anek font-bold text-xs sm:text-sm text-[#231F1C] dark:text-[#F1EDE1] leading-snug">
+                                          {lang === 'bn' ? lawyer.nameBn : lawyer.nameEn}
+                                        </h5>
+                                        <p className="text-[11px] text-[#5A534A] dark:text-[#B5ADA3] font-hind truncate">
+                                          {lawyer.barCouncilId} • {lawyer.experienceYears}+ {t('বছর অভিজ্ঞতা', 'yrs exp')}
+                                        </p>
+                                        <p className="text-[11px] text-[#5A534A] dark:text-[#B5ADA3] font-hind line-clamp-1">
+                                          📍 {lang === 'bn' ? lawyer.chamberAddressBn : lawyer.chamberAddressEn}
+                                        </p>
+                                      </div>
+
+                                      <div className="pt-2 border-t border-border-light/60 flex items-center gap-2">
+                                        <a
+                                          href={`tel:${lawyer.phone}`}
+                                          className="flex-1 inline-flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl bg-[#9A6F32] text-white text-[11px] font-anek font-bold hover:bg-[#855D28] transition-colors shadow-2xs active-press"
+                                        >
+                                          <Phone className="h-3 w-3" />
+                                          <span>{t('সরাসরি কল', 'Call')} ({lawyer.phone})</span>
+                                        </a>
+                                        <Link
+                                          href={`/lawyers?district=${encodeURIComponent(lawyer.district)}`}
+                                          className="inline-flex items-center justify-center py-1.5 px-2.5 rounded-xl border border-border-light bg-surface-cardLight text-[11px] font-anek font-semibold text-secondary-light hover:text-[#9A6F32] transition-colors"
+                                        >
+                                          <span>{t('চেম্বার', 'Chamber')}</span>
+                                        </Link>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="pt-2 border-t border-border-light/50 flex items-center justify-between gap-2 text-xs font-hind">
+                                <span className="text-secondary-light flex items-center gap-1.5">
+                                  <Scale className="h-3.5 w-3.5 text-[#9A6F32]" />
+                                  <span>{t('আপনার জেলায় বিশেষজ্ঞ আইনজীবী প্রয়োজন?', 'Need an advocate in your district?')}</span>
+                                </span>
+                                <Link
+                                  href="/lawyers"
+                                  className="text-accent-light font-bold hover:underline inline-flex items-center gap-1 font-anek"
+                                >
+                                  <span>{t('ডিরেক্টরি দেখুন', 'Browse Directory')}</span>
+                                  <ArrowRight className="h-3 w-3" />
+                                </Link>
+                              </div>
+                            )}
                           </div>
                         </div>
                       ) : (
@@ -1243,14 +1332,9 @@ function AskContent() {
                                   className="w-full h-full object-contain"
                                 />
                               </span>
-                              <div>
-                                <span className="text-xs sm:text-sm font-bold text-primary-light font-anek block">
-                                  {toEnglishNum(turn.result.problemSummary?.identifiedIssue) || t('আইনি অধিকার পর্যালোচনা', 'Legal Applicability Review')}
-                                </span>
-                                <span className="text-[11px] text-secondary-light font-hind">
-                                  {t('প্যাক সংস্করণ: ', 'Corpus: ')}{turn.result.sourcePackVersion}
-                                </span>
-                              </div>
+                              <span className="text-xs sm:text-sm font-bold text-primary-light font-anek">
+                                {toEnglishNum(turn.result.problemSummary?.identifiedIssue) || t('আইনি অধিকার পর্যালোচনা', 'Legal Applicability Review')}
+                              </span>
                             </div>
 
                             <div className="flex items-center gap-2">
@@ -1268,9 +1352,9 @@ function AskContent() {
                             </div>
                           </div>
 
-                          {/* 1. Conversational Understanding & Empathy */}
+                          {/* 1. Conversational Understanding & Empathy with Typewriter Streaming */}
                           <div className="space-y-2">
-                            <FormattedMessageText
+                            <TypewriterText
                               text={toEnglishNum(
                                 (translatedTurns[turn.id]?.isTranslated && translatedTurns[turn.id]?.translatedUnderstanding
                                   ? translatedTurns[turn.id]!.translatedUnderstanding
@@ -1280,6 +1364,20 @@ function AskContent() {
                                     'We have analyzed your situation and identified the applicable statutory legal path.'
                                   )
                               )}
+                              isStreaming={streamingTurnId === turn.id && streamingStage === 'understanding'}
+                              onComplete={() => {
+                                if (turn.result?.plainLanguageExplanation?.meaning) {
+                                  setStreamingStage('meaning');
+                                } else {
+                                  setStreamingStage('done');
+                                  setStreamingTurnId(null);
+                                }
+                              }}
+                              onSkip={() => {
+                                setStreamingStage('done');
+                                setStreamingTurnId(null);
+                              }}
+                              isBn={lang === 'bn'}
                             />
                           </div>
 
@@ -1361,13 +1459,24 @@ function AskContent() {
                                 </h4>
                               </div>
 
-                              <FormattedMessageText
+                              <TypewriterText
                                 text={toEnglishNum(
                                   translatedTurns[turn.id]?.isTranslated && translatedTurns[turn.id]?.translatedMeaning
                                     ? translatedTurns[turn.id]!.translatedMeaning!
                                     : turn.result.plainLanguageExplanation.meaning
                                 )}
+                                isStreaming={streamingTurnId === turn.id && streamingStage === 'meaning'}
+                                waiting={streamingTurnId === turn.id && streamingStage === 'understanding'}
+                                onComplete={() => {
+                                  setStreamingStage('done');
+                                  setStreamingTurnId(null);
+                                }}
+                                onSkip={() => {
+                                  setStreamingStage('done');
+                                  setStreamingTurnId(null);
+                                }}
                                 className="text-secondary-light"
+                                isBn={lang === 'bn'}
                               />
 
                               {/* Clickable Statutory Sources (Source pills as drawn in user sketch) */}
@@ -1433,6 +1542,8 @@ function AskContent() {
                                 onOpenOffice={(id: string) => setSelectedOfficeId(id)}
                                 onStartDraft={(dType, sText) => handleGoToDraft(dType, turn.result, sText)}
                                 variant="lineByLine"
+                                asDropdown={true}
+                                defaultOpen={false}
                               />
                             </div>
                           )}
@@ -1490,6 +1601,96 @@ function AskContent() {
                               </div>
                             );
                           })()}
+
+                          {/* Verified District Advocate Recommendation */}
+                          {turn.result.recommendedLawyers && turn.result.recommendedLawyers.length > 0 ? (
+                            <div className="pt-3 border-t border-border-light/70 space-y-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Scale className="h-4 w-4 text-[#9A6F32]" />
+                                  <span className="font-anek font-bold text-xs sm:text-sm text-primary-light">
+                                    {t('আপনার ঘটনার জন্য সুপারিশকৃত যাচাইকৃত আইনজীবী:', 'Verified Advocates Matched for Your Situation:')}
+                                  </span>
+                                </div>
+                                <Link
+                                  href="/lawyers"
+                                  className="text-xs text-[#9A6F32] font-bold hover:underline font-anek inline-flex items-center gap-1"
+                                >
+                                  <span>{t('সব দেখুন', 'View All')}</span>
+                                  <ArrowRight className="h-3 w-3" />
+                                </Link>
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                {turn.result.recommendedLawyers.map((lawyer) => (
+                                  <div
+                                    key={lawyer.id}
+                                    className="p-3 sm:p-3.5 rounded-2xl border border-[#DDD3C1] dark:border-[#38312B] bg-[#FAF7F0] dark:bg-[#1C1815] hover:border-[#9A6F32]/60 transition-all flex flex-col justify-between space-y-2.5 shadow-2xs"
+                                  >
+                                    <div className="space-y-1">
+                                      <div className="flex items-center justify-between gap-1.5">
+                                        <span className="text-[10px] font-bold font-anek px-2 py-0.5 rounded-full bg-[#9A6F32]/15 text-[#9A6F32]">
+                                          {lawyer.district}
+                                        </span>
+                                        <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-0.5">
+                                          <CheckCircle2 className="h-3 w-3" />
+                                          <span>{t('সনদ যাচাইকৃত', 'Verified')}</span>
+                                        </span>
+                                      </div>
+
+                                      <h5 className="font-anek font-bold text-xs sm:text-sm text-[#231F1C] dark:text-[#F1EDE1] leading-snug">
+                                        {lang === 'bn' ? lawyer.nameBn : lawyer.nameEn}
+                                      </h5>
+                                      <p className="text-[11px] text-[#5A534A] dark:text-[#B5ADA3] font-hind truncate">
+                                        {lawyer.barCouncilId} • {lawyer.experienceYears}+ {t('বছর অভিজ্ঞতা', 'yrs exp')}
+                                      </p>
+                                      <p className="text-[11px] text-[#5A534A] dark:text-[#B5ADA3] font-hind line-clamp-1">
+                                        📍 {lang === 'bn' ? lawyer.chamberAddressBn : lawyer.chamberAddressEn}
+                                      </p>
+                                    </div>
+
+                                    <div className="pt-2 border-t border-border-light/60 flex items-center gap-2">
+                                      <a
+                                        href={`tel:${lawyer.phone}`}
+                                        className="flex-1 inline-flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl bg-[#9A6F32] text-white text-[11px] font-anek font-bold hover:bg-[#855D28] transition-colors shadow-2xs active-press"
+                                      >
+                                        <Phone className="h-3 w-3" />
+                                        <span>{t('সরাসরি কল', 'Call')} ({lawyer.phone})</span>
+                                      </a>
+                                      <Link
+                                        href={`/lawyers?district=${encodeURIComponent(lawyer.district)}`}
+                                        className="inline-flex items-center justify-center py-1.5 px-2.5 rounded-xl border border-border-light bg-surface-cardLight text-[11px] font-anek font-semibold text-secondary-light hover:text-[#9A6F32] transition-colors"
+                                      >
+                                        <span>{t('চেম্বার', 'Chamber')}</span>
+                                      </Link>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="pt-3 border-t border-border-light/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#9A6F32]/5 border border-[#9A6F32]/20">
+                              <div className="flex items-start sm:items-center gap-2.5">
+                                <Scale className="h-4 w-4 text-[#9A6F32] shrink-0 mt-0.5 sm:mt-0" />
+                                <div className="text-xs font-hind">
+                                  <span className="font-bold text-[#231F1C] dark:text-[#F1EDE1] block sm:inline mr-1.5 font-anek">
+                                    {t('আইনি প্রতিনিধিত্ব বা মামলা দায়ের:', 'Need Court Representation or Legal Filing?')}
+                                  </span>
+                                  <span className="text-[#5A534A] dark:text-[#B5ADA3]">
+                                    {t('আদালতে পদক্ষেপ নিতে আপনার জেলার যাচাইকৃত আইনজীবীর চেম্বারে সরাসরি যোগাযোগ করুন।', 'Connect directly with verified enrolled advocates in your district court.')}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <Link
+                                href="/lawyers"
+                                className="shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[#9A6F32]/30 bg-surface-cardLight text-xs font-anek font-bold text-[#9A6F32] hover:bg-[#9A6F32] hover:text-white transition-all shadow-2xs"
+                              >
+                                <span>{t('আইনজীবী ডিরেক্টরি', 'Browse Lawyers')}</span>
+                                <ArrowRight className="h-3 w-3" />
+                              </Link>
+                            </div>
+                          )}
                         </div>
                       )
                     ) : null}
