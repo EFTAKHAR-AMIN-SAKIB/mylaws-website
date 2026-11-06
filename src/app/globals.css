@@ -6,17 +6,17 @@
 
 :root {
   /* Warm Aged Parchment (Exact match to NyayaAI landing page) */
-  --bg-color: #F1EDE1;
+  --bg-color: #FBF9F5;
   --bg-texture-tint: rgba(220, 210, 195, 0.45);
-  --surface-color: #FAF7F0;
-  --surface-card: #FDFBFA;
-  --primary-text: #231F1C;
-  --secondary-text: #5A534A;
-  --accent-color: #9A6F32;
-  --accent-gold: #B68B4C;
-  --accent-hover: #7E5723;
-  --border-color: #DDD3C1;
-  --grid-line: rgba(165, 152, 132, 0.14);
+  --surface-color: #FAF8F5;
+  --surface-card: #FFFFFF;
+  --primary-text: #161412;
+  --secondary-text: #4A453E;
+  --accent-color: #8F6428;
+  --accent-gold: #B8860B;
+  --accent-hover: #734F1D;
+  --border-color: #E7E2D6;
+  --grid-line: rgba(143, 100, 40, 0.05);
   --card-shadow: 0 4px 20px -2px rgba(25, 20, 15, 0.06), 0 1px 4px -1px rgba(25, 20, 15, 0.04);
 }
 
@@ -26,8 +26,8 @@ html {
 }
 
 html, body {
-  background-color: #F1EDE1 !important;
-  color: #231F1C !important;
+  background-color: #FBF9F5 !important;
+  color: #161412 !important;
   font-family: 'Hind Siliguri', 'Noto Sans Bengali', system-ui, -apple-system, sans-serif;
   font-variant-numeric: tabular-nums lining-nums;
   font-feature-settings: 'tnum' 1, 'lnum' 1;
@@ -57,20 +57,20 @@ html, body {
   animation: scroll-bounce 2.2s infinite ease-in-out;
 }
 
-/* 96px x 96px CSS linear-gradient drafting grid (1px lines in rgba(165, 152, 132, 0.14)) */
+/* 96px x 96px CSS linear-gradient drafting grid (1px lines with subtle warm tone) */
 .drafting-grid-96 {
-  background-color: #F1EDE1;
+  background-color: #FBF9F5;
   background-image: 
-    linear-gradient(to right, rgba(165, 152, 132, 0.14) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(165, 152, 132, 0.14) 1px, transparent 1px);
+    linear-gradient(to right, rgba(143, 100, 40, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(143, 100, 40, 0.04) 1px, transparent 1px);
   background-size: 96px 96px;
 }
 
 /* Subtle architectural paper grid pattern overlay across the whole site */
 .bg-parchment-grid {
   background-image: 
-    linear-gradient(to right, rgba(165, 152, 132, 0.14) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(165, 152, 132, 0.14) 1px, transparent 1px);
+    linear-gradient(to right, rgba(143, 100, 40, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(143, 100, 40, 0.04) 1px, transparent 1px);
   background-size: 96px 96px;
 }
 
@@ -489,6 +489,110 @@ html, body {
 
 .animate-radar-ring {
   animation: radar-ping-ring 2.4s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+/* ========================================================
+   MOBILE AI ACTION BUTTON & LUXURY MICRO-ANIMATIONS
+   ======================================================== */
+@keyframes cta-gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-cta-gradient {
+  background-size: 200% 200%;
+  animation: cta-gradient-flow 3.5s ease infinite;
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.15) rotate(12deg);
+    opacity: 1;
+  }
+}
+
+.animate-sparkle-twinkle {
+  animation: sparkle-twinkle 2.2s ease-in-out infinite;
+}
+
+@keyframes cta-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 20px -2px rgba(154, 111, 50, 0.28), 0 0 0 1px rgba(154, 111, 50, 0.25);
+  }
+  50% {
+    box-shadow: 0 8px 28px 2px rgba(182, 139, 76, 0.42), 0 0 0 2px rgba(182, 139, 76, 0.45);
+  }
+}
+
+.animate-cta-glow {
+  animation: cta-glow-pulse 2.8s ease-in-out infinite;
+}
+
+/* ========================================================
+   OBSIDIAN GLASS MONOCHROME ANIMATIONS (HUMAN TOUCH)
+   ======================================================== */
+@keyframes glass-sheen-sweep {
+  0% {
+    transform: translateX(-160%) skewX(-20deg);
+  }
+  32%, 100% {
+    transform: translateX(260%) skewX(-20deg);
+  }
+}
+
+.animate-glass-sheen {
+  animation: glass-sheen-sweep 5.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes glass-monochrome-breathe {
+  0%, 100% {
+    box-shadow: 
+      0 10px 30px -4px rgba(0, 0, 0, 0.45),
+      0 0 0 1px rgba(255, 255, 255, 0.12),
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.22);
+  }
+  50% {
+    box-shadow: 
+      0 16px 42px -2px rgba(0, 0, 0, 0.6),
+      0 0 22px 2px rgba(255, 255, 255, 0.18),
+      0 0 0 1px rgba(255, 255, 255, 0.28),
+      inset 0 1px 2px 0 rgba(255, 255, 255, 0.38);
+  }
+}
+
+.animate-glass-glow {
+  animation: glass-monochrome-breathe 4.2s ease-in-out infinite;
+}
+
+@keyframes glass-pill-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-glass-pill {
+  background: linear-gradient(
+    110deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.24) 50%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  background-size: 200% 100%;
+  animation: glass-pill-shimmer 4s ease-in-out infinite;
 }
 
 /* Accessibility: strictly honor user reduced-motion preferences */

@@ -11,34 +11,34 @@ const config: Config = {
     extend: {
       colors: {
         bg: {
-          light: "#F1EDE1",
-          dark: "#F1EDE1",
+          light: "#FBF9F5",
+          dark: "#FBF9F5",
         },
         surface: {
-          light: "#FAF7F0",
-          cardLight: "#FDFBFA",
-          dark: "#FAF7F0",
-          cardDark: "#FDFBFA",
+          light: "#FAF8F5",
+          cardLight: "#FFFFFF",
+          dark: "#FAF8F5",
+          cardDark: "#FFFFFF",
         },
         primary: {
-          light: "#231F1C",
-          dark: "#231F1C",
+          light: "#161412",
+          dark: "#161412",
         },
         secondary: {
-          light: "#5A534A",
-          dark: "#5A534A",
+          light: "#4A453E",
+          dark: "#4A453E",
         },
         accent: {
-          light: "#9A6F32",
-          dark: "#9A6F32",
-          gold: "#B68B4C",
-          bronze: "#7E5723",
+          light: "#8F6428",
+          dark: "#8F6428",
+          gold: "#B8860B",
+          bronze: "#734F1D",
         },
         border: {
-          light: "#DDD3C1",
-          dark: "#DDD3C1",
-          accentLight: "#CBBFA8",
-          accentDark: "#CBBFA8",
+          light: "#E7E2D6",
+          dark: "#E7E2D6",
+          accentLight: "#D3C7B5",
+          accentDark: "#D3C7B5",
         },
       },
       fontFamily: {
